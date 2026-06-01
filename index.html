@@ -182,9 +182,9 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 .reveal{position:fixed;inset:0;z-index:200;background:rgba(26,21,16,0.97);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
 .reveal.open{display:flex;}
 .reveal-title{font-family:'Cinzel Decorative',serif;font-size:1.25rem;color:var(--gold-light);text-align:center;padding:0 20px;}
-.rev-card-container{position:relative;width:210px;height:315px;cursor:pointer;user-select:none;}
+.rev-card-container{position:relative;width:220px;height:330px;cursor:pointer;user-select:none;margin:0 auto;}
 .rev-card-wrapper{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:transform 0.45s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.35s;}
-.rev-card-wrapper .card{width:190px;}
+.rev-card-wrapper .card{width:200px;aspect-ratio:2/3;}
 .rev-card-wrapper.hidden{transform:translateX(110%) rotate(8deg);opacity:0;pointer-events:none;}
 .rev-card-wrapper.revealed{transform:none;opacity:1;}
 .rev-card-wrapper.leaving{transform:translateX(-110%) rotate(-8deg);opacity:0;transition:transform 0.3s ease-in,opacity 0.25s;}
@@ -912,7 +912,7 @@ function renderPacks() {
     +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
     +(ready?'<button class="open-btn" style="width:100%;margin-top:8px;">✨ Ouvrir mon paquet</button>':'<div class="pack-timer">'+fmtTime(remaining)+'</div>');
   if(ready) {
-    div.querySelector('.open-btn').addEventListener('click', function(){ openPack('mixed'); });
+    div.querySelector('.open-btn').onclick = function(){ openPack('mixed'); };
   }
   grid.appendChild(div);
 }
@@ -1029,8 +1029,10 @@ var _revealIndex = 0;
 function startSwipeReveal(drawn) {
   _revealCards = drawn;
   _revealIndex = 0;
-  document.getElementById('rev-title').textContent = '✨ Nouvelles cartes !';
+  document.getElementById('rev-title').textContent = '✨ ' + drawn.length + ' nouvelles cartes !';
+  document.getElementById('rev-counter').textContent = '1 / ' + drawn.length;
   document.getElementById('rev-close').classList.remove('show');
+  document.getElementById('rev-hint').style.display = 'block';
   document.getElementById('reveal').classList.add('open');
   showRevealCard(0, false);
 }
@@ -1187,9 +1189,7 @@ function renderExchange() {
         : '<div style="font-size:0.65rem;color:var(--text-dim);font-family:Cinzel,serif;">Encore '+(5-dups)+' doublon'+(5-dups>1?'s':'')+' nécessaire'+(5-dups>1?'s':'')+'</div>');
     if(canExchange) {
       (function(pid) {
-        div.querySelector('.open-btn').addEventListener('click', function() {
-          exchangeDoublons(pid);
-        });
+        div.querySelector('.open-btn').onclick = function() { exchangeDoublons(pid); };
       })(packId);
     }
     grid.appendChild(div);
