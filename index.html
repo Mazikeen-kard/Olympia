@@ -487,9 +487,9 @@ var CARDS = {
     {id:'mn17',name:'Éphèse',icon:'🏛️',type:'Temple d\'Artémis',rarity:'rare',atk:15,def:80,atkName:'Grâce de Chasseresse',lore:'Le temple d\'Artémis à Éphèse, une des sept merveilles du monde.',at:'#e8f0e8',ab:'#c8e0c8',img:'https://i.imgur.com/ICl4rlF.jpeg'},
     {id:'mn18',name:'Dodone',icon:'🌳',type:'Oracle Antique',rarity:'rare',atk:10,def:68,atkName:'Murmure du Chêne',lore:'L\'oracle le plus ancien de Grèce, les prêtres interprétaient le bruissement des feuilles.',at:'#e8f0e0',ab:'#c8e0c0',img:'https://i.imgur.com/NKJrQGu.jpeg'},
     {id:'mn19',name:'Corinthe',icon:'🏙️',type:'Cité Marchande',rarity:'commune',atk:20,def:72,atkName:'Commerce Florissant',lore:'Riche cité-état connue pour ses céramiques et son commerce maritime.',at:'#f0e8e0',ab:'#e0d0c0',img:'https://i.imgur.com/KbSYOAJ.jpeg'},
-    {id:'mn21',name:'Île de Crète',icon:'🏝️',type:'Île Légendaire',rarity:'commune',atk:25,def:70,atkName:'Labyrinthe Royal',lore:'Île de la civilisation minoenne, berceau du Minotaure et de Dédale, dominée par le puissant roi Minos.',at:'#e0f0e8',ab:'#b8e0d0'},
-    {id:'mn22',name:'Fleuve Achéron',icon:'🌊',type:'Fleuve des Enfers',rarity:'commune',atk:20,def:65,atkName:'Eaux de l\'Oubli',lore:'L\'un des cinq fleuves des Enfers, ses eaux coulent entre le monde des vivants et celui des morts.',at:'#d8e8f0',ab:'#b8c8e0'},
-    {id:'mn20',name:'Ithaque',icon:'🏝️',type:'Île d\'Ulysse',rarity:'commune',atk:20,def:65,atkName:'Retour Attendu',lore:'Île natale d\'Ulysse, pour laquelle il mit vingt ans à rentrer.',at:'#e0f0e8',ab:'#b8e0d0'},
+    {id:'mn21',name:'Île de Crète',icon:'🏝️',type:'Île Légendaire',rarity:'commune',atk:25,def:70,atkName:'Labyrinthe Royal',lore:'Île de la civilisation minoenne, berceau du Minotaure et de Dédale, dominée par le puissant roi Minos.',at:'#e0f0e8',ab:'#b8e0d0',img:'https://i.imgur.com/RgTdqNt.jpeg'},
+    {id:'mn22',name:'Fleuve Achéron',icon:'🌊',type:'Fleuve des Enfers',rarity:'commune',atk:20,def:65,atkName:'Eaux de l\'Oubli',lore:'L\'un des cinq fleuves des Enfers, ses eaux coulent entre le monde des vivants et celui des morts.',at:'#d8e8f0',ab:'#b8c8e0',img:'https://i.imgur.com/B2wSaNc.jpeg'},
+    {id:'mn20',name:'Ithaque',icon:'🏝️',type:'Île d\'Ulysse',rarity:'commune',atk:20,def:65,atkName:'Retour Attendu',lore:'Île natale d\'Ulysse, pour laquelle il mit vingt ans à rentrer.',at:'#e0f0e8',ab:'#b8e0d0',img:'https://i.imgur.com/xnTM90o.jpeg'},
   ],
   armes:[
     {id:'ar1',name:'Foudre de Zeus',icon:'⚡',type:'Arme Suprême',rarity:'légendaire',atk:100,def:80,atkName:'Éclair Divin',lore:'Forgée par les Cyclopes, la foudre de Zeus est l\'arme la plus puissante du cosmos.',at:'#f8f0d0',ab:'#f0e0a0',img:'https://i.imgur.com/DjVOpKt.jpeg'},
@@ -1005,8 +1005,11 @@ function openPack(packId) {
     drawn[0].isShiny = true;
     user.firstPackDone = true; // marque le premier paquet
   }
-  if(user.firstPackDone && !user.secondPackDone) {
+  if(user.firstTime) {
+    // Premier paquet de bienvenue, rien à faire pour le cooldown
+  } else if(user.firstPackDone && !user.secondPackDone) {
     user.secondPackDone = true;
+    user.lastPackTime = Date.now(); // Démarre le cooldown après le 2ème paquet
   } else {
     user.lastPackTime = Date.now();
   }
