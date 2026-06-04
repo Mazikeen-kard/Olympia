@@ -1032,72 +1032,47 @@ var _revealIndex = 0;
 function startSwipeReveal(drawn) {
   _revealCards = drawn;
   _revealIndex = 0;
-  document.getElementById('rev-title').textContent = '✨ ' + drawn.length + ' nouvelles cartes !';
-  document.getElementById('rev-counter').textContent = '1 / ' + drawn.length;
-  document.getElementById('rev-close').classList.remove('show');
-  document.getElementById('rev-hint').style.display = 'block';
-  document.getElementById('reveal').classList.add('open');
-  showRevealCard(0, false);
+  var rev = document.getElementById('reveal');
+  rev.classList.add('open');
+  renderRevealCard();
 }
 
-function showRevealCard(index, leaving) {
-  var wrapper = document.getElementById('rev-card-wrapper');
-  var counter = document.getElementById('rev-counter');
-  var hint = document.getElementById('rev-hint');
-  var closeBtn = document.getElementById('rev-close');
+function renderRevealCard() {
+  var rev = document.getElementById('reveal');
+  var d = _revealCards[_revealIndex];
+  var total = _revealCards.length;
+  var isLast = _revealIndex >= total - 1;
 
-  if(index >= _revealCards.length) {
-    closeBtn.classList.add('show');
-    hint.style.display = 'none';
-    return;
-  }
+  rev.innerHTML = '<div style="text-align:center;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:16px;">'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold-light);">✨ Nouvelles cartes !</div>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);">'+(_revealIndex+1)+' / '+total+'</div>'
+    + '<div id="rev-card-slot" style="width:200px;"></div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;">'+(isLast?'Clique pour terminer':'Clique pour la suite')+'</div>'
+    + (isLast ? '<button id="rev-done-btn" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;">🎴 Ajouter à ma collection</button>' : '')
+    + '</div>';
 
-  counter.textContent = (index+1) + ' / ' + _revealCards.length;
-
-  var d = _revealCards[index];
-  wrapper.innerHTML = '';
+  var slot = document.getElementById('rev-card-slot');
   var cardEl = buildCard(d.card, d.isShiny, 0, 1);
   cardEl.style.width = '100%';
   cardEl.style.pointerEvents = 'none';
-  wrapper.appendChild(cardEl);
+  slot.appendChild(cardEl);
 
-  wrapper.className = 'rev-card-wrapper hidden';
-  setTimeout(function(){ wrapper.className = 'rev-card-wrapper revealed'; }, 50);
-
-  if(index < _revealCards.length - 1) {
-    hint.style.display = 'block';
-    hint.textContent = '← Swipe ou clic pour la suite →';
-  } else {
-    hint.style.display = 'block';
-    hint.textContent = 'Clique pour terminer';
+  if(isLast) {
+    document.getElementById('rev-done-btn').onclick = closeReveal;
   }
-}
 
-function nextRevealCard() {
-  if(_revealIndex >= _revealCards.length) return;
-  var wrapper = document.getElementById('rev-card-wrapper');
-  wrapper.className = 'rev-card-wrapper leaving';
-  var nextIdx = _revealIndex + 1;
-  _revealIndex = nextIdx;
-  setTimeout(function(){ showRevealCard(nextIdx, false); }, 300);
+  rev.onclick = function(e) {
+    if(e.target.id === 'rev-done-btn') return;
+    if(_revealIndex < total - 1) {
+      _revealIndex++;
+      renderRevealCard();
+    }
+  };
 }
-
-// Swipe & click setup
-(function setupRevealGestures() {
-  var container = document.getElementById('rev-card-container');
-  var startX = 0, startY = 0;
-  container.addEventListener('touchstart', function(e){ startX=e.touches[0].clientX; startY=e.touches[0].clientY; });
-  container.addEventListener('touchend', function(e){
-    var dx = e.changedTouches[0].clientX - startX;
-    var dy = e.changedTouches[0].clientY - startY;
-    if(Math.abs(dx)>40 || Math.abs(dy)>40) nextRevealCard();
-  });
-  container.addEventListener('click', function(){ nextRevealCard(); });
-})();
 
 function closeReveal() {
   document.getElementById('reveal').classList.remove('open');
-  // Generate next mystery pack
+  document.getElementById('reveal').onclick = null;
   if(user && !user.firstTime && !(user.firstPackDone && !user.secondPackDone)) {
     user._nextPack = getRandomPack();
     saveUser();
