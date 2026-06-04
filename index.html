@@ -212,6 +212,28 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .card.missing .card-badge { opacity:0.15; background:#aaa; box-shadow:none; }
   .card-num { font-family:'Cinzel',serif; font-size:0.52rem; color:var(--text-dim); opacity:0.5; margin-bottom:1px; }
   .card-lock { position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); font-size:1.6rem; opacity:0.2; z-index:3; pointer-events:none; }
+/* PACK REVEAL */
+  .pack-reveal{position:fixed;inset:0;z-index:300;background:rgba(15,10,5,0.97);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+  .pack-reveal.open{display:flex;}
+  .pack-wrapper{position:relative;width:220px;height:330px;user-select:none;}
+  .pack-img{width:100%;height:100%;border-radius:12px;background:linear-gradient(135deg,#b8860b,#daa520,#8b6914);border:3px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 40px rgba(184,134,11,0.4);position:relative;overflow:hidden;}
+  .pack-img-icon{font-size:4rem;z-index:2;}
+  .pack-img-name{font-family:'Cinzel Decorative',serif;font-size:1rem;color:white;z-index:2;}
+  .pack-img-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.2em;color:rgba(255,255,255,0.7);text-transform:uppercase;z-index:2;}
+  .pack-tear-hint{font-family:'Cinzel',serif;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;text-align:center;}
+  .pack-tear-line{position:absolute;top:22%;left:0;right:0;height:2px;background:rgba(255,255,255,0);pointer-events:none;transition:background 0.2s;}
+  .pack-tear-line.active{background:linear-gradient(to right,transparent,white,transparent);box-shadow:0 0 8px white;}
+  .pack-top-flap{position:absolute;top:0;left:0;right:0;height:22%;background:linear-gradient(180deg,rgba(218,165,32,0.9),rgba(184,134,11,0.7));border-radius:12px 12px 0 0;transform-origin:top;transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.4s;z-index:3;}
+  /* CARD SWIPE */
+  .card-reveal-area{position:relative;width:210px;height:315px;display:none;}
+  .card-reveal-area.open{display:block;}
+  .card-reveal-slot{position:absolute;inset:0;transition:transform 0.35s ease,opacity 0.3s ease;}
+  .card-reveal-slot .card{width:200px;}
+  .reveal-counter{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);}
+  .reveal-hint-swipe{font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;}
+  .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;margin-top:8px;}
+  .reveal-done-btn.show{display:block;}
+
   @media(max-width:600px){
   .grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px;}
   .pgrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));}
@@ -350,6 +372,28 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   </div>
 </div>
 
+<!-- PACK TEAR REVEAL -->
+<div class="pack-reveal" id="pack-reveal">
+  <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold-light);text-align:center;" id="pr-title">✨ Nouveau paquet !</div>
+  <div class="pack-wrapper" id="pack-wrapper">
+    <div class="pack-img" id="pack-img">
+      <div class="pack-tear-line" id="pack-tear-line"></div>
+      <div class="pack-top-flap" id="pack-top-flap"></div>
+      <span class="pack-img-icon" id="pr-icon">🎴</span>
+      <div class="pack-img-name" id="pr-name">Paquet Collector</div>
+      <div class="pack-img-sub">4 cartes · chance shiny</div>
+    </div>
+  </div>
+  <div class="pack-tear-hint" id="pr-hint">← Glisse pour déchirer →</div>
+  <!-- Card swipe area (hidden initially) -->
+  <div class="reveal-counter" id="pr-counter" style="display:none;">1 / 4</div>
+  <div class="card-reveal-area" id="card-reveal-area">
+    <div class="card-reveal-slot" id="card-reveal-slot"></div>
+  </div>
+  <div class="reveal-hint-swipe" id="pr-swipe-hint" style="display:none;">← Swipe pour la carte suivante →</div>
+  <button class="reveal-done-btn" id="pr-done-btn">🎴 Ajouter à ma collection</button>
+</div>
+
 <div class="reveal" id="reveal">
   <div class="rev-title" id="rev-title">✨ Nouvelles cartes !</div>
   <div class="rev-cards" id="rev-cards"></div>
@@ -454,7 +498,7 @@ var CARDS = {
     {id:'h19',name:'Chiron',icon:'🏹',type:'Centaure Sage',rarity:'épique',atk:70,def:80,atkName:'Sagesse du Maître',lore:'Le plus sage des centaures, précepteur d\'Achille, Jason et Asclépios.',at:'#e8f0e8',ab:'#c8e0c8',img:'https://i.imgur.com/YK4cL9i.jpeg'},
     {id:'h21',name:'Icare',icon:'🪽',type:'Fils de Dédale',rarity:'commune',atk:40,def:30,atkName:'Vol du Soleil',lore:'Fils de Dédale, il s\'envola avec des ailes de cire mais s\'approcha trop du soleil. Sa chute est le symbole de l\'orgueil.',at:'#f8f0d8',ab:'#f0e0a0',img:'https://i.imgur.com/v8me49w.jpeg'},
     {id:'h22',name:'Midas',icon:'👑',type:'Roi Maudit',rarity:'commune',atk:20,def:40,atkName:'Toucher d\'Or',lore:'Roi auquel Dionysos accorda le don de transformer tout ce qu\'il touchait en or. Une bénédiction qui devint malédiction.',at:'#f8f0e0',ab:'#f0e0c0',img:'https://i.imgur.com/fmOKbuM.jpeg'},
-    {id:'h23',name:'Pénélope',icon:'🧶',type:'Reine Fidèle',rarity:'commune',atk:15,def:60,atkName:'Toile Infinie',lore:'Épouse d\'Ulysse, elle attendit son retour vingt ans en défaisant chaque nuit la toile qu\'elle tissait le jour.',at:'#f0e8f0',ab:'#e0c8e0',img:'https://i.imgur.com/Fjqrbqz.jpeg'},
+    {id:'h23',name:'Pénélope',icon:'🧶',type:'Reine Fidèle',rarity:'commune',atk:15,def:60,atkName:'Toile Infinie',lore:'Épouse d\'Ulysse, elle attendit son retour vingt ans en défaisant chaque nuit la toile qu\'elle tissait le jour.',at:'#f0e8f0',ab:'#e0c8e0',img:'https://i.imgur.com/Fjqrbqz.jpeg',imgShiny:'https://i.imgur.com/qNXVnEM.jpeg'},
     {id:'h24',name:'Pandore',icon:'📦',type:'Première Femme',rarity:'commune',atk:30,def:35,atkName:'Boîte Maudite',lore:'Première femme créée par les dieux, elle ouvrit la jarre qui libéra tous les maux du monde, ne gardant que l\'espoir.',at:'#f0e8e0',ab:'#e0d0c0',img:'https://i.imgur.com/AbZ9qWv.jpeg'},
     {id:'h25',name:'Léonidas',icon:'🛡️',type:'Roi de Sparte',rarity:'épique',atk:95,def:90,atkName:'Aux Armes Spartiates',lore:'Roi de Sparte qui mena 300 guerriers aux Thermopyles contre l\'armée perse. Son sacrifice est légendaire.',at:'#e8e0e0',ab:'#d8c8c8',img:'https://i.imgur.com/66zXmF5.jpeg'},
     {id:'h20',name:'Pollux',icon:'⭐',type:'Dioscure Immortel',rarity:'rare',atk:77,def:74,atkName:'Boxe Divine',lore:'Jumeau immortel de Castor, champion de boxe. Il partagea son immortalité avec son frère.',at:'#f0f0e8',ab:'#e0e0d0',img:'https://i.imgur.com/vMI2vnd.jpeg'},
@@ -980,7 +1024,8 @@ function drawCard(packId) {
   else rarity='commune';
   var pool = packs.filter(function(c){return c.rarity===rarity;});
   var card = pool.length ? pool[Math.floor(Math.random()*pool.length)] : packs[Math.floor(Math.random()*packs.length)];
-  return {card:card, isShiny:Math.random()<0.02};
+  var canBeShiny = !!card.imgShiny;
+  return {card:card, isShiny:canBeShiny && Math.random()<0.02};
 }
 
 function openPack(packId) {
@@ -1005,7 +1050,12 @@ function openPack(packId) {
 
   // Si c'est le premier paquet, on garantit une carte Shiny !
   if(user.firstTime) {
-    drawn[0].isShiny = true;
+    var shinyCards = drawn.filter(function(d){ return !!d.card.imgShiny; });
+    if(shinyCards.length > 0) {
+      shinyCards[0].isShiny = true;
+    } else {
+      drawn[0].isShiny = false;
+    }
   }
   if(user.firstTime) {
     user.firstPackDone = true;
@@ -1029,23 +1079,134 @@ function openPack(packId) {
 }
 
 var _revealCards = [];
+var _revealIndex = 0;
+var _tearStartX = 0;
+var _tearring = false;
+var _torn = false;
 
 function startSwipeReveal(drawn) {
   _revealCards = drawn;
-  var revCards = document.getElementById('rev-cards');
-  document.getElementById('rev-title').textContent = '✨ ' + drawn.length + ' nouvelles cartes !';
-  revCards.innerHTML = '';
-  drawn.forEach(function(d, i) {
-    var w = document.createElement('div');
-    w.className = 'rev-card';
-    w.style.animationDelay = (0.3 + i * 0.25) + 's';
-    var m = buildCard(d.card, d.isShiny, 0, 1);
-    m.style.width = '100%';
-    w.appendChild(m);
-    revCards.appendChild(w);
-  });
-  document.getElementById('reveal').classList.add('open');
+  _revealIndex = 0;
+  _torn = false;
+
+  // Show pack tear screen
+  var pr = document.getElementById('pack-reveal');
+  document.getElementById('pr-title').textContent = '✨ Nouveau paquet !';
+  document.getElementById('pr-hint').style.display = 'block';
+  document.getElementById('pr-counter').style.display = 'none';
+  document.getElementById('card-reveal-area').classList.remove('open');
+  document.getElementById('pr-swipe-hint').style.display = 'none';
+  document.getElementById('pr-done-btn').classList.remove('show');
+  document.getElementById('pack-top-flap').style.transform = '';
+  document.getElementById('pack-top-flap').style.opacity = '';
+  document.getElementById('pack-tear-line').classList.remove('active');
+  document.getElementById('pack-wrapper').style.display = 'block';
+
+  pr.classList.add('open');
+  setupTearGesture();
 }
+
+function setupTearGesture() {
+  var wrapper = document.getElementById('pack-wrapper');
+  wrapper.ontouchstart = function(e) {
+    _tearStartX = e.touches[0].clientX;
+    _tearring = true;
+    document.getElementById('pack-tear-line').classList.add('active');
+  };
+  wrapper.ontouchmove = function(e) {
+    if(!_tearring || _torn) return;
+    var dx = Math.abs(e.touches[0].clientX - _tearStartX);
+    if(dx > 60) {
+      tearPack();
+    }
+  };
+  wrapper.ontouchend = function() { _tearring = false; };
+  // Also allow click for desktop
+  wrapper.onclick = function() { if(!_torn) tearPack(); };
+}
+
+function tearPack() {
+  if(_torn) return;
+  _torn = true;
+  var flap = document.getElementById('pack-top-flap');
+  var hint = document.getElementById('pr-hint');
+  hint.textContent = '🎉';
+  flap.style.transform = 'rotateX(180deg) translateY(-100%)';
+  flap.style.opacity = '0';
+  setTimeout(function() {
+    document.getElementById('pack-wrapper').style.display = 'none';
+    showRevealCardNew(0);
+  }, 500);
+}
+
+function showRevealCardNew(index) {
+  var area = document.getElementById('card-reveal-area');
+  var slot = document.getElementById('card-reveal-slot');
+  var counter = document.getElementById('pr-counter');
+  var hint = document.getElementById('pr-swipe-hint');
+  var doneBtn = document.getElementById('pr-done-btn');
+  var prTitle = document.getElementById('pr-title');
+
+  area.classList.add('open');
+  counter.style.display = 'block';
+  hint.style.display = 'block';
+
+  if(index >= _revealCards.length) {
+    doneBtn.classList.add('show');
+    hint.style.display = 'none';
+    counter.style.display = 'none';
+    prTitle.textContent = '🎉 Toutes les cartes révélées !';
+    return;
+  }
+
+  prTitle.textContent = '✨ Nouvelles cartes !';
+  counter.textContent = (index+1) + ' / ' + _revealCards.length;
+  hint.textContent = index < _revealCards.length-1 ? '← Swipe pour la suite →' : 'Swipe pour terminer';
+
+  var d = _revealCards[index];
+  slot.innerHTML = '';
+  slot.style.transform = 'translateX(110%)';
+  slot.style.opacity = '0';
+
+  var cardEl = buildCard(d.card, d.isShiny, 0, 1);
+  cardEl.style.width = '200px';
+  cardEl.style.pointerEvents = 'none';
+  slot.appendChild(cardEl);
+
+  setTimeout(function() {
+    slot.style.transition = 'transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s';
+    slot.style.transform = 'translateX(0)';
+    slot.style.opacity = '1';
+  }, 30);
+
+  // Swipe gesture
+  var swipeStartX = 0;
+  slot.ontouchstart = function(e){ swipeStartX = e.touches[0].clientX; };
+  slot.ontouchend = function(e){
+    var dx = e.changedTouches[0].clientX - swipeStartX;
+    if(Math.abs(dx) > 40) {
+      _revealIndex++;
+      slot.style.transition = 'transform 0.3s ease-in, opacity 0.25s';
+      slot.style.transform = dx < 0 ? 'translateX(-120%)' : 'translateX(120%)';
+      slot.style.opacity = '0';
+      setTimeout(function(){ showRevealCardNew(_revealIndex); }, 300);
+    }
+  };
+  // Click for desktop
+  slot.onclick = function(){
+    _revealIndex++;
+    slot.style.transition = 'transform 0.3s ease-in, opacity 0.25s';
+    slot.style.transform = 'translateX(-120%)';
+    slot.style.opacity = '0';
+    setTimeout(function(){ showRevealCardNew(_revealIndex); }, 300);
+  };
+}
+
+document.getElementById('pr-done-btn').onclick = function() {
+  document.getElementById('pack-reveal').classList.remove('open');
+  renderCol();
+  renderPacks();
+};
 
 
 function closeReveal() {
