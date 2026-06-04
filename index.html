@@ -620,6 +620,16 @@ function doRegister() {
   launch(v, data);
 }
 
+function updateStats() {
+  if(!user) return;
+  var u = getUniqueOwned();
+  document.getElementById('s-total').textContent = user.collection.length;
+  document.getElementById('s-unique').textContent = u.length;
+  document.getElementById('s-shiny').textContent = u.filter(function(e){return e.isShiny;}).length;
+  document.getElementById('s-leg').textContent = u.filter(function(e){return e.card.rarity==='légendaire';}).length;
+  document.getElementById('s-packs').textContent = user.packsOpened;
+}
+
 function launch(p, data) {
   pseudo = p;
   user = data;
