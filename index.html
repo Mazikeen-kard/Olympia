@@ -179,20 +179,15 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 .ms-k{font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;}
 
 /* REVEAL */
-.reveal{position:fixed;inset:0;z-index:200;background:rgba(26,21,16,0.97);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.reveal{position:fixed;inset:0;z-index:200;background:rgba(26,21,16,0.97);display:none;align-items:center;justify-content:center;flex-direction:column;gap:22px;}
 .reveal.open{display:flex;}
-.reveal-title{font-family:'Cinzel Decorative',serif;font-size:1.25rem;color:var(--gold-light);text-align:center;padding:0 20px;}
-.rev-card-container{position:relative;width:220px;height:330px;cursor:pointer;user-select:none;margin:0 auto;}
-.rev-card-wrapper{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:transform 0.45s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.35s;}
-.rev-card-wrapper .card{width:200px;aspect-ratio:2/3;}
-.rev-card-wrapper.hidden{transform:translateX(110%) rotate(8deg);opacity:0;pointer-events:none;}
-.rev-card-wrapper.revealed{transform:none;opacity:1;}
-.rev-card-wrapper.leaving{transform:translateX(-110%) rotate(-8deg);opacity:0;transition:transform 0.3s ease-in,opacity 0.25s;}
-.rev-hint{font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:0.2em;text-transform:uppercase;}
-.rev-counter{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);}
-.rev-close{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;transition:filter 0.2s;display:none;}
-.rev-close.show{display:block;}
-.rev-close:hover{filter:brightness(1.1);}.empty{text-align:center;padding:60px 20px;color:var(--text-dim);}
+.rev-title{font-family:'Cinzel Decorative',serif;font-size:1.25rem;color:var(--gold-light);opacity:0;animation:rfa 0.5s 0.2s ease forwards;text-align:center;padding:0 20px;}
+@keyframes rfa{to{opacity:1;}}
+.rev-cards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:680px;padding:0 16px;}
+.rev-card{opacity:0;width:115px;transform:translateY(26px) scale(0.86) rotateY(90deg);animation:rca 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;}
+@keyframes rca{to{opacity:1;transform:none;}}
+.rev-close{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;opacity:0;animation:rfa 0.5s 2.2s ease forwards;transition:filter 0.2s;}
+.rev-close:hover{filter:brightness(1.1);}mpty{text-align:center;padding:60px 20px;color:var(--text-dim);}
 .empty-i{font-size:3.5rem;margin-bottom:14px;opacity:0.32;}
 .empty-t{font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.18em;}
 
@@ -356,12 +351,8 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 </div>
 
 <div class="reveal" id="reveal">
-  <div class="reveal-title" id="rev-title">✨ Nouvelles cartes !</div>
-  <div class="rev-counter" id="rev-counter">1 / 4</div>
-  <div class="rev-card-container" id="rev-card-container">
-    <div class="rev-card-wrapper hidden" id="rev-card-wrapper"></div>
-  </div>
-  <div class="rev-hint" id="rev-hint">← Swipe ou clic pour révéler →</div>
+  <div class="rev-title" id="rev-title">✨ Nouvelles cartes !</div>
+  <div class="rev-cards" id="rev-cards"></div>
   <button class="rev-close" id="rev-close">🎴 Ajouter à ma collection</button>
 </div>
 
@@ -1027,48 +1018,24 @@ function openPack(packId) {
 }
 
 var _revealCards = [];
-var _revealIndex = 0;
 
 function startSwipeReveal(drawn) {
   _revealCards = drawn;
-  _revealIndex = 0;
-  var rev = document.getElementById('reveal');
-  rev.classList.add('open');
-  renderRevealCard();
+  var revCards = document.getElementById('rev-cards');
+  document.getElementById('rev-title').textContent = '✨ ' + drawn.length + ' nouvelles cartes !';
+  revCards.innerHTML = '';
+  drawn.forEach(function(d, i) {
+    var w = document.createElement('div');
+    w.className = 'rev-card';
+    w.style.animationDelay = (0.3 + i * 0.25) + 's';
+    var m = buildCard(d.card, d.isShiny, 0, 1);
+    m.style.width = '100%';
+    w.appendChild(m);
+    revCards.appendChild(w);
+  });
+  document.getElementById('reveal').classList.add('open');
 }
 
-function renderRevealCard() {
-  var rev = document.getElementById('reveal');
-  var d = _revealCards[_revealIndex];
-  var total = _revealCards.length;
-  var isLast = _revealIndex >= total - 1;
-
-  rev.innerHTML = '<div style="text-align:center;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:16px;">'
-    + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold-light);">✨ Nouvelles cartes !</div>'
-    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);">'+(_revealIndex+1)+' / '+total+'</div>'
-    + '<div id="rev-card-slot" style="width:200px;"></div>'
-    + '<div style="font-family:Cinzel,serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;">'+(isLast?'Clique pour terminer':'Clique pour la suite')+'</div>'
-    + (isLast ? '<button id="rev-done-btn" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;">🎴 Ajouter à ma collection</button>' : '')
-    + '</div>';
-
-  var slot = document.getElementById('rev-card-slot');
-  var cardEl = buildCard(d.card, d.isShiny, 0, 1);
-  cardEl.style.width = '100%';
-  cardEl.style.pointerEvents = 'none';
-  slot.appendChild(cardEl);
-
-  if(isLast) {
-    document.getElementById('rev-done-btn').onclick = closeReveal;
-  }
-
-  rev.onclick = function(e) {
-    if(e.target.id === 'rev-done-btn') return;
-    if(_revealIndex < total - 1) {
-      _revealIndex++;
-      renderRevealCard();
-    }
-  };
-}
 
 function closeReveal() {
   document.getElementById('reveal').classList.remove('open');
