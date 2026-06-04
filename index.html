@@ -224,6 +224,65 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .pack-tear-line{position:absolute;top:22%;left:0;right:0;height:2px;background:rgba(255,255,255,0);pointer-events:none;transition:background 0.2s;}
   .pack-tear-line.active{background:linear-gradient(to right,transparent,white,transparent);box-shadow:0 0 8px white;}
   .pack-top-flap{position:absolute;top:0;left:0;right:0;height:22%;background:linear-gradient(180deg,rgba(218,165,32,0.9),rgba(184,134,11,0.7));border-radius:12px 12px 0 0;transform-origin:top;transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.4s;z-index:3;}
+  /* BEAUTIFUL PACK DESIGN */
+  .pack-img{
+    width:100%;height:100%;border-radius:14px;
+    background:linear-gradient(160deg,#3a2800 0%,#7a5200 20%,#daa520 45%,#b8860b 55%,#7a5200 80%,#3a2800 100%);
+    border:3px solid #daa520;
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+    box-shadow:0 0 40px rgba(218,165,32,0.5), inset 0 0 30px rgba(0,0,0,0.3);
+    position:relative;overflow:hidden;padding:12px 8px;
+  }
+  .pack-shine{
+    position:absolute;inset:0;
+    background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,0.08) 30%,rgba(255,255,255,0.15) 40%,transparent 50%);
+    background-size:200% 200%;
+    animation:packshine 2.5s linear infinite;
+    pointer-events:none;border-radius:12px;
+  }
+  @keyframes packshine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .pack-particles{position:absolute;inset:0;pointer-events:none;}
+  .pack-particle{
+    position:absolute;left:var(--x);top:var(--y);
+    color:#daa520;font-size:0.7rem;
+    animation:sparkle 2s var(--d) ease-in-out infinite;
+    text-shadow:0 0 6px #daa520;
+  }
+  @keyframes sparkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:1;transform:scale(1.2)}}
+  .pack-ornament-top,.pack-ornament-bottom{font-size:1.4rem;filter:drop-shadow(0 0 6px #daa520);z-index:2;}
+  .pack-border-top,.pack-border-bottom{
+    width:90%;height:2px;
+    background:linear-gradient(to right,transparent,#daa520,#ffe566,#daa520,transparent);
+    box-shadow:0 0 6px rgba(218,165,32,0.6);z-index:2;
+  }
+  .pack-logo{
+    font-family:'Cinzel Decorative',serif;font-size:1.3rem;
+    color:#ffe566;letter-spacing:0.15em;
+    text-shadow:0 0 12px rgba(218,165,32,0.8),0 2px 4px rgba(0,0,0,0.5);
+    z-index:2;
+  }
+  .pack-logo-sub{
+    font-family:'Cinzel',serif;font-size:0.48rem;
+    letter-spacing:0.3em;color:rgba(255,229,102,0.6);
+    text-transform:uppercase;z-index:2;margin-top:-4px;
+  }
+  .pack-center-icon{
+    font-size:3.2rem;z-index:2;
+    filter:drop-shadow(0 0 10px rgba(218,165,32,0.8));
+    animation:floatpack 3s ease-in-out infinite;
+  }
+  @keyframes floatpack{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .pack-name-label{
+    font-family:'Cinzel',serif;font-size:0.75rem;
+    color:#ffe566;letter-spacing:0.12em;
+    text-shadow:0 0 8px rgba(218,165,32,0.6);z-index:2;
+  }
+  .pack-img-sub{
+    font-family:'Cinzel',serif;font-size:0.48rem;
+    letter-spacing:0.15em;color:rgba(255,229,102,0.55);
+    text-transform:uppercase;z-index:2;
+  }
+
   /* CARD SWIPE */
   .card-reveal-area{position:relative;width:210px;height:315px;display:none;}
   .card-reveal-area.open{display:block;}
@@ -379,9 +438,32 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div class="pack-img" id="pack-img">
       <div class="pack-tear-line" id="pack-tear-line"></div>
       <div class="pack-top-flap" id="pack-top-flap"></div>
-      <span class="pack-img-icon" id="pr-icon">🎴</span>
-      <div class="pack-img-name" id="pr-name">Paquet Collector</div>
-      <div class="pack-img-sub">4 cartes · chance shiny</div>
+      <!-- Decorative elements -->
+      <div class="pack-shine"></div>
+      <div class="pack-particles">
+        <span class="pack-particle" style="--x:20%;--y:15%;--d:0s">✦</span>
+        <span class="pack-particle" style="--x:80%;--y:20%;--d:0.5s">✦</span>
+        <span class="pack-particle" style="--x:15%;--y:75%;--d:1s">✦</span>
+        <span class="pack-particle" style="--x:85%;--y:70%;--d:1.5s">✦</span>
+        <span class="pack-particle" style="--x:50%;--y:10%;--d:0.8s">⭐</span>
+        <span class="pack-particle" style="--x:50%;--y:88%;--d:1.2s">⭐</span>
+      </div>
+      <!-- Top ornament -->
+      <div class="pack-ornament-top">⚜️</div>
+      <!-- Greek border pattern -->
+      <div class="pack-border-top"></div>
+      <!-- Logo -->
+      <div class="pack-logo">OLYMPIA</div>
+      <div class="pack-logo-sub">Sanctuaire des Cartes</div>
+      <!-- Center icon -->
+      <div class="pack-center-icon" id="pr-icon">🏛️</div>
+      <!-- Pack name -->
+      <div class="pack-name-label" id="pr-name">Paquet Collector</div>
+      <!-- Bottom border -->
+      <div class="pack-border-bottom"></div>
+      <!-- Bottom ornament -->
+      <div class="pack-ornament-bottom">⚜️</div>
+      <div class="pack-img-sub">4 cartes · chance shiny ✦</div>
     </div>
   </div>
   <div class="pack-tear-hint" id="pr-hint">← Glisse pour déchirer →</div>
