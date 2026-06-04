@@ -354,10 +354,10 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div class="stat"><div class="stat-v" id="s-packs">0</div><div class="stat-l">Paquets</div></div>
   </div>
   <nav>
-    <button class="nav-btn active" data-sec="collection">⚔️ Collection</button>
-    <button class="nav-btn" data-sec="packs">📦 Paquets</button>
+    <button class="nav-btn active" data-sec="packs">📦 Paquets</button>
+    <button class="nav-btn" data-sec="collection">⚔️ Collection</button>
     <button class="nav-btn" data-sec="exchange">🔄 Échange</button>
-    <button class="nav-btn" data-sec="progress">📊 Progression</button>
+    <button class="nav-btn rules-btn" id="rules-btn">❓ Règles</button>
   </nav>
 
   <div class="section active" id="section-collection">
@@ -394,25 +394,30 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div id="exchange-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;"></div>
   </div>
 
-  <div class="section" id="section-progress">
-    <div class="sec-title">Progression par Rareté</div>
-    <div class="psec">
-      <div class="p-title">Taux de complétion</div>
-      <div class="p-row"><div class="p-lbl" style="color:var(--common)">Commune</div><div class="p-bg"><div class="p-fill" id="pb-c" style="background:var(--common);width:0%"></div></div><div class="p-val" id="pv-c">0%</div></div>
-      <div class="p-row"><div class="p-lbl" style="color:var(--rare)">Rare</div><div class="p-bg"><div class="p-fill" id="pb-r" style="background:var(--rare);width:0%"></div></div><div class="p-val" id="pv-r">0%</div></div>
-      <div class="p-row"><div class="p-lbl" style="color:var(--epic)">Épique</div><div class="p-bg"><div class="p-fill" id="pb-e" style="background:var(--epic);width:0%"></div></div><div class="p-val" id="pv-e">0%</div></div>
-      <div class="p-row"><div class="p-lbl" style="color:var(--legendary)">Légendaire</div><div class="p-bg"><div class="p-fill" id="pb-l" style="background:var(--legendary);width:0%"></div></div><div class="p-val" id="pv-l">0%</div></div>
-      <div class="p-row"><div class="p-lbl" style="color:var(--shiny)">✦ Shiny</div><div class="p-bg"><div class="p-fill" id="pb-s" style="background:var(--shiny);width:0%"></div></div><div class="p-val" id="pv-s">0%</div></div>
-    </div>
-    <div class="sec-title">Progression par Paquet</div>
-    <div id="pp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:13px;"></div>
-  </div>
-</div>
 
-<!-- FULLSCREEN IMAGE -->
-<div id="img-fullscreen">
-  <div class="fs-close" id="fs-close">×</div>
-  <img id="fs-img" src="" alt="">
+
+<!-- RULES MODAL -->
+<div class="overlay" id="rules-modal">
+  <div class="modal" style="max-width:480px;text-align:left;">
+    <button class="m-close" id="rules-close">×</button>
+    <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:18px;">📜 Règles du Jeu</div>
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Comment jouer</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      Connecte-toi avec un pseudo et reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> dès ta première connexion. Ensuite, un nouveau paquet est disponible toutes les <strong style="color:var(--gold)">6 heures</strong>.
+    </div>
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Ouvrir un paquet</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      Glisse horizontalement sur le paquet pour le <strong style="color:var(--gold)">déchirer</strong>, puis swipe les cartes une par une pour les découvrir !
+    </div>
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Les raretés</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      <span style="color:#7a9eb5">⚪ Commune</span> · <span style="color:#2255cc">🔵 Rare</span> · <span style="color:#7722cc">🟣 Épique</span> · <span style="color:#cc7700">🟡 Légendaire</span> · <span style="color:#ff44aa">✦ Shiny</span> (très rare !)
+    </div>
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Échange de doublons</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;">
+      Accumule <strong style="color:var(--gold)">5 doublons</strong> d'un même type de paquet et échange-les contre un paquet thématique de ton choix dans l'onglet 🔄 Échange.
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="card-modal">
@@ -720,8 +725,7 @@ document.getElementById('btn-login').onclick = doLogin;
 document.getElementById('btn-reg').onclick = doRegister;
 document.getElementById('btn-quit').onclick = doLogout;
 document.getElementById('m-close').onclick = function(){document.getElementById('card-modal').classList.remove('open');};
-document.getElementById('fs-close').onclick = function(){document.getElementById('img-fullscreen').classList.remove('open');};
-document.getElementById('img-fullscreen').onclick = function(e){if(e.target===this||e.target===document.getElementById('fs-img'))this.classList.remove('open');};
+
 document.getElementById('card-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
 document.getElementById('rev-close').onclick = closeReveal;
 
@@ -775,6 +779,11 @@ function launch(p, data) {
   document.getElementById('login').classList.add('hide');
   document.getElementById('app').style.display='block';
   document.getElementById('hdr-pseudo').textContent = p;
+  // Show packs section by default
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('section-packs').classList.add('active');
+  document.querySelector('[data-sec="packs"]').classList.add('active');
   updateStats();
   renderCol();
   renderPacks();
@@ -801,16 +810,21 @@ function doLogout() {
 // ══════════════════════════════════════
 document.querySelectorAll('.nav-btn').forEach(function(btn) {
   btn.onclick = function() {
+    if(btn.id === 'rules-btn') {
+      document.getElementById('rules-modal').classList.add('open');
+      return;
+    }
     document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
     document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
     btn.classList.add('active');
     var sec = btn.getAttribute('data-sec');
     document.getElementById('section-'+sec).classList.add('active');
-    if(sec==='progress') updateProgress();
     if(sec==='packs') renderPacks();
     if(sec==='exchange') renderExchange();
   };
 });
+document.getElementById('rules-close').onclick = function(){document.getElementById('rules-modal').classList.remove('open');};
+document.getElementById('rules-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
 
 document.querySelectorAll('.fbtn').forEach(function(btn) {
   btn.onclick = function() {
@@ -1305,43 +1319,6 @@ function closeReveal() {
 // ══════════════════════════════════════
 //  PROGRESS
 // ══════════════════════════════════════
-function updateProgress() {
-  var all = allCards();
-  var u = getUniqueOwned();
-
-  function pct(label) {
-    var total = all.filter(function(c){return c.rarity===label;}).length;
-    var have = u.filter(function(e){return e.card.rarity===label;}).length;
-    return total ? Math.round(have/total*100) : 0;
-  }
-
-  [{label:'commune',k:'pb-c',v:'pv-c'},{label:'rare',k:'pb-r',v:'pv-r'},{label:'épique',k:'pb-e',v:'pv-e'},{label:'légendaire',k:'pb-l',v:'pv-l'}].forEach(function(r) {
-    var p = pct(r.label);
-    document.getElementById(r.k).style.width=p+'%';
-    document.getElementById(r.v).textContent=p+'%';
-  });
-
-  var ts = all.length;
-  var hs = u.filter(function(e){return e.isShiny;}).length;
-  var ps = Math.round(hs/ts*100);
-  document.getElementById('pb-s').style.width=ps+'%';
-  document.getElementById('pv-s').textContent=ps+'%';
-
-  var pg = document.getElementById('pp-grid');
-  pg.innerHTML='';
-  Object.keys(PACKS).forEach(function(packId) {
-    var pInfo = PACKS[packId];
-    var packs = CARDS[packId];
-    var ownedIds = {};
-    u.forEach(function(e){ownedIds[e.card.id]=true;});
-    var oc = packs.filter(function(c){return ownedIds[c.id];}).length;
-    var p = Math.round(oc/packs.length*100);
-    var d = document.createElement('div');
-    d.style.cssText='background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;';
-    d.innerHTML='<div style="font-size:1.8rem;margin-bottom:7px">'+pInfo.icon+'</div><div style="font-family:\'Cinzel\',serif;color:var(--gold);font-size:0.8rem;margin-bottom:4px">'+pInfo.name+'</div><div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:10px">'+oc+' / '+packs.length+' cartes</div><div style="height:5px;background:rgba(0,0,0,0.07);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+p+'%;background:linear-gradient(to right,var(--gold-dim),var(--gold-light));border-radius:3px;transition:width 1s"></div></div><div style="font-family:\'Cinzel\',serif;font-size:0.68rem;color:var(--gold);margin-top:7px">'+p+'%</div>';
-    pg.appendChild(d);
-  });
-}
 
 // ══════════════════════════════════════
 //  EXCHANGE
