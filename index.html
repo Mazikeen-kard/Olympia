@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -2008,170 +2006,351 @@ function memGameOver(won) {
   if(won) {
     user.minigames.memory = true;
     saveUser();
+    renderMinigamesList();
   }
 }
 
 function startArchery() {
   var archTries = 3;
   var archHits = 0;
-  var archTimer = null;
-  var archShooting = false;
-  var archSpeed = 2;
-  var archPos = 0;
-  var archDir = 1;
-  var archStringY = 0;
-  var archPulling = false;
-  var archPullStart = 0;
+  var archAnimFrame = null;
+  var targetX = 280;
+  var targetY = 60;
+  var targetDir = 1;
+  var targetSpeed = 2.5;
+  var pulling = false;
+  var pullY = 0;
+  var arrowFlying = false;
 
-  function renderArchery() {
-    var area = document.getElementById('minigame-area');
-    area.innerHTML = '<div class="archery-game" id="arch-game">'
-      + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:6px;">🏹 Tir à Arc</div>'
-      + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);margin-bottom:12px;">Tire sur la corde et relâche pour tirer !</div>'
-      + '<div id="arch-tries" style="font-family:Cinzel,serif;font-size:0.72rem;color:var(--gold);margin-bottom:10px;">Essais : '+'🏹'.repeat(archTries)+'</div>'
-      + '<div id="arch-hits" style="font-family:Cinzel,serif;font-size:0.72rem;color:#2ecc71;margin-bottom:12px;">Touches : '+archHits+' / 3</div>'
-      // Moving target lane
-      + '<div id="arch-lane" style="position:relative;width:100%;height:60px;background:var(--bg-card);border-radius:10px;overflow:hidden;margin-bottom:16px;border:1px solid var(--border);">'
-      + '<div id="arch-zone" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;border:2px solid rgba(184,134,11,0.3);"></div>'
-      + '<div id="arch-target-el" style="position:absolute;top:50%;transform:translateY(-50%);font-size:1.8rem;left:0%;transition:left 0.05s linear;">🎯</div>'
-      + '</div>'
-      // Bow and string area
-      + '<div id="arch-bow-area" style="position:relative;width:120px;height:160px;margin:0 auto 16px;user-select:none;">'
-      + '<div style="position:absolute;left:50%;top:0;bottom:0;width:8px;background:linear-gradient(180deg,#8b6914,#daa520,#8b6914);border-radius:4px;transform:translateX(-50%);"></div>'
-      + '<div id="arch-string" style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:#e0d0b0;transform:translateX(-50%);transform-origin:top;"></div>'
-      + '<div id="arch-arrow-el" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.4rem;">➡️</div>'
-      + '<div id="arch-pull-btn" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(184,134,11,0.15);border:1px solid var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-family:Cinzel,serif;color:var(--gold);">TIRE</div>'
-      + '</div>'
-      + '<button class="mg-back-btn" onclick="stopArchery()">← Retour</button>'
-      + '</div>';
+  var area = document.getElementById('minigame-area');
+  area.innerHTML = '<div class="archery-game">'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);margin-bottom:4px;">🏹 Tir à Arc</div>'
+    + '<div id="arch-tries" style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:4px;">Essais : 🏹🏹🏹</div>'
+    + '<div id="arch-hits" style="font-family:Cinzel,serif;font-size:0.7rem;color:#2ecc71;margin-bottom:8px;">Touches : 0 / 3</div>'
+    + '<canvas id="arch-canvas" width="340" height="280" style="border-radius:12px;background:linear-gradient(180deg,#0d1b3e,#1a3a6e,#2d5a9e);display:block;margin:0 auto;touch-action:none;"></canvas>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);margin-top:8px;">Maintiens et relâche pour tirer</div>'
+    + '<button class="mg-back-btn" onclick="stopArchery()" style="margin-top:10px;">← Retour</button>'
+    + '</div>';
 
-    // Move target
-    archTimer = setInterval(function() {
-      archPos += archDir * archSpeed;
-      if(archPos >= 95) { archPos = 95; archDir = -1; }
-      if(archPos <= 0) { archPos = 0; archDir = 1; }
-      var t = document.getElementById('arch-target-el');
-      if(t) t.style.left = archPos + '%';
-    }, 20);
+  var canvas = document.getElementById('arch-canvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
 
-    // Pull string interaction
-    var pullBtn = document.getElementById('arch-pull-btn');
-    var stringEl = document.getElementById('arch-string');
-    var pulling = false;
-    var pullY = 0;
+  // Arc position (left side)
+  var arcX = 60, arcY = H/2;
+  // Arrow
+  var arrowX = arcX + 10, arrowY = arcY;
+  var arrowVX = 0, arrowVY = 0;
+  // Pull point
+  var stringPullX = arcX + 10, stringPullY = arcY;
 
-    function startPull(e) {
-      if(archTries <= 0) return;
-      pulling = true;
-      pullY = 0;
-      pullBtn.style.background = 'rgba(184,134,11,0.4)';
-    }
-    function doPull(e) {
-      if(!pulling) return;
-      pullY = Math.min(50, (pullY || 0) + 3);
-      if(stringEl) stringEl.style.transform = 'translateX(-50%) skewX('+pullY+'deg)';
-    }
-    function releasePull(e) {
-      if(!pulling) return;
-      pulling = false;
-      pullBtn.style.background = 'rgba(184,134,11,0.15)';
-      if(stringEl) stringEl.style.transform = 'translateX(-50%)';
-      shoot(pullY);
+  function drawScene() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Background stars
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    for(var s=0; s<20; s++) {
+      ctx.beginPath();
+      ctx.arc((s*73)%W, (s*47)%H, 0.8, 0, Math.PI*2);
+      ctx.fill();
     }
 
-    pullBtn.addEventListener('mousedown', startPull);
-    pullBtn.addEventListener('mousemove', doPull);
-    pullBtn.addEventListener('mouseup', releasePull);
-    pullBtn.addEventListener('touchstart', startPull);
-    pullBtn.addEventListener('touchmove', doPull);
-    pullBtn.addEventListener('touchend', releasePull);
+    // Moving target
+    ctx.save();
+    ctx.translate(targetX, targetY);
+    // Target rings
+    // Greek style target - bigger and prettier
+    var rings = [
+      {r:38,c:'#1a0a00'},
+      {r:32,c:'#8b0000'},
+      {r:25,c:'#cc2200'},
+      {r:18,c:'#daa520'},
+      {r:11,c:'#ffe566'},
+      {r:5,c:'#ffffff'}
+    ];
+    rings.forEach(function(ring) {
+      ctx.beginPath();
+      ctx.arc(0, 0, ring.r, 0, Math.PI*2);
+      ctx.fillStyle = ring.c;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(218,165,32,0.4)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+    // Greek pattern around target
+    ctx.beginPath();
+    ctx.arc(0, 0, 40, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(218,165,32,0.6)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4,3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Center dot glow
+    ctx.beginPath();
+    ctx.arc(0, 0, 5, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fill();
+    ctx.restore();
+
+    // Draw bow (arc shape)
+    ctx.save();
+    ctx.translate(arcX, arcY);
+    // Bow body
+    ctx.beginPath();
+    ctx.moveTo(0, -70);
+    ctx.quadraticCurveTo(-25, 0, 0, 70);
+    ctx.strokeStyle = '#8b6914';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    // Bow gradient
+    ctx.beginPath();
+    ctx.moveTo(0, -70);
+    ctx.quadraticCurveTo(-20, 0, 0, 70);
+    ctx.strokeStyle = '#daa520';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // String
+    var pullOffsetX = stringPullX - arcX;
+    var pullOffsetY = stringPullY - arcY;
+    ctx.beginPath();
+    ctx.moveTo(0, -70);
+    ctx.lineTo(pullOffsetX, pullOffsetY);
+    ctx.lineTo(0, 70);
+    ctx.strokeStyle = pulling ? '#ffe566' : '#e0d0b0';
+    ctx.lineWidth = pulling ? 2 : 1.5;
+    ctx.stroke();
+
+    // Arrow on string
+    if(!arrowFlying) {
+      ctx.save();
+      ctx.translate(pullOffsetX, pullOffsetY);
+      // Arrow shaft
+      ctx.beginPath();
+      ctx.moveTo(-5, 0);
+      ctx.lineTo(40, 0);
+      ctx.strokeStyle = '#8b6914';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      // Arrowhead
+      ctx.beginPath();
+      ctx.moveTo(40, 0);
+      ctx.lineTo(30, -4);
+      ctx.lineTo(30, 4);
+      ctx.closePath();
+      ctx.fillStyle = '#c0c0c0';
+      ctx.fill();
+      // Feathers
+      ctx.beginPath();
+      ctx.moveTo(-5, 0);
+      ctx.lineTo(-15, -6);
+      ctx.lineTo(-5, 0);
+      ctx.lineTo(-15, 6);
+      ctx.strokeStyle = '#cc3300';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    // Flying arrow
+    if(arrowFlying) {
+      ctx.save();
+      ctx.translate(arrowX, arrowY);
+      var angle = Math.atan2(arrowVY, arrowVX);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(-15, 0);
+      ctx.lineTo(20, 0);
+      ctx.strokeStyle = '#8b6914';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(20, 0);
+      ctx.lineTo(10, -4);
+      ctx.lineTo(10, 4);
+      ctx.closePath();
+      ctx.fillStyle = '#c0c0c0';
+      ctx.fill();
+      // Trail
+      ctx.beginPath();
+      ctx.moveTo(-15, 0);
+      ctx.lineTo(-30, -3);
+      ctx.strokeStyle = '#cc3300';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Pull indicator
+    if(pulling) {
+      var power = Math.min(100, Math.abs(pullOffsetX) * 2);
+      ctx.fillStyle = 'rgba(255,229,102,0.15)';
+      ctx.fillRect(10, H-20, (W-20), 8);
+      ctx.fillStyle = power > 60 ? '#2ecc71' : '#f1c40f';
+      ctx.fillRect(10, H-20, (W-20) * power/100, 8);
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(10, H-20, (W-20), 8);
+    }
   }
 
-  function shoot(power) {
-    if(archTries <= 0) return;
-    archTries--;
-
-    // Check if target is near center (50%)
-    var dist = Math.abs(archPos - 50);
-    var hit = dist < 20; // within 20% of center = hit
-    if(hit) archHits++;
-
-    // Flash effect
-    var targetEl = document.getElementById('arch-target-el');
-    if(targetEl) {
-      targetEl.style.fontSize = '2.4rem';
-      targetEl.textContent = hit ? '💥' : '🎯';
-      setTimeout(function() {
-        if(targetEl) { targetEl.style.fontSize = '1.8rem'; targetEl.textContent = '🎯'; }
-      }, 400);
+  function gameLoop() {
+    // Move target up and down
+    if(!arrowFlying) {
+      targetY += targetDir * targetSpeed;
+      if(targetY > H-40) { targetY = H-40; targetDir = -1; }
+      if(targetY < 30) { targetY = 30; targetDir = 1; }
     }
 
-    // Update UI
+    // Move arrow
+    if(arrowFlying) {
+      arrowX += arrowVX;
+      arrowY += arrowVY;
+      arrowVY += 0.04; // gravity reduced
+
+      // Check hit
+      var dx = arrowX - targetX;
+      var dy = arrowY - targetY;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+
+      if(dist < 40) {
+        arrowFlying = false;
+        archHits++;
+        showFlash(true, dist);
+        nextTry();
+        return;
+      }
+
+      // Miss (out of bounds)
+      if(arrowX > W+50 || arrowY > H+50 || arrowY < -50) {
+        arrowFlying = false;
+        showFlash(false, 999);
+        nextTry();
+        return;
+      }
+    }
+
+    drawScene();
+    archAnimFrame = requestAnimationFrame(gameLoop);
+  }
+
+  function showFlash(hit, dist) {
+    ctx.fillStyle = hit ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.2)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.font = 'bold 40px serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = hit ? '#2ecc71' : '#e74c3c';
+    ctx.fillText(hit ? (dist < 7 ? 'BULLSEYE!' : 'TOUCHE !') : 'RATE !', W/2, H/2);
+    ctx.textAlign = 'left';
+  }
+
+  function nextTry() {
+    archTries--;
     var triesEl = document.getElementById('arch-tries');
     var hitsEl = document.getElementById('arch-hits');
-    if(triesEl) triesEl.textContent = 'Essais : ' + '🏹'.repeat(Math.max(0,archTries));
+    if(triesEl) triesEl.textContent = 'Essais : ' + '🏹'.repeat(Math.max(0, archTries));
     if(hitsEl) hitsEl.textContent = 'Touches : ' + archHits + ' / 3';
 
     if(archTries <= 0) {
-      clearInterval(archTimer);
+      cancelAnimationFrame(archAnimFrame);
       var won = archHits >= 2;
       setTimeout(function() {
-        var area = document.getElementById('minigame-area');
-        area.innerHTML = '<div class="memory-result">'
+        var area2 = document.getElementById('minigame-area');
+        if(!area2) return;
+        area2.innerHTML = '<div class="memory-result">'
           + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'💀')+'</div>'
-          + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Excellent archer !':'Manque dentrainement...')+'</div>'
-          + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">'+archHits+' cible'+(archHits>1?'s':'')+' touchee'+(archHits>1?'s':'')+' sur 3</div>'
-          + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:20px;">'+(won?'Mini-jeu validé ! ✅':'Retente ta chance demain !')+'</div>'
+          + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Archer Légendaire !':'Retente ta chance...')+'</div>'
+          + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">'+archHits+' cible'+(archHits>1?'s':'')+' touchée'+(archHits>1?'s':'')+' sur 3</div>'
+          + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:20px;">'+(won?'Mini-jeu validé ! ✅':'Il faut 2/3 touches pour gagner. Retente demain !')+'</div>'
           + '<button class="mg-back-btn" onclick="backToMinigames()" style="border-color:var(--gold);color:var(--gold);">← Retour aux mini-jeux</button>'
           + '</div>';
         if(won) {
           user.minigames.archery = true;
           saveUser();
+          renderMinigamesList();
         }
-      }, 600);
+      }, 1000);
+      return;
     }
+
+    // Reset for next try
+    setTimeout(function() {
+      pulling = false;
+      arrowFlying = false;
+      stringPullX = arcX + 10;
+      stringPullY = arcY;
+      archAnimFrame = requestAnimationFrame(gameLoop);
+    }, 800);
   }
 
-  function stopArchery() {
-    clearInterval(archTimer);
-    backToMinigames();
+  // Input handling
+  function getCanvasPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY};
   }
 
-  renderArchery();
+  canvas.addEventListener('mousedown', function(e) {
+    if(arrowFlying) return;
+    var pos = getCanvasPos(e);
+    var dx = pos.x - arcX, dy = pos.y - arcY;
+    if(Math.sqrt(dx*dx+dy*dy) < 80) { pulling = true; }
+  });
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if(arrowFlying) return;
+    var pos = getCanvasPos(e);
+    pulling = true;
+    stringPullX = Math.max(arcX - 50, Math.min(arcX + 30, pos.x));
+    stringPullY = Math.max(arcY - 70, Math.min(arcY + 70, pos.y));
+  }, {passive:false});
+
+  canvas.addEventListener('mousemove', function(e) {
+    if(!pulling || arrowFlying) return;
+    var pos = getCanvasPos(e);
+    stringPullX = Math.max(arcX - 60, Math.min(arcX + 20, pos.x));
+    stringPullY = Math.max(arcY - 70, Math.min(arcY + 70, pos.y));
+  });
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if(!pulling || arrowFlying) return;
+    var pos = getCanvasPos(e);
+    stringPullX = Math.max(arcX - 60, Math.min(arcX + 20, pos.x));
+    stringPullY = Math.max(arcY - 70, Math.min(arcY + 70, pos.y));
+  }, {passive:false});
+
+  function releaseArrow() {
+    if(!pulling || arrowFlying) return;
+    pulling = false;
+    arrowFlying = true;
+    arrowX = arcX + 10 + (stringPullX - arcX);
+    arrowY = arcY + (stringPullY - arcY);
+    // Velocity based on pull
+    var pullDX = arcX + 10 - stringPullX;
+    var pullDY = arcY - stringPullY;
+    var power = Math.sqrt(pullDX*pullDX + pullDY*pullDY);
+    var speed = Math.min(power * 0.2, 18);
+    var angle = Math.atan2(pullDY, pullDX);
+    arrowVX = Math.cos(angle) * speed;
+    arrowVY = Math.sin(angle) * speed;
+    stringPullX = arcX + 10;
+    stringPullY = arcY;
+  }
+
+  canvas.addEventListener('mouseup', releaseArrow);
+  canvas.addEventListener('touchend', function(e) { e.preventDefault(); releaseArrow(); }, {passive:false});
+
+  archAnimFrame = requestAnimationFrame(gameLoop);
 }
 
-var QUIZ_QUESTIONS = [
-  {q:"Qui a tué Méduse ?", a:"Persée", choices:["Héraclès","Persée","Achille","Thésée"]},
-  {q:"Quel dieu est le maître des océans ?", a:"Poséidon", choices:["Zeus","Hadès","Poséidon","Hermès"]},
-  {q:"Combien de travaux Héraclès a-t-il accomplis ?", a:"12", choices:["7","10","12","15"]},
-  {q:"Qui a construit le Labyrinthe du Minotaure ?", a:"Dédale", choices:["Héphaïstos","Dédale","Ulysse","Icare"]},
-  {q:"Quelle déesse est née de la tête de Zeus ?", a:"Athéna", choices:["Artémis","Héra","Aphrodite","Athéna"]},
-  {q:"Quel héros a tué le Minotaure ?", a:"Thésée", choices:["Persée","Jason","Thésée","Bellérophon"]},
-  {q:"Sur quel cheval ailé Bellérophon a-t-il volé ?", a:"Pégase", choices:["Arion","Pégase","Xanthe","Balius"]},
-  {q:"Quelle est la femme d'Ulysse ?", a:"Pénélope", choices:["Circé","Calypso","Pénélope","Ariane"]},
-  {q:"Qui a donné le fil à Thésée pour sortir du labyrinthe ?", a:"Ariane", choices:["Médée","Pénélope","Ariane","Circé"]},
-  {q:"Quel roi transformait tout en or ?", a:"Midas", choices:["Créon","Midas","Agamemnon","Priam"]},
-  {q:"Quel fleuve sépare le monde des vivants des Enfers ?", a:"Le Styx", choices:["Le Léthé","L'Achéron","Le Styx","Le Phlégéthon"]},
-  {q:"Qui est le dieu de la guerre ?", a:"Arès", choices:["Hermès","Héphaïstos","Arès","Poséidon"]},
-  {q:"Quelle créature avait le corps d'un homme et la tête d'un taureau ?", a:"Le Minotaure", choices:["Le Centaure","La Chimère","Le Minotaure","Le Sphinx"]},
-  {q:"Qui est la déesse de l'amour ?", a:"Aphrodite", choices:["Héra","Athéna","Artémis","Aphrodite"]},
-  {q:"Quel héros a descendu aux Enfers pour ramener Eurydice ?", a:"Orphée", choices:["Hercule","Thésée","Orphée","Ulysse"]},
-  {q:"Qui est le messager des dieux ?", a:"Hermès", choices:["Apollon","Arès","Hermès","Hypnos"]},
-  {q:"Quelle est l'arme principale de Zeus ?", a:"La foudre", choices:["Le trident","La lance","La foudre","L'arc"]},
-  {q:"Quel animal symbolise Athéna ?", a:"La chouette", choices:["L'aigle","Le dauphin","La chouette","Le serpent"]},
-  {q:"Qui a ouvert la boîte libérant les maux du monde ?", a:"Pandore", choices:["Circé","Médée","Héra","Pandore"]},
-  {q:"Quelle est la ville protégée par Athéna ?", a:"Athènes", choices:["Sparte","Troie","Corinthe","Athènes"]},
-  {q:"Quel roi de Sparte mena 300 guerriers aux Thermopyles ?", a:"Léonidas", choices:["Agamemnon","Léonidas","Ménélas","Ulysse"]},
-  {q:"Qui est le dieu du soleil ?", a:"Apollon", choices:["Hélios","Zeus","Apollon","Hermès"]},
-  {q:"Quel héros a récupéré la Toison d'Or ?", a:"Jason", choices:["Persée","Thésée","Jason","Héraclès"]},
-  {q:"Qui est le dieu des Enfers ?", a:"Hadès", choices:["Morphée","Thanatos","Hadès","Caron"]},
-  {q:"Quelle héroïne était la plus rapide des mortelles ?", a:"Atalante", choices:["Artémis","Antigone","Circé","Atalante"]},
-  {q:"De quoi est fait le casque d'Hadès ?", a:"Il rend invisible", choices:["Il vole","Il rend invisible","Il est indestructible","Il parle"]},
-  {q:"Qui est le fils de Dédale ?", a:"Icare", choices:["Persée","Icare","Bellérophon","Achille"]},
-  {q:"Quelle fleur symbolise le sommeil et Morphée ?", a:"Le pavot", choices:["La rose","Le lotus","Le pavot","L'asphodèle"]},
-  {q:"Qui ferraille le Styx entre les morts ?", a:"Caron", choices:["Hermès","Thanatos","Hadès","Caron"]},
-  {q:"Quel monstre avait 100 yeux ?", a:"Argos", choices:["Typhon","Argos","Briarée","Polyphème"]}
-];
+function stopArchery() {
+  backToMinigames();
+}
 
 function startQuiz() {
   // Pick 5 random questions based on today's date as seed
@@ -2251,6 +2430,7 @@ function startQuiz() {
             if(won) {
               user.minigames.quiz = true;
               saveUser();
+              renderMinigamesList();
             }
           }
         }, 1000);
@@ -2263,6 +2443,7 @@ function startQuiz() {
 
 function backToMinigames() {
   if(_memTimer) clearInterval(_memTimer);
+  if(typeof archAnimFrame !== 'undefined') cancelAnimationFrame(archAnimFrame);
   document.getElementById('minigame-area').innerHTML = '';
   document.getElementById('minigame-area').style.display = 'none';
   document.getElementById('minigames-container').style.display = 'block';
@@ -2270,6 +2451,7 @@ function backToMinigames() {
   document.getElementById('streak-container').style.display = 'block';
   var grid = document.getElementById('pack-grid');
   if(grid) grid.style.display = 'grid';
+  renderPacks();
   renderMinigamesList();
 }
 
