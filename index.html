@@ -1904,7 +1904,9 @@ function startGame(id) {
   document.getElementById('wb-container').style.display = 'none';
   document.getElementById('streak-container').style.display = 'none';
   var grid = document.getElementById('pack-grid');
-  if(grid) grid.style.display = 'none';
+  if(grid) { grid.style.display = 'none'; }
+  var cdInfo = document.getElementById('cd-info');
+  if(cdInfo) cdInfo.style.display = 'none';
   document.getElementById('minigame-area').style.display = 'block';
   if(id === 'memory') startMemory();
   if(id === 'archery') startArchery();
@@ -2450,7 +2452,9 @@ function backToMinigames() {
   document.getElementById('wb-container').style.display = 'block';
   document.getElementById('streak-container').style.display = 'block';
   var grid = document.getElementById('pack-grid');
-  if(grid) grid.style.display = 'grid';
+  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; grid.style.opacity = '1'; }
+  var cdInfo = document.getElementById('cd-info');
+  if(cdInfo) cdInfo.style.display = 'block';
   renderPacks();
   renderMinigamesList();
 }
