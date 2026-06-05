@@ -2446,17 +2446,22 @@ function startQuiz() {
 function backToMinigames() {
   if(_memTimer) clearInterval(_memTimer);
   if(typeof archAnimFrame !== 'undefined') cancelAnimationFrame(archAnimFrame);
+  // Ensure packs section is active
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('section-packs').classList.add('active');
+  document.querySelector('[data-sec="packs"]').classList.add('active');
+  // Restore all elements
   document.getElementById('minigame-area').innerHTML = '';
   document.getElementById('minigame-area').style.display = 'none';
   document.getElementById('minigames-container').style.display = 'block';
   document.getElementById('wb-container').style.display = 'block';
   document.getElementById('streak-container').style.display = 'block';
   var grid = document.getElementById('pack-grid');
-  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; grid.style.opacity = '1'; }
+  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; }
   var cdInfo = document.getElementById('cd-info');
   if(cdInfo) cdInfo.style.display = 'block';
   renderPacks();
-  renderMinigamesList();
 }
 
 // ══════════════════════════════════════
