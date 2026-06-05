@@ -320,6 +320,44 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;margin-top:8px;}
   .reveal-done-btn.show{display:block;}
 
+  /* MINIGAMES */
+  .mg-card-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.2s;width:100%;}
+  .mg-card-btn:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .mg-card-btn.done{border-color:#4caf50;opacity:0.7;cursor:default;}
+  .mg-card-btn.done:hover{transform:none;}
+  .mg-icon{font-size:2rem;flex-shrink:0;}
+  .mg-info{flex:1;text-align:left;}
+  .mg-title{font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);margin-bottom:3px;}
+  .mg-desc{font-size:0.65rem;color:var(--text-dim);}
+  .mg-status{font-size:1.2rem;flex-shrink:0;}
+
+  /* MEMORY GAME */
+  .memory-game{padding:10px 0;}
+  .memory-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .memory-timer{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);transition:color 0.3s;}
+  .memory-timer.urgent{color:#e74c3c;animation:pulse 0.5s infinite;}
+  .memory-pairs{font-family:'Cinzel',serif;font-size:0.7rem;color:var(--text-dim);}
+  .memory-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:500px;margin:0 auto;}
+  .mem-card{aspect-ratio:1;border-radius:8px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform 0.4s;}
+  .mem-card.flipped{transform:rotateY(180deg);}
+  .mem-card.matched{transform:rotateY(180deg);pointer-events:none;}
+  .mem-card-front,.mem-card-back{position:absolute;inset:0;border-radius:8px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;}
+  .mem-card-front{background:linear-gradient(135deg,#3a2800,#7a5200);border:1px solid var(--gold);font-size:1.1rem;}
+  .mem-card-back{background:var(--bg-card);border:1px solid var(--border);transform:rotateY(180deg);font-size:1.4rem;}
+  .mem-card.matched .mem-card-back{background:rgba(184,134,11,0.15);border-color:var(--gold);box-shadow:0 0 10px rgba(184,134,11,0.3);}
+  .memory-result{text-align:center;padding:20px;font-family:'Cinzel',serif;}
+  .mg-back-btn{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.65rem;padding:8px 16px;border-radius:8px;cursor:pointer;margin-top:12px;letter-spacing:0.1em;}
+
+  /* ARCHERY GAME */
+  .archery-game{padding:10px 0;text-align:center;}
+  .archery-target{position:relative;width:240px;height:240px;margin:20px auto;cursor:crosshair;}
+  .archery-ring{position:absolute;border-radius:50%;transform:translate(-50%,-50%);left:50%;top:50%;}
+  .archery-arrow{position:absolute;font-size:1.4rem;transform:translate(-50%,-50%);transition:all 0.5s cubic-bezier(0.25,0.46,0.45,0.94);pointer-events:none;z-index:10;}
+  .archery-wind{font-family:'Cinzel',serif;font-size:0.65rem;color:var(--text-dim);margin:8px 0 16px;}
+  .archery-aim{width:240px;height:12px;background:var(--bg-card);border-radius:6px;margin:0 auto 8px;overflow:hidden;position:relative;}
+  .archery-aim-bar{height:100%;border-radius:6px;background:linear-gradient(to right,#e74c3c,#f1c40f,#2ecc71,#f1c40f,#e74c3c);transition:width 0s;}
+  .archery-shoot-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.15em;padding:14px 40px;border-radius:10px;cursor:pointer;text-transform:uppercase;margin-top:16px;}
+
   /* AVATAR CREATOR */
   .avatar-creator{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
   .avatar-preview{width:90px;height:90px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin:0 auto 16px;border:3px solid var(--gold);transition:all 0.3s;}
@@ -438,6 +476,8 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   <div class="section" id="section-packs">
     <div id="wb-container"></div>
     <div id="streak-container"></div>
+    <div id="minigames-container"></div>
+    <div id="minigame-area" style="margin-bottom:16px;display:none;"></div>
     <div class="sec-title">Choisissez un Paquet</div>
     <div class="cd-info" id="cd-info"></div>
     <div class="pgrid" id="pack-grid"></div>
@@ -1140,6 +1180,7 @@ function renderCol() {
   updateFilterCounts();
   var grid = document.getElementById('col-grid');
   renderStreak();
+  renderMinigamesList();
   grid.innerHTML = '';
 
   // Determine which packs to show
@@ -1714,7 +1755,7 @@ function renderBadges() {
     div.style.cssText = 'background:var(--bg-card);border:1px solid '+(isEquipped?combo.badge.color:'var(--border)')+';border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;';
     div.innerHTML = 
       '<div style="width:70px;height:70px;border-radius:14px;border:2px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 10px;box-shadow:'+(isEquipped?'0 0 15px '+combo.badge.color:'none')+'">'
-      + (combo.badge.img ? '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;">' : '<div style="font-size:2rem;display:flex;align-items:center;justify-content:height:100%;">'+combo.badge.icon+'</div>')
+      + (combo.badge.img ? '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;">' : '<div style="font-size:2rem;display:flex;align-items:center;justify-content:height:100%;">'+combo.badge.icon+'</div>')
       + '</div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:4px;">'+combo.badge.name+'</div>'
       + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:8px;">'+combo.name+'</div>'
@@ -1779,7 +1820,7 @@ function updateAvatar() {
   if(bid) {
     var combo = COMBOS.find(function(c){ return c.id === bid; });
     if(combo && combo.badge.img) {
-      avatarEl.innerHTML = '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;border-radius:12px;">';
+      avatarEl.innerHTML = '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;border-radius:12px;">';
       avatarEl.style.background = '';
       avatarEl.style.borderColor = combo.badge.color;
       avatarEl.style.fontSize = '';
@@ -1797,6 +1838,439 @@ function updateAvatar() {
     avatarEl.style.borderColor = 'var(--border)';
     avatarEl.style.background = '';
   }
+}
+
+// ══════════════════════════════════════
+//  MINIGAMES
+// ══════════════════════════════════════
+var MEMORY_SYMBOLS = ["⚡","🔱","🏛️","⚔️","🦉","🐍","🌙","☀️","🔥","🌊","💀","🏆"];
+var _memCards = [];
+var _memFlipped = [];
+var _memMatched = 0;
+var _memTimer = null;
+var _memSeconds = 90;
+var _memLocked = false;
+
+function renderMinigamesList() {
+  var container = document.getElementById('minigames-container');
+  var area = document.getElementById('minigame-area');
+  if(!container) return;
+  area.innerHTML = '';
+  if(!user.minigames) user.minigames = {};
+  var today = new Date().toDateString();
+  if(user.minigames.date !== today) {
+    user.minigames = {date: today, memory:false, quiz:false, archery:false};
+    saveUser();
+  }
+  var games = [
+    {id:'memory', icon:'🃏', title:'Memory Olympien', desc:'Retrouve les 12 paires de symboles en 90 secondes !', done: user.minigames.memory},
+    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie grecque !', done: user.minigames.quiz},
+    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise le centre de la cible pour gagner !', done: user.minigames.archery}
+  ];
+  var allDone = games.every(function(g){ return g.done; });
+  if(allDone && !user.minigames.rewardGiven) {
+    user.minigames.rewardGiven = true;
+    saveUser();
+    setTimeout(function(){
+      alert('Bravo ! Tu as gagne les 3 mini-jeux ! Un paquet bonus t\'attend !');
+      openPack('mixed');
+    }, 500);
+  }
+  var doneCount = games.filter(function(g){ return g.done; }).length;
+  container.innerHTML = '<div class="streak-bar" style="flex-direction:column;align-items:flex-start;gap:10px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">'
+    + '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">🎮 Mini-Jeux du jour</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:'+(doneCount===3?'#2ecc71':'var(--text-dim)')+';">'+doneCount+'/3 '+(doneCount===3?'🎁 Paquet gagné !':'complétés')+'</div>'
+    + '</div>'
+    + '<div id="minigames-list" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>'
+    + '</div>';
+
+  var list = document.getElementById('minigames-list');
+  games.forEach(function(g) {
+    var btn = document.createElement('button');
+    btn.className = 'mg-card-btn' + (g.done ? ' done' : '');
+    btn.style.padding = '10px 14px';
+    btn.innerHTML = '<div class="mg-icon" style="font-size:1.4rem;">'+g.icon+'</div>'
+      + '<div class="mg-info"><div class="mg-title" style="font-size:0.72rem;">'+g.title+'</div>'
+      + '<div class="mg-desc">'+(g.coming && !g.done ? '🔜 Bientôt disponible' : g.desc)+'</div></div>'
+      + '<div class="mg-status">'+(g.done ? '✅' : (g.coming ? '🔒' : '▶️'))+'</div>';
+    if(!g.done && !g.coming) {
+      btn.onclick = function() { startGame(g.id); };
+    }
+    list.appendChild(btn);
+  });
+}
+
+function startGame(id) {
+  document.getElementById('minigames-container').style.display = 'none';
+  document.getElementById('wb-container').style.display = 'none';
+  document.getElementById('streak-container').style.display = 'none';
+  var grid = document.getElementById('pack-grid');
+  if(grid) grid.style.display = 'none';
+  document.getElementById('minigame-area').style.display = 'block';
+  if(id === 'memory') startMemory();
+  if(id === 'archery') startArchery();
+  if(id === 'quiz') startQuiz();
+}
+
+function startMemory() {
+  _memMatched = 0;
+  _memFlipped = [];
+  _memLocked = false;
+  _memSeconds = 90;
+  var symbols = MEMORY_SYMBOLS.concat(MEMORY_SYMBOLS);
+  // Shuffle
+  for(var i = symbols.length-1; i > 0; i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = symbols[i]; symbols[i]=symbols[j]; symbols[j]=tmp;
+  }
+  _memCards = symbols;
+
+  var area = document.getElementById('minigame-area');
+  area.innerHTML = '<div class="memory-game">'
+    + '<div class="memory-header">'
+    + '<div><div class="memory-timer" id="mem-timer">1:30</div></div>'
+    + '<div class="memory-pairs" id="mem-pairs">0 / 12 paires</div>'
+    + '<button class="mg-back-btn" onclick="backToMinigames()">← Retour</button>'
+    + '</div>'
+    + '<div class="memory-grid" id="mem-grid"></div>'
+    + '</div>';
+
+  var grid = document.getElementById('mem-grid');
+  symbols.forEach(function(sym, i) {
+    var card = document.createElement('div');
+    card.className = 'mem-card';
+    card.setAttribute('data-index', i);
+    card.setAttribute('data-symbol', sym);
+    card.innerHTML = '<div class="mem-card-front" style="border-radius:8px;"><span style="font-size:1.2rem;">⚡</span></div><div class="mem-card-back">'+sym+'</div>';
+    card.onclick = function() { flipMemCard(this); };
+    grid.appendChild(card);
+  });
+
+  // Start timer
+  if(_memTimer) clearInterval(_memTimer);
+  _memTimer = setInterval(function() {
+    _memSeconds--;
+    var m = Math.floor(_memSeconds/60);
+    var s = _memSeconds%60;
+    var timerEl = document.getElementById('mem-timer');
+    if(timerEl) {
+      timerEl.textContent = m+':'+(s<10?'0':'')+s;
+      if(_memSeconds <= 20) timerEl.classList.add('urgent');
+    }
+    if(_memSeconds <= 0) {
+      clearInterval(_memTimer);
+      memGameOver(false);
+    }
+  }, 1000);
+}
+
+function flipMemCard(card) {
+  if(_memLocked) return;
+  if(card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  if(_memFlipped.length >= 2) return;
+  card.classList.add('flipped');
+  _memFlipped.push(card);
+  if(_memFlipped.length === 2) {
+    _memLocked = true;
+    var sym1 = _memFlipped[0].getAttribute('data-symbol');
+    var sym2 = _memFlipped[1].getAttribute('data-symbol');
+    if(sym1 === sym2) {
+      _memFlipped[0].classList.add('matched');
+      _memFlipped[1].classList.add('matched');
+      _memMatched++;
+      _memFlipped = [];
+      _memLocked = false;
+      document.getElementById('mem-pairs').textContent = _memMatched+' / 12 paires';
+      if(_memMatched === 12) {
+        clearInterval(_memTimer);
+        setTimeout(function(){ memGameOver(true); }, 400);
+      }
+    } else {
+      setTimeout(function() {
+        _memFlipped[0].classList.remove('flipped');
+        _memFlipped[1].classList.remove('flipped');
+        _memFlipped = [];
+        _memLocked = false;
+      }, 900);
+    }
+  }
+}
+
+function memGameOver(won) {
+  var area = document.getElementById('minigame-area');
+  area.innerHTML = '<div class="memory-result">'
+    + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'💀')+'</div>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Victoire !':'Temps écoulé...')+'</div>'
+    + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:20px;">'+(won?'Toutes les paires trouvées ! ✅':'Retente ta chance demain !')+'</div>'
+    + '<button class="mg-back-btn" onclick="backToMinigames()" style="border-color:var(--gold);color:var(--gold);">← Retour aux mini-jeux</button>'
+    + '</div>';
+  if(won) {
+    user.minigames.memory = true;
+    saveUser();
+  }
+}
+
+function startArchery() {
+  var archTries = 3;
+  var archHits = 0;
+  var archTimer = null;
+  var archShooting = false;
+  var archSpeed = 2;
+  var archPos = 0;
+  var archDir = 1;
+  var archStringY = 0;
+  var archPulling = false;
+  var archPullStart = 0;
+
+  function renderArchery() {
+    var area = document.getElementById('minigame-area');
+    area.innerHTML = '<div class="archery-game" id="arch-game">'
+      + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:6px;">🏹 Tir à Arc</div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);margin-bottom:12px;">Tire sur la corde et relâche pour tirer !</div>'
+      + '<div id="arch-tries" style="font-family:Cinzel,serif;font-size:0.72rem;color:var(--gold);margin-bottom:10px;">Essais : '+'🏹'.repeat(archTries)+'</div>'
+      + '<div id="arch-hits" style="font-family:Cinzel,serif;font-size:0.72rem;color:#2ecc71;margin-bottom:12px;">Touches : '+archHits+' / 3</div>'
+      // Moving target lane
+      + '<div id="arch-lane" style="position:relative;width:100%;height:60px;background:var(--bg-card);border-radius:10px;overflow:hidden;margin-bottom:16px;border:1px solid var(--border);">'
+      + '<div id="arch-zone" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;border:2px solid rgba(184,134,11,0.3);"></div>'
+      + '<div id="arch-target-el" style="position:absolute;top:50%;transform:translateY(-50%);font-size:1.8rem;left:0%;transition:left 0.05s linear;">🎯</div>'
+      + '</div>'
+      // Bow and string area
+      + '<div id="arch-bow-area" style="position:relative;width:120px;height:160px;margin:0 auto 16px;user-select:none;">'
+      + '<div style="position:absolute;left:50%;top:0;bottom:0;width:8px;background:linear-gradient(180deg,#8b6914,#daa520,#8b6914);border-radius:4px;transform:translateX(-50%);"></div>'
+      + '<div id="arch-string" style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:#e0d0b0;transform:translateX(-50%);transform-origin:top;"></div>'
+      + '<div id="arch-arrow-el" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.4rem;">➡️</div>'
+      + '<div id="arch-pull-btn" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(184,134,11,0.15);border:1px solid var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-family:Cinzel,serif;color:var(--gold);">TIRE</div>'
+      + '</div>'
+      + '<button class="mg-back-btn" onclick="stopArchery()">← Retour</button>'
+      + '</div>';
+
+    // Move target
+    archTimer = setInterval(function() {
+      archPos += archDir * archSpeed;
+      if(archPos >= 95) { archPos = 95; archDir = -1; }
+      if(archPos <= 0) { archPos = 0; archDir = 1; }
+      var t = document.getElementById('arch-target-el');
+      if(t) t.style.left = archPos + '%';
+    }, 20);
+
+    // Pull string interaction
+    var pullBtn = document.getElementById('arch-pull-btn');
+    var stringEl = document.getElementById('arch-string');
+    var pulling = false;
+    var pullY = 0;
+
+    function startPull(e) {
+      if(archTries <= 0) return;
+      pulling = true;
+      pullY = 0;
+      pullBtn.style.background = 'rgba(184,134,11,0.4)';
+    }
+    function doPull(e) {
+      if(!pulling) return;
+      pullY = Math.min(50, (pullY || 0) + 3);
+      if(stringEl) stringEl.style.transform = 'translateX(-50%) skewX('+pullY+'deg)';
+    }
+    function releasePull(e) {
+      if(!pulling) return;
+      pulling = false;
+      pullBtn.style.background = 'rgba(184,134,11,0.15)';
+      if(stringEl) stringEl.style.transform = 'translateX(-50%)';
+      shoot(pullY);
+    }
+
+    pullBtn.addEventListener('mousedown', startPull);
+    pullBtn.addEventListener('mousemove', doPull);
+    pullBtn.addEventListener('mouseup', releasePull);
+    pullBtn.addEventListener('touchstart', startPull);
+    pullBtn.addEventListener('touchmove', doPull);
+    pullBtn.addEventListener('touchend', releasePull);
+  }
+
+  function shoot(power) {
+    if(archTries <= 0) return;
+    archTries--;
+
+    // Check if target is near center (50%)
+    var dist = Math.abs(archPos - 50);
+    var hit = dist < 20; // within 20% of center = hit
+    if(hit) archHits++;
+
+    // Flash effect
+    var targetEl = document.getElementById('arch-target-el');
+    if(targetEl) {
+      targetEl.style.fontSize = '2.4rem';
+      targetEl.textContent = hit ? '💥' : '🎯';
+      setTimeout(function() {
+        if(targetEl) { targetEl.style.fontSize = '1.8rem'; targetEl.textContent = '🎯'; }
+      }, 400);
+    }
+
+    // Update UI
+    var triesEl = document.getElementById('arch-tries');
+    var hitsEl = document.getElementById('arch-hits');
+    if(triesEl) triesEl.textContent = 'Essais : ' + '🏹'.repeat(Math.max(0,archTries));
+    if(hitsEl) hitsEl.textContent = 'Touches : ' + archHits + ' / 3';
+
+    if(archTries <= 0) {
+      clearInterval(archTimer);
+      var won = archHits >= 2;
+      setTimeout(function() {
+        var area = document.getElementById('minigame-area');
+        area.innerHTML = '<div class="memory-result">'
+          + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'💀')+'</div>'
+          + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Excellent archer !':'Manque dentrainement...')+'</div>'
+          + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">'+archHits+' cible'+(archHits>1?'s':'')+' touchee'+(archHits>1?'s':'')+' sur 3</div>'
+          + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:20px;">'+(won?'Mini-jeu validé ! ✅':'Retente ta chance demain !')+'</div>'
+          + '<button class="mg-back-btn" onclick="backToMinigames()" style="border-color:var(--gold);color:var(--gold);">← Retour aux mini-jeux</button>'
+          + '</div>';
+        if(won) {
+          user.minigames.archery = true;
+          saveUser();
+        }
+      }, 600);
+    }
+  }
+
+  function stopArchery() {
+    clearInterval(archTimer);
+    backToMinigames();
+  }
+
+  renderArchery();
+}
+
+var QUIZ_QUESTIONS = [
+  {q:"Qui a tué Méduse ?", a:"Persée", choices:["Héraclès","Persée","Achille","Thésée"]},
+  {q:"Quel dieu est le maître des océans ?", a:"Poséidon", choices:["Zeus","Hadès","Poséidon","Hermès"]},
+  {q:"Combien de travaux Héraclès a-t-il accomplis ?", a:"12", choices:["7","10","12","15"]},
+  {q:"Qui a construit le Labyrinthe du Minotaure ?", a:"Dédale", choices:["Héphaïstos","Dédale","Ulysse","Icare"]},
+  {q:"Quelle déesse est née de la tête de Zeus ?", a:"Athéna", choices:["Artémis","Héra","Aphrodite","Athéna"]},
+  {q:"Quel héros a tué le Minotaure ?", a:"Thésée", choices:["Persée","Jason","Thésée","Bellérophon"]},
+  {q:"Sur quel cheval ailé Bellérophon a-t-il volé ?", a:"Pégase", choices:["Arion","Pégase","Xanthe","Balius"]},
+  {q:"Quelle est la femme d'Ulysse ?", a:"Pénélope", choices:["Circé","Calypso","Pénélope","Ariane"]},
+  {q:"Qui a donné le fil à Thésée pour sortir du labyrinthe ?", a:"Ariane", choices:["Médée","Pénélope","Ariane","Circé"]},
+  {q:"Quel roi transformait tout en or ?", a:"Midas", choices:["Créon","Midas","Agamemnon","Priam"]},
+  {q:"Quel fleuve sépare le monde des vivants des Enfers ?", a:"Le Styx", choices:["Le Léthé","L'Achéron","Le Styx","Le Phlégéthon"]},
+  {q:"Qui est le dieu de la guerre ?", a:"Arès", choices:["Hermès","Héphaïstos","Arès","Poséidon"]},
+  {q:"Quelle créature avait le corps d'un homme et la tête d'un taureau ?", a:"Le Minotaure", choices:["Le Centaure","La Chimère","Le Minotaure","Le Sphinx"]},
+  {q:"Qui est la déesse de l'amour ?", a:"Aphrodite", choices:["Héra","Athéna","Artémis","Aphrodite"]},
+  {q:"Quel héros a descendu aux Enfers pour ramener Eurydice ?", a:"Orphée", choices:["Hercule","Thésée","Orphée","Ulysse"]},
+  {q:"Qui est le messager des dieux ?", a:"Hermès", choices:["Apollon","Arès","Hermès","Hypnos"]},
+  {q:"Quelle est l'arme principale de Zeus ?", a:"La foudre", choices:["Le trident","La lance","La foudre","L'arc"]},
+  {q:"Quel animal symbolise Athéna ?", a:"La chouette", choices:["L'aigle","Le dauphin","La chouette","Le serpent"]},
+  {q:"Qui a ouvert la boîte libérant les maux du monde ?", a:"Pandore", choices:["Circé","Médée","Héra","Pandore"]},
+  {q:"Quelle est la ville protégée par Athéna ?", a:"Athènes", choices:["Sparte","Troie","Corinthe","Athènes"]},
+  {q:"Quel roi de Sparte mena 300 guerriers aux Thermopyles ?", a:"Léonidas", choices:["Agamemnon","Léonidas","Ménélas","Ulysse"]},
+  {q:"Qui est le dieu du soleil ?", a:"Apollon", choices:["Hélios","Zeus","Apollon","Hermès"]},
+  {q:"Quel héros a récupéré la Toison d'Or ?", a:"Jason", choices:["Persée","Thésée","Jason","Héraclès"]},
+  {q:"Qui est le dieu des Enfers ?", a:"Hadès", choices:["Morphée","Thanatos","Hadès","Caron"]},
+  {q:"Quelle héroïne était la plus rapide des mortelles ?", a:"Atalante", choices:["Artémis","Antigone","Circé","Atalante"]},
+  {q:"De quoi est fait le casque d'Hadès ?", a:"Il rend invisible", choices:["Il vole","Il rend invisible","Il est indestructible","Il parle"]},
+  {q:"Qui est le fils de Dédale ?", a:"Icare", choices:["Persée","Icare","Bellérophon","Achille"]},
+  {q:"Quelle fleur symbolise le sommeil et Morphée ?", a:"Le pavot", choices:["La rose","Le lotus","Le pavot","L'asphodèle"]},
+  {q:"Qui ferraille le Styx entre les morts ?", a:"Caron", choices:["Hermès","Thanatos","Hadès","Caron"]},
+  {q:"Quel monstre avait 100 yeux ?", a:"Argos", choices:["Typhon","Argos","Briarée","Polyphème"]}
+];
+
+function startQuiz() {
+  // Pick 5 random questions based on today's date as seed
+  var today = new Date().toDateString();
+  var seed = 0;
+  for(var i=0; i<today.length; i++) seed += today.charCodeAt(i);
+  var shuffled = QUIZ_QUESTIONS.slice();
+  for(var i=shuffled.length-1; i>0; i--) {
+    var j = (seed * (i+1)) % (i+1);
+    seed = (seed * 9301 + 49297) % 233280;
+    var tmp = shuffled[i]; shuffled[i]=shuffled[j]; shuffled[j]=tmp;
+  }
+  var questions = shuffled.slice(0,5);
+  var qIndex = 0;
+  var correct = 0;
+
+  function renderQuestion() {
+    var area = document.getElementById('minigame-area');
+    var q = questions[qIndex];
+    // Shuffle choices
+    var choices = q.choices.slice();
+    for(var i=choices.length-1; i>0; i--) {
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=choices[i]; choices[i]=choices[j]; choices[j]=tmp;
+    }
+    area.innerHTML = '<div class="archery-game">'
+      + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);margin-bottom:6px;">❓ Quiz Mythologique</div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);margin-bottom:16px;">Question '+(qIndex+1)+' / 5 — '+correct+' bonne'+(correct>1?'s':'')+' réponse'+(correct>1?'s':'')+' ✓</div>'
+      + '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;font-family:Cinzel,serif;font-size:0.82rem;color:var(--text);line-height:1.5;">'+q.q+'</div>'
+      + '<div id="quiz-choices" style="display:flex;flex-direction:column;gap:8px;"></div>'
+      + '<button class="mg-back-btn" onclick="backToMinigames()" style="margin-top:14px;">← Retour</button>'
+      + '</div>';
+
+    var choicesEl = document.getElementById('quiz-choices');
+    choices.forEach(function(choice) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:Cinzel,serif;font-size:0.75rem;color:var(--text);cursor:pointer;text-align:left;transition:all 0.2s;';
+      btn.textContent = choice;
+      btn.onmouseover = function(){ this.style.borderColor='var(--gold)'; };
+      btn.onmouseout = function(){ if(!this.disabled) this.style.borderColor='var(--border)'; };
+      btn.onclick = function() {
+        // Disable all buttons
+        choicesEl.querySelectorAll('button').forEach(function(b){ b.disabled=true; });
+        var isCorrect = choice === q.a;
+        if(isCorrect) {
+          btn.style.background = 'rgba(46,204,113,0.2)';
+          btn.style.borderColor = '#2ecc71';
+          btn.style.color = '#2ecc71';
+          correct++;
+        } else {
+          btn.style.background = 'rgba(231,76,60,0.2)';
+          btn.style.borderColor = '#e74c3c';
+          btn.style.color = '#e74c3c';
+          // Show correct answer
+          choicesEl.querySelectorAll('button').forEach(function(b) {
+            if(b.textContent === q.a) {
+              b.style.background = 'rgba(46,204,113,0.15)';
+              b.style.borderColor = '#2ecc71';
+            }
+          });
+        }
+        setTimeout(function() {
+          qIndex++;
+          if(qIndex < 5) {
+            renderQuestion();
+          } else {
+            // End of quiz
+            var won = correct >= 4;
+            var area2 = document.getElementById('minigame-area');
+            area2.innerHTML = '<div class="memory-result">'
+              + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'📚')+'</div>'
+              + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Oracle approuve !':'Continue à apprendre...')+'</div>'
+              + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">'+correct+' / 5 bonnes réponses</div>'
+              + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:20px;">'+(won?'Mini-jeu validé ! ✅':'Il faut 4/5 pour gagner. Retente demain !')+'</div>'
+              + '<button class="mg-back-btn" onclick="backToMinigames()" style="border-color:var(--gold);color:var(--gold);">← Retour aux mini-jeux</button>'
+              + '</div>';
+            if(won) {
+              user.minigames.quiz = true;
+              saveUser();
+            }
+          }
+        }, 1000);
+      };
+      choicesEl.appendChild(btn);
+    });
+  }
+  renderQuestion();
+}
+
+function backToMinigames() {
+  if(_memTimer) clearInterval(_memTimer);
+  document.getElementById('minigame-area').innerHTML = '';
+  document.getElementById('minigame-area').style.display = 'none';
+  document.getElementById('minigames-container').style.display = 'block';
+  document.getElementById('wb-container').style.display = 'block';
+  document.getElementById('streak-container').style.display = 'block';
+  var grid = document.getElementById('pack-grid');
+  if(grid) grid.style.display = 'grid';
+  renderMinigamesList();
 }
 
 // ══════════════════════════════════════
