@@ -22,7 +22,16 @@
   --danger:#cc2233; --success:#227733;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Raleway',sans-serif;min-height:100vh;}
+body{background:var(--bg);color:var(--text);font-family:'Raleway',sans-serif;min-height:100vh;transition:background 0.3s,color 0.3s;}
+body.dark{
+  --bg:#0f0e0c;
+  --bg-mid:#1a1915;
+  --bg-card:#1f1e1a;
+  --bg-dark:#080807;
+  --text:#e8e0d0;
+  --text-dim:#8a7a65;
+  --border:rgba(184,134,11,0.18);
+}
 
 /* LOADING */
 #loading{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
@@ -305,11 +314,24 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .card-reveal-slot{position:absolute;inset:0;transition:transform 0.35s ease,opacity 0.3s ease;}
   .card-reveal-slot .card{width:200px;}
   .card-reveal-slot .card-emoji{display:none;}
-  .card-reveal-slot .card-art{display:none;}
+
   .reveal-counter{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);}
   .reveal-hint-swipe{font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;}
   .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;margin-top:8px;}
   .reveal-done-btn.show{display:block;}
+
+  /* AVATAR CREATOR */
+  .avatar-creator{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+  .avatar-preview{width:90px;height:90px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin:0 auto 16px;border:3px solid var(--gold);transition:all 0.3s;}
+  .avatar-section-title{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px;}
+  .avatar-colors{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .avatar-color{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+  .avatar-color.selected{border-color:white;transform:scale(1.2);box-shadow:0 0 8px rgba(255,255,255,0.4);}
+  .avatar-symbols{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+  .avatar-symbol{width:40px;height:40px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;transition:all 0.2s;background:var(--bg);}
+  .avatar-symbol.selected{border-color:var(--gold);background:rgba(184,134,11,0.12);transform:scale(1.1);}
+  .avatar-save-btn{width:100%;background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;padding:11px;border-radius:8px;cursor:pointer;text-transform:uppercase;transition:filter 0.2s;}
+  .avatar-save-btn:hover{filter:brightness(1.1);}
 
   /* STREAK */
   .streak-bar{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
@@ -377,9 +399,10 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div class="logo-sub">Sanctuaire des Cartes Grecques</div>
   </header>
   <div class="ubar">
-    <div id="user-avatar" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelector('[data-sec=badges]').click()">👤</div>
+    <div id="user-avatar" style="width:36px;height:36px;border-radius:10px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelector('[data-sec=badges]').click()">👤</div>
     <div class="ubar-name">Bienvenue, <strong id="hdr-pseudo">—</strong></div>
     <div class="badge wait" id="cd-badge"><div class="dot"></div><span id="cd-txt">...</span></div>
+    <button class="quit-btn" id="btn-dark" title="Mode sombre">🌙</button>
     <button class="quit-btn" id="btn-quit">Quitter</button>
   </div>
   <div class="sbar">
@@ -422,8 +445,43 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 
   <div class="section" id="section-badges">
     <div class="sec-title">Mes Badges</div>
-    <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin-bottom:16px;line-height:1.6;">
-      Réunis une carte et son arme pour débloquer un badge et découvrir son histoire ! Le badge peut être utilisé comme avatar.
+    <div class="avatar-creator" id="avatar-creator-section">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);text-align:center;margin-bottom:16px;">✦ Mon Avatar</div>
+      <div class="avatar-preview" id="avatar-preview-box" style="background:#1a1510;">⚡</div>
+      <div class="avatar-section-title">Couleur de fond</div>
+      <div class="avatar-colors" id="avatar-colors">
+        <div class="avatar-color selected" data-color="#1a1510" style="background:#1a1510;"></div>
+        <div class="avatar-color" data-color="#ff87b2" style="background:#ff87b2;"></div>
+        <div class="avatar-color" data-color="#ffffff" style="background:#ffffff;border:1px solid #ddd;"></div>
+        <div class="avatar-color" data-color="#ffe566" style="background:#ffe566;"></div>
+        <div class="avatar-color" data-color="#ff9a3c" style="background:#ff9a3c;"></div>
+        <div class="avatar-color" data-color="#87ceeb" style="background:#87ceeb;"></div>
+        <div class="avatar-color" data-color="#b8f0b8" style="background:#b8f0b8;"></div>
+        <div class="avatar-color" data-color="#c9b8f0" style="background:#c9b8f0;"></div>
+        <div class="avatar-color" data-color="#f0b8d8" style="background:#f0b8d8;"></div>
+        <div class="avatar-color" data-color="#b8e0f0" style="background:#b8e0f0;"></div>
+        <div class="avatar-color" data-color="#daa520" style="background:#daa520;"></div>
+        <div class="avatar-color" data-color="#1a1510" style="background:#1a1510;"></div>
+      </div>
+      <div class="avatar-section-title">Symbole</div>
+      <div class="avatar-symbols" id="avatar-symbols">
+        <div class="avatar-symbol selected" data-symbol="⚡">⚡</div>
+        <div class="avatar-symbol" data-symbol="🔱">🔱</div>
+        <div class="avatar-symbol" data-symbol="🏛️">🏛️</div>
+        <div class="avatar-symbol" data-symbol="⚔️">⚔️</div>
+        <div class="avatar-symbol" data-symbol="🦉">🦉</div>
+        <div class="avatar-symbol" data-symbol="🐍">🐍</div>
+        <div class="avatar-symbol" data-symbol="🌙">🌙</div>
+        <div class="avatar-symbol" data-symbol="☀️">☀️</div>
+        <div class="avatar-symbol" data-symbol="🔥">🔥</div>
+        <div class="avatar-symbol" data-symbol="🌊">🌊</div>
+        <div class="avatar-symbol" data-symbol="💀">💀</div>
+        <div class="avatar-symbol" data-symbol="🏆">🏆</div>
+      </div>
+      <button class="avatar-save-btn" id="avatar-save-btn">✨ Utiliser cet avatar</button>
+    </div>
+    <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin:20px 0 12px;line-height:1.6;">
+      🏆 Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
     </div>
     <div id="badges-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;"></div>
     <div class="sec-title" style="margin-top:24px;">Combinaisons à débloquer</div>
@@ -785,6 +843,20 @@ document.getElementById('inp-reg').onkeydown = function(e){if(e.key==='Enter')do
 document.getElementById('btn-login').onclick = doLogin;
 document.getElementById('btn-reg').onclick = doRegister;
 document.getElementById('btn-quit').onclick = doLogout;
+document.getElementById('btn-dark').onclick = function() {
+  var isDark = document.body.classList.toggle('dark');
+  this.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('olympia_theme', isDark ? 'dark' : 'light');
+};
+// Apply saved theme
+(function(){
+  var theme = localStorage.getItem('olympia_theme');
+  if(theme === 'dark') {
+    document.body.classList.add('dark');
+    var btn = document.getElementById('btn-dark');
+    if(btn) btn.textContent = '☀️';
+  }
+})();
 document.getElementById('m-close').onclick = function(){document.getElementById('card-modal').classList.remove('open');};
 
 document.getElementById('card-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
@@ -912,7 +984,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     document.getElementById('section-'+sec).classList.add('active');
     if(sec==='packs') renderPacks();
     if(sec==='exchange') renderExchange();
-    if(sec==='badges') { renderBadges(); renderCombosHint(); }
+    if(sec==='badges') { renderBadges(); renderCombosHint(); initAvatarCreator(); }
   };
 });
 document.getElementById('rules-close').onclick = function(){document.getElementById('rules-modal').classList.remove('open');};
@@ -1321,9 +1393,14 @@ function tearPack() {
   _torn = true;
   var flap = document.getElementById('pack-top-flap');
   var hint = document.getElementById('pr-hint');
-  hint.textContent = '🎉';
+  hint.textContent = '';
   flap.style.transform = 'rotateX(180deg) translateY(-100%)';
   flap.style.opacity = '0';
+  // Hide all pack decorative elements
+  var particles = document.querySelector('.pack-particles');
+  var shine = document.querySelector('.pack-shine');
+  if(particles) particles.style.display = 'none';
+  if(shine) shine.style.display = 'none';
   setTimeout(function() {
     document.getElementById('pack-wrapper').style.display = 'none';
     showRevealCardNew(0);
@@ -1346,7 +1423,7 @@ function showRevealCardNew(index) {
     doneBtn.classList.add('show');
     hint.style.display = 'none';
     counter.style.display = 'none';
-    prTitle.textContent = '🎉 Toutes les cartes révélées !';
+    prTitle.textContent = 'Collection mise à jour !';
     return;
   }
 
@@ -1610,7 +1687,7 @@ function showBadgeUnlock(combo) {
   overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;animation:rfa 0.5s ease;';
   overlay.innerHTML = 
     '<div style="font-family:Cinzel Decorative,serif;font-size:0.7rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;">Combinaison debloquee !</div>'
-    + '<div style="width:100px;height:100px;border-radius:50%;border:3px solid '+combo.badge.color+';overflow:hidden;box-shadow:0 0 30px '+combo.badge.color+';">'
+    + '<div style="width:100px;height:100px;border-radius:20px;border:3px solid '+combo.badge.color+';overflow:hidden;box-shadow:0 0 30px '+combo.badge.color+';">'
     + (combo.badge.img ? '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;">' : '<div style="font-size:3rem;display:flex;align-items:center;justify-content:center;height:100%;">'+combo.badge.icon+'</div>')
     + '</div>'
     + '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:white;">'+combo.name+'</div>'
@@ -1636,7 +1713,7 @@ function renderBadges() {
     var div = document.createElement('div');
     div.style.cssText = 'background:var(--bg-card);border:1px solid '+(isEquipped?combo.badge.color:'var(--border)')+';border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;';
     div.innerHTML = 
-      '<div style="width:70px;height:70px;border-radius:50%;border:2px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 10px;box-shadow:'+(isEquipped?'0 0 15px '+combo.badge.color:'none')+'">'
+      '<div style="width:70px;height:70px;border-radius:14px;border:2px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 10px;box-shadow:'+(isEquipped?'0 0 15px '+combo.badge.color:'none')+'">'
       + (combo.badge.img ? '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;">' : '<div style="font-size:2rem;display:flex;align-items:center;justify-content:height:100%;">'+combo.badge.icon+'</div>')
       + '</div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:4px;">'+combo.badge.name+'</div>'
@@ -1660,7 +1737,7 @@ function showStory(combo) {
   overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML =
     '<div style="background:var(--bg-card);border:1px solid '+combo.badge.color+';border-radius:14px;padding:28px;max-width:420px;width:100%;text-align:center;">'
-    + '<div style="width:80px;height:80px;border-radius:50%;border:2px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 14px;box-shadow:0 0 20px '+combo.badge.color+'55;">'
+    + '<div style="width:80px;height:80px;border-radius:16px;border:2px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 14px;box-shadow:0 0 20px '+combo.badge.color+'55;">'
     + (combo.badge.img ? '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;">' : '')
     + '</div>'
     + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:4px;">'+combo.name+'</div>'
@@ -1702,13 +1779,87 @@ function updateAvatar() {
   if(bid) {
     var combo = COMBOS.find(function(c){ return c.id === bid; });
     if(combo && combo.badge.img) {
-      avatarEl.innerHTML = '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:50%;">';
+      avatarEl.innerHTML = '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 20%;border-radius:12px;">';
+      avatarEl.style.background = '';
       avatarEl.style.borderColor = combo.badge.color;
+      avatarEl.style.fontSize = '';
     }
+  } else if(user.customAvatar) {
+    avatarEl.innerHTML = user.customAvatar.symbol || '⚡';
+    avatarEl.style.background = user.customAvatar.color || '#1a1510';
+    avatarEl.style.borderColor = 'var(--gold)';
+    avatarEl.style.fontSize = '1.3rem';
+    avatarEl.style.display = 'flex';
+    avatarEl.style.alignItems = 'center';
+    avatarEl.style.justifyContent = 'center';
   } else {
     avatarEl.innerHTML = '👤';
     avatarEl.style.borderColor = 'var(--border)';
+    avatarEl.style.background = '';
   }
+}
+
+// ══════════════════════════════════════
+//  AVATAR CREATOR
+// ══════════════════════════════════════
+var _avatarColor = '#1a1510';
+var _avatarSymbol = '⚡';
+
+function initAvatarCreator() {
+  // Load saved custom avatar
+  if(user && user.customAvatar) {
+    _avatarColor = user.customAvatar.color || '#1a1510';
+    _avatarSymbol = user.customAvatar.symbol || '⚡';
+  }
+  updateAvatarPreview();
+
+  // Color picker
+  document.querySelectorAll('.avatar-color').forEach(function(el) {
+    el.onclick = function() {
+      document.querySelectorAll('.avatar-color').forEach(function(e){ e.classList.remove('selected'); });
+      el.classList.add('selected');
+      _avatarColor = el.getAttribute('data-color');
+      updateAvatarPreview();
+    };
+  });
+
+  // Symbol picker
+  document.querySelectorAll('.avatar-symbol').forEach(function(el) {
+    el.onclick = function() {
+      document.querySelectorAll('.avatar-symbol').forEach(function(e){ e.classList.remove('selected'); });
+      el.classList.add('selected');
+      _avatarSymbol = el.getAttribute('data-symbol');
+      updateAvatarPreview();
+    };
+  });
+
+  // Save button
+  document.getElementById('avatar-save-btn').onclick = function() {
+    if(!user) return;
+    user.customAvatar = {color: _avatarColor, symbol: _avatarSymbol};
+    user.avatar = null; // Remove badge avatar
+    saveUser();
+    updateAvatar();
+    var btn = document.getElementById('avatar-save-btn');
+    btn.textContent = '✓ Avatar enregistré !';
+    setTimeout(function(){ btn.textContent = '✨ Utiliser cet avatar'; }, 2000);
+  };
+}
+
+function updateAvatarPreview() {
+  var preview = document.getElementById('avatar-preview-box');
+  if(!preview) return;
+  preview.style.background = _avatarColor;
+  preview.style.boxShadow = '0 0 20px ' + _avatarColor + ', inset 0 0 20px rgba(0,0,0,0.3)';
+  preview.textContent = _avatarSymbol;
+
+  // Sync selected states
+  document.querySelectorAll('.avatar-color').forEach(function(el) {
+    el.classList.toggle('selected', el.getAttribute('data-color') === _avatarColor);
+  });
+  document.querySelectorAll('.avatar-symbol').forEach(function(el) {
+    el.classList.toggle('selected', el.getAttribute('data-symbol') === _avatarSymbol);
+  });
 }
 
 // ══════════════════════════════════════
