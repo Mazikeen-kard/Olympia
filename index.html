@@ -222,21 +222,21 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .pack-reveal{position:fixed;inset:0;z-index:300;background:rgba(15,10,5,0.97);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
   .pack-reveal.open{display:flex;}
   .pack-wrapper{position:relative;width:220px;height:330px;user-select:none;}
-  .pack-img{width:100%;height:100%;border-radius:12px;background:linear-gradient(135deg,#b8860b,#daa520,#8b6914);border:3px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 40px rgba(184,134,11,0.4);position:relative;overflow:hidden;}
+  .pack-img{width:100%;height:100%;border-radius:12px;background:linear-gradient(135deg,#b8860b,#daa520,#8b6914);border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:none;position:relative;overflow:hidden;}
   .pack-img-icon{font-size:4rem;z-index:2;}
   .pack-img-name{font-family:'Cinzel Decorative',serif;font-size:1rem;color:white;z-index:2;}
   .pack-img-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.2em;color:rgba(255,255,255,0.7);text-transform:uppercase;z-index:2;}
   .pack-tear-hint{font-family:'Cinzel',serif;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;text-align:center;}
   .pack-tear-line{position:absolute;top:22%;left:0;right:0;height:2px;background:rgba(255,255,255,0);pointer-events:none;transition:background 0.2s;}
   .pack-tear-line.active{background:linear-gradient(to right,transparent,white,transparent);box-shadow:0 0 8px white;}
-  .pack-top-flap{position:absolute;top:0;left:0;right:0;height:22%;background:linear-gradient(180deg,rgba(218,165,32,0.9),rgba(184,134,11,0.7));border-radius:12px 12px 0 0;transform-origin:top;transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.4s;z-index:3;}
+  .pack-top-flap{position:absolute;top:0;left:0;right:0;height:22%;background:transparent;border-radius:12px 12px 0 0;transform-origin:top;transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.4s;z-index:3;}
   /* BEAUTIFUL PACK DESIGN */
   .pack-img{
     width:100%;height:100%;border-radius:14px;
     background:url('https://i.imgur.com/AGGWuAL.jpeg') center/cover no-repeat;
-    border:3px solid #daa520;
+    border:none;
     display:flex;flex-direction:column;align-items:center;justify-content:space-between;
-    box-shadow:0 0 40px rgba(218,165,32,0.5);
+    box-shadow:0 0 40px rgba(218,165,32,0.3);
     position:relative;overflow:hidden;padding:12px 8px;
   }
   .pack-shine{
@@ -303,6 +303,7 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .card-reveal-area.open{display:block;}
   .card-reveal-slot{position:absolute;inset:0;transition:transform 0.35s ease,opacity 0.3s ease;}
   .card-reveal-slot .card{width:200px;}
+  .card-reveal-slot .card-emoji{display:none;}
   .reveal-counter{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);}
   .reveal-hint-swipe{font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;}
   .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;margin-top:8px;}
@@ -446,21 +447,35 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   <div class="modal" style="max-width:480px;text-align:left;">
     <button class="m-close" id="rules-close">×</button>
     <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:18px;">📜 Règles du Jeu</div>
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Comment jouer</div>
+    
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">📦 Comment jouer</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Connecte-toi avec un pseudo et reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> dès ta première connexion. Ensuite, un nouveau paquet est disponible toutes les <strong style="color:var(--gold)">6 heures</strong>.
+      Connecte-toi avec un pseudo et reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> dès ta première connexion. Ensuite, un nouveau paquet est disponible toutes les <strong style="color:var(--gold)">3 heures</strong>.
     </div>
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Ouvrir un paquet</div>
+
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🎴 Ouvrir un paquet</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Glisse horizontalement sur le paquet pour le <strong style="color:var(--gold)">déchirer</strong>, puis swipe les cartes une par une pour les découvrir !
+      Clique sur le paquet pour l'ouvrir, puis clique sur chaque carte pour les découvrir une par une !
     </div>
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Les raretés</div>
+
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⭐ Les raretés</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
       <span style="color:#7a9eb5">⚪ Commune</span> · <span style="color:#2255cc">🔵 Rare</span> · <span style="color:#7722cc">🟣 Épique</span> · <span style="color:#cc7700">🟡 Légendaire</span> · <span style="color:#ff44aa">✦ Shiny</span> (très rare !)
     </div>
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">Échange de doublons</div>
+
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🔄 Échange de doublons</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      Accumule <strong style="color:var(--gold)">5 doublons</strong> du même type et échange-les contre un paquet thématique dans l'onglet 🔄 Échange.
+    </div>
+
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🔥 Streak de connexion</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      Connecte-toi <strong style="color:var(--gold)">5 jours de suite</strong> pour gagner un paquet bonus gratuit ! Le compteur repart à zéro si tu rates un jour.
+    </div>
+
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🏆 Badges & Histoires</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;">
-      Accumule <strong style="color:var(--gold)">5 doublons</strong> d'un même type de paquet et échange-les contre un paquet thématique de ton choix dans l'onglet 🔄 Échange.
+      Réunis certaines cartes et leurs armes pour débloquer des <strong style="color:var(--gold)">badges exclusifs</strong> et découvrir leurs histoires mythologiques ! Les badges peuvent être utilisés comme avatar.
     </div>
   </div>
 </div>
@@ -506,7 +521,6 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
       <div class="pack-logo">OLYMPIA</div>
       <div class="pack-logo-sub">Sanctuaire des Cartes</div>
       <!-- Center icon -->
-      <div class="pack-center-icon" id="pr-icon">🏛️</div>
       <!-- Pack name -->
       <div class="pack-name-label" id="pr-name">Paquet Collector</div>
       <!-- Bottom border -->
@@ -516,13 +530,13 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
       <div class="pack-img-sub">4 cartes · chance shiny ✦</div>
     </div>
   </div>
-  <div class="pack-tear-hint" id="pr-hint">← Glisse pour déchirer →</div>
+  <div class="pack-tear-hint" id="pr-hint">← Clique pour ouvrir →</div>
   <!-- Card swipe area (hidden initially) -->
   <div class="reveal-counter" id="pr-counter" style="display:none;">1 / 4</div>
   <div class="card-reveal-area" id="card-reveal-area">
     <div class="card-reveal-slot" id="card-reveal-slot"></div>
   </div>
-  <div class="reveal-hint-swipe" id="pr-swipe-hint" style="display:none;">← Swipe pour la carte suivante →</div>
+  <div class="reveal-hint-swipe" id="pr-swipe-hint" style="display:none;">← Clique pour la suite →</div>
   <button class="reveal-done-btn" id="pr-done-btn">🎴 Ajouter à ma collection</button>
 </div>
 
@@ -810,13 +824,19 @@ function launch(p, data) {
   pseudo = p;
   user = data;
   // Compte admin Mazikeen - toutes les cartes !
-  if(p === 'Mazikeen' && user.collection.length === 0) {
-    var allC = allCards();
-    allC.forEach(function(card) {
-      user.collection.push(card.id);
-      user.collection.push(card.id + '|shiny');
-    });
-    user.packsOpened = allC.length;
+  if(p === 'Mazikeen') {
+    if(user.collection.length === 0) {
+      var allC = allCards();
+      allC.forEach(function(card) {
+        user.collection.push(card.id);
+        user.collection.push(card.id + '|shiny');
+      });
+      user.packsOpened = allC.length;
+      saveUser();
+    }
+    // Force check all combos for Mazikeen
+    if(!user.badges) user.badges = [];
+    user.badges = [];
     saveUser();
   }
   addKnown(p);
@@ -834,6 +854,7 @@ function launch(p, data) {
   renderPacks();
   startTimer();
   checkStreak();
+  checkCombos();
   updateAvatar();
   if(user.firstTime) {
     document.getElementById('wb-container').innerHTML='<div class="wbanner"><div class="wb-icon">🎁</div><div><div class="wb-title">Bienvenue dans l\'Olympe, '+p+' !</div><div class="wb-desc">Pour ton arrivée, tu peux ouvrir <strong>un paquet gratuitement</strong>. Ensuite, un nouveau paquet sera disponible chaque heure !</div></div></div>';
@@ -1327,9 +1348,10 @@ function showRevealCardNew(index) {
     return;
   }
 
-  prTitle.textContent = '✨ Nouvelles cartes !';
+  var d2 = _revealCards[index];
+  prTitle.textContent = d2.card.name + (d2.isShiny ? ' ✦' : '');
   counter.textContent = (index+1) + ' / ' + _revealCards.length;
-  hint.textContent = index < _revealCards.length-1 ? '← Swipe pour la suite →' : 'Swipe pour terminer';
+  hint.textContent = index < _revealCards.length-1 ? '← Clique pour la suite →' : 'Clique pour terminer';
 
   var d = _revealCards[index];
   slot.innerHTML = '';
@@ -1665,7 +1687,7 @@ function renderBadges() {
   if(!container || !user) return;
   var badges = user.badges || [];
   if(!badges.length) {
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim);font-family:Cinzel,serif;font-size:0.7rem;">Reunis des cartes et leurs armes pour debloquer des badges !</div>';
+    container.innerHTML = '';
     return;
   }
   container.innerHTML = '';
