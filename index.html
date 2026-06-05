@@ -1866,10 +1866,10 @@ function renderMinigamesList() {
   }
   var games = [
     {id:'memory', icon:'🃏', title:'Memory Olympien', desc:'Retrouve les 12 paires de symboles en 90 secondes !', done: user.minigames.memory},
-    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie grecque !', done: user.minigames.quiz},
-    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise le centre de la cible pour gagner !', done: user.minigames.archery}
+    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Bientot disponible !', done: user.minigames.quiz, coming:true},
+    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Bientot disponible !', done: user.minigames.archery, coming:true}
   ];
-  var allDone = games.every(function(g){ return g.done; });
+  var allDone = user.minigames.memory && user.minigames.quiz && user.minigames.archery;
   if(allDone && !user.minigames.rewardGiven) {
     user.minigames.rewardGiven = true;
     saveUser();
@@ -1897,7 +1897,7 @@ function renderMinigamesList() {
       + '<div class="mg-desc">'+(g.coming && !g.done ? '🔜 Bientôt disponible' : g.desc)+'</div></div>'
       + '<div class="mg-status">'+(g.done ? '✅' : (g.coming ? '🔒' : '▶️'))+'</div>';
     if(!g.done && !g.coming) {
-      btn.onclick = function() { startGame(g.id); };
+      (function(gid){ btn.onclick = function() { startGame(gid); }; })(g.id);
     }
     list.appendChild(btn);
   });
@@ -2578,7 +2578,11 @@ function updateAvatarPreview() {
       document.getElementById('inp-login').value = last;
     }
   }
-  document.getElementById('loading').classList.add('hide');
+  var loadingEl = document.getElementById('loading'); 
+  if(loadingEl) { 
+    loadingEl.style.cssText = 'display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;z-index:-1!important;'; 
+    loadingEl.classList.add('hide'); 
+  }
   document.getElementById('login').classList.remove('hide');
 })();
 </script>
