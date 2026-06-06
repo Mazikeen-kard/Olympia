@@ -1978,14 +1978,10 @@ function renderMinigamesList() {
 }
 
 function startGame(id) {
-  document.getElementById('minigames-container').style.display = 'none';
-  document.getElementById('wb-container').style.display = 'none';
-  document.getElementById('streak-container').style.display = 'none';
-  var grid = document.getElementById('pack-grid');
-  if(grid) { grid.style.display = 'none'; }
-  var cdInfo = document.getElementById('cd-info');
-  if(cdInfo) cdInfo.style.display = 'none';
-  document.getElementById('minigame-area').style.display = 'block';
+  // Store original packs content and replace with game
+  var section = document.getElementById('section-packs');
+  section.setAttribute('data-original', section.innerHTML);
+  section.innerHTML = '<div id="minigame-area" style="padding:16px;min-height:400px;"></div>';
   if(id === 'memory') startMemory();
   if(id === 'archery') startArchery();
   if(id === 'quiz') startQuiz();
@@ -2579,10 +2575,14 @@ function claimBonusPack() {
 
 function backToMinigames() {
   if(_memTimer) clearInterval(_memTimer);
-  document.getElementById('minigame-area').innerHTML = '';
-  document.getElementById('minigame-area').style.display = 'none';
-  // Just click the packs nav button - cleanest approach
-  document.querySelector('[data-sec="packs"]').click();
+  // Restore original packs content
+  var section = document.getElementById('section-packs');
+  var original = section.getAttribute('data-original');
+  if(original) {
+    section.innerHTML = original;
+    section.removeAttribute('data-original');
+  }
+  renderPacks();
 }
 
 // ══════════════════════════════════════
