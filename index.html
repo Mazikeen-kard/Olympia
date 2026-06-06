@@ -2077,6 +2077,7 @@ function flipMemCard(card) {
 
 function memGameOver(won) {
   var area = document.getElementById('minigame-area');
+  area.style.display = 'block';
   area.innerHTML = '<div class="memory-result">'
     + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'💀')+'</div>'
     + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Victoire !':'Temps écoulé...')+'</div>'
@@ -2340,6 +2341,7 @@ function startArchery() {
       setTimeout(function() {
         var area2 = document.getElementById('minigame-area');
         if(!area2) return;
+        area2.style.display = 'block';
         area2.innerHTML = '<div class="memory-result">'
           + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'💀')+'</div>'
           + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Archer Légendaire !':'Retente ta chance...')+'</div>'
@@ -2537,6 +2539,7 @@ function startQuiz() {
             // End of quiz
             var won = correct >= 4;
             var area2 = document.getElementById('minigame-area');
+            area2.style.display = 'block';
             area2.innerHTML = '<div class="memory-result">'
               + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'📚')+'</div>'
               + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Oracle approuve !':'Continue à apprendre...')+'</div>'
