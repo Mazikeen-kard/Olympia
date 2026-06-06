@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -813,7 +814,7 @@ var PACKS = {
   armes:     {name:'Armes',     icon:'🗡️', desc:'Les armes et objets magiques des dieux et héros.'}
 };
 
-var COOLDOWN = 3 * 60 * 60 * 1000;
+var COOLDOWN = 1.5 * 60 * 60 * 1000;
 
 // ══════════════════════════════════════
 //  STATE
@@ -1880,8 +1881,8 @@ function renderMinigamesList() {
   }
   var games = [
     {id:'memory', icon:'🃏', title:'Memory Olympien', desc:'Retrouve les 12 paires de symboles en 90 secondes !', done: user.minigames.memory},
-    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Bientot disponible !', done: user.minigames.quiz, coming:true},
-    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Bientot disponible !', done: user.minigames.archery, coming:true}
+    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie grecque !', done: user.minigames.quiz},
+    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise la cible mouvante avec ton arc !', done: user.minigames.archery}
   ];
   var allDone = user.minigames.memory && user.minigames.quiz && user.minigames.archery;
   if(allDone && !user.minigames.rewardGiven) {
@@ -2498,22 +2499,17 @@ function startQuiz() {
 
 function backToMinigames() {
   if(_memTimer) clearInterval(_memTimer);
-  if(typeof archAnimFrame !== 'undefined') cancelAnimationFrame(archAnimFrame);
-  // Ensure packs section is active
-  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
-  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('section-packs').classList.add('active');
-  document.querySelector('[data-sec="packs"]').classList.add('active');
-  // Restore all elements
+  // Clear game area
   document.getElementById('minigame-area').innerHTML = '';
   document.getElementById('minigame-area').style.display = 'none';
-  document.getElementById('minigames-container').style.display = 'block';
-  document.getElementById('wb-container').style.display = 'block';
-  document.getElementById('streak-container').style.display = 'block';
+  // Show everything back
+  ['minigames-container','wb-container','streak-container'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = 'block';
+  });
   var grid = document.getElementById('pack-grid');
-  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; }
-  var cdInfo = document.getElementById('cd-info');
-  if(cdInfo) cdInfo.style.display = 'block';
+  if(grid) grid.style.display = 'grid';
+  // Render packs section
   renderPacks();
 }
 
