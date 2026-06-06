@@ -1255,6 +1255,16 @@ function renderCol() {
   renderMinigamesList();
   grid.innerHTML = '';
 
+  // Bonus pack from minigames
+  if(user && user.bonusPack) {
+    var bonusDiv = document.createElement('div');
+    bonusDiv.style.cssText = 'text-align:center;padding:16px;background:rgba(184,134,11,0.08);border:1px solid var(--gold);border-radius:12px;margin-bottom:16px;';
+    bonusDiv.innerHTML = '<div style="font-family:Cinzel Decorative,serif;font-size:0.85rem;color:var(--gold);margin-bottom:8px;">🎁 Paquet Bonus !</div>'
+      + '<div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:12px;">Tu as complété les 3 mini-jeux !</div>'
+      + '<button onclick="claimBonusPack()" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.72rem;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">🎴 Ouvrir mon paquet bonus</button>';
+    grid.appendChild(bonusDiv);
+  }
+
   // Determine which packs to show
   var packsToShow = [];
   if(currentFilter === 'all') {
@@ -1943,11 +1953,8 @@ function renderMinigamesList() {
   var allDone = user.minigames.memory && user.minigames.quiz && user.minigames.archery;
   if(allDone && !user.minigames.rewardGiven) {
     user.minigames.rewardGiven = true;
+    user.bonusPack = true;
     saveUser();
-    setTimeout(function(){
-      alert('Bravo ! Tu as gagne les 3 mini-jeux ! Un paquet bonus t\'attend !');
-      openPack('mixed');
-    }, 500);
   }
   var doneCount = games.filter(function(g){ return g.done; }).length;
   container.innerHTML = '<div class="streak-bar" style="flex-direction:column;align-items:flex-start;gap:10px;">'
@@ -2551,6 +2558,13 @@ function startQuiz() {
     });
   }
   renderQuestion();
+}
+
+function claimBonusPack() {
+  if(!user || !user.bonusPack) return;
+  user.bonusPack = false;
+  saveUser();
+  openPack('mixed');
 }
 
 function backToMinigames() {
