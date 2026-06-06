@@ -360,6 +360,30 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .archery-aim-bar{height:100%;border-radius:6px;background:linear-gradient(to right,#e74c3c,#f1c40f,#2ecc71,#f1c40f,#e74c3c);transition:width 0s;}
   .archery-shoot-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.8rem;font-weight:700;letter-spacing:0.15em;padding:14px 40px;border-radius:10px;cursor:pointer;text-transform:uppercase;margin-top:16px;}
 
+  /* CHARACTER CREATOR */
+  .char-creator{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+  .char-creator-title{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);text-align:center;margin-bottom:16px;}
+  .char-preview{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;}
+  .char-preview svg{width:120px;height:180px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));}
+  .char-gender-btns{display:flex;gap:8px;margin-bottom:14px;justify-content:center;}
+  .char-gender-btn{background:var(--bg);border:1px solid var(--border);color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.65rem;padding:8px 20px;border-radius:8px;cursor:pointer;transition:all 0.2s;letter-spacing:0.1em;}
+  .char-gender-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(184,134,11,0.1);}
+  .char-classes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px;}
+  .char-class-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 4px;cursor:pointer;text-align:center;transition:all 0.2s;}
+  .char-class-btn.active{border-color:var(--gold);background:rgba(184,134,11,0.1);}
+  .char-class-icon{font-size:1.4rem;display:block;margin-bottom:2px;}
+  .char-class-name{font-family:'Cinzel',serif;font-size:0.5rem;color:var(--text-dim);letter-spacing:0.05em;}
+  .char-class-btn.active .char-class-name{color:var(--gold);}
+  .char-colors-row{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .char-color-group{flex:1;min-width:80px;}
+  .char-color-label{font-family:'Cinzel',serif;font-size:0.55rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px;}
+  .char-color-options{display:flex;gap:4px;flex-wrap:wrap;}
+  .char-color-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+  .char-color-dot.active{border-color:white;transform:scale(1.2);}
+  .char-save-btn{width:100%;background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;padding:11px;border-radius:8px;cursor:pointer;text-transform:uppercase;}
+  .char-name-display{font-family:'Cinzel Decorative',serif;font-size:0.75rem;color:var(--gold);text-align:center;margin-bottom:4px;}
+  .char-class-display{font-family:'Cinzel',serif;font-size:0.6rem;color:var(--text-dim);text-align:center;letter-spacing:0.15em;text-transform:uppercase;}
+
   /* AVATAR CREATOR */
   .avatar-creator{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
   .avatar-preview{width:90px;height:90px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin:0 auto 16px;border:3px solid var(--gold);transition:all 0.3s;}
@@ -458,6 +482,7 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <button class="nav-btn" data-sec="collection">⚔️ Collection</button>
     <button class="nav-btn" data-sec="exchange">🔄 Échange</button>
     <button class="nav-btn" data-sec="badges">🏆 Badges</button>
+    <button class="nav-btn" data-sec="perso">🎨 Perso</button>
     <button class="nav-btn rules-btn" id="rules-btn">❓ Règles</button>
   </nav>
 
@@ -488,6 +513,73 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 
   <div class="section" id="section-badges">
     <div class="sec-title">Mes Badges</div>
+
+
+    <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin:20px 0 12px;line-height:1.6;">
+      🏆 Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
+    </div>
+    <div id="badges-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;"></div>
+    <div class="sec-title" style="margin-top:24px;">Combinaisons à débloquer</div>
+    <div id="combos-hint" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div>
+  </div>
+
+  <div class="section" id="section-perso">
+    <div class="sec-title">Personnalisation</div>
+    <!-- CHARACTER CREATOR -->
+    <div class="char-creator" id="char-creator-section">
+      <div class="char-creator-title">⚔️ Mon Personnage</div>
+      <div class="char-preview">
+        <div class="char-name-display" id="char-name-display">—</div>
+        <div class="char-class-display" id="char-class-display">Choisissez une classe</div>
+        <svg id="char-svg" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;"></svg>
+      </div>
+      <div class="char-gender-btns">
+        <button class="char-gender-btn active" data-gender="m">♂ Homme</button>
+        <button class="char-gender-btn" data-gender="f">♀ Femme</button>
+      </div>
+      <div class="char-classes" id="char-classes">
+        <div class="char-class-btn active" data-class="warrior"><span class="char-class-icon">⚔️</span><span class="char-class-name">Guerrier</span></div>
+        <div class="char-class-btn" data-class="mage"><span class="char-class-icon">🔮</span><span class="char-class-name">Mage</span></div>
+        <div class="char-class-btn" data-class="archer"><span class="char-class-icon">🏹</span><span class="char-class-name">Archer</span></div>
+        <div class="char-class-btn" data-class="rogue"><span class="char-class-icon">🗡️</span><span class="char-class-name">Voleur</span></div>
+        <div class="char-class-btn" data-class="paladin"><span class="char-class-icon">🛡️</span><span class="char-class-name">Paladin</span></div>
+      </div>
+      <div class="char-colors-row">
+        <div class="char-color-group">
+          <div class="char-color-label">Peau</div>
+          <div class="char-color-options" id="char-skin-colors">
+            <div class="char-color-dot active" data-type="skin" data-color="#fdbcb4" style="background:#fdbcb4;"></div>
+            <div class="char-color-dot" data-type="skin" data-color="#e8956d" style="background:#e8956d;"></div>
+            <div class="char-color-dot" data-type="skin" data-color="#c68642" style="background:#c68642;"></div>
+            <div class="char-color-dot" data-type="skin" data-color="#8d5524" style="background:#8d5524;"></div>
+            <div class="char-color-dot" data-type="skin" data-color="#4a2912" style="background:#4a2912;"></div>
+          </div>
+        </div>
+        <div class="char-color-group">
+          <div class="char-color-label">Cheveux</div>
+          <div class="char-color-options" id="char-hair-colors">
+            <div class="char-color-dot active" data-type="hair" data-color="#2c1b0e" style="background:#2c1b0e;"></div>
+            <div class="char-color-dot" data-type="hair" data-color="#8b4513" style="background:#8b4513;"></div>
+            <div class="char-color-dot" data-type="hair" data-color="#daa520" style="background:#daa520;"></div>
+            <div class="char-color-dot" data-type="hair" data-color="#e8e8e8" style="background:#e8e8e8;border:1px solid #ccc;"></div>
+            <div class="char-color-dot" data-type="hair" data-color="#cc2200" style="background:#cc2200;"></div>
+          </div>
+        </div>
+        <div class="char-color-group">
+          <div class="char-color-label">Tenue</div>
+          <div class="char-color-options" id="char-outfit-colors">
+            <div class="char-color-dot active" data-type="outfit" data-color="#8b6914" style="background:#8b6914;"></div>
+            <div class="char-color-dot" data-type="outfit" data-color="#7722cc" style="background:#7722cc;"></div>
+            <div class="char-color-dot" data-type="outfit" data-color="#2255cc" style="background:#2255cc;"></div>
+            <div class="char-color-dot" data-type="outfit" data-color="#2ecc71" style="background:#2ecc71;"></div>
+            <div class="char-color-dot" data-type="outfit" data-color="#e74c3c" style="background:#e74c3c;"></div>
+            <div class="char-color-dot" data-type="outfit" data-color="#1a1510" style="background:#1a1510;"></div>
+          </div>
+        </div>
+      </div>
+      <button class="char-save-btn" id="char-save-btn">⚔️ Sauvegarder mon personnage</button>
+    </div>
+
     <div class="avatar-creator" id="avatar-creator-section">
       <div style="font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);text-align:center;margin-bottom:16px;">✦ Mon Avatar</div>
       <div class="avatar-preview" id="avatar-preview-box" style="background:#1a1510;">⚡</div>
@@ -523,12 +615,6 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
       </div>
       <button class="avatar-save-btn" id="avatar-save-btn">✨ Utiliser cet avatar</button>
     </div>
-    <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin:20px 0 12px;line-height:1.6;">
-      🏆 Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
-    </div>
-    <div id="badges-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;"></div>
-    <div class="sec-title" style="margin-top:24px;">Combinaisons à débloquer</div>
-    <div id="combos-hint" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div>
   </div>
 
   <div class="section" id="section-exchange">
@@ -986,6 +1072,7 @@ function launch(p, data) {
   checkStreak();
   checkCombos();
   updateAvatar();
+  if(user && user.character) updateAvatarFromChar();
   if(user.firstTime) {
     document.getElementById('wb-container').innerHTML='<div class="wbanner"><div class="wb-icon">🎁</div><div><div class="wb-title">Bienvenue dans l\'Olympe, '+p+' !</div><div class="wb-desc">Pour ton arrivée, tu peux ouvrir <strong>un paquet gratuitement</strong>. Ensuite, un nouveau paquet sera disponible chaque heure !</div></div></div>';
   }
@@ -1040,7 +1127,8 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     document.getElementById('section-'+sec).classList.add('active');
     if(sec==='packs') renderPacks();
     if(sec==='exchange') renderExchange();
-    if(sec==='badges') { renderBadges(); renderCombosHint(); initAvatarCreator(); }
+    if(sec==='badges') { renderBadges(); renderCombosHint(); }
+    if(sec==='perso') { initCharCreator(); initAvatarCreator(); }
   };
 });
 document.getElementById('rules-close').onclick = function(){document.getElementById('rules-modal').classList.remove('open');};
@@ -2511,6 +2599,271 @@ function backToMinigames() {
   if(grid) grid.style.display = 'grid';
   // Render packs section
   renderPacks();
+}
+
+// ══════════════════════════════════════
+//  CHARACTER CREATOR
+// ══════════════════════════════════════
+var _charGender = 'm';
+var _charClass = 'warrior';
+var _charSkin = '#fdbcb4';
+var _charHair = '#2c1b0e';
+var _charOutfit = '#8b6914';
+
+var CLASSES = {
+  warrior: {name:'Guerrier', bonus:'ATK +10'},
+  mage:    {name:'Mage',     bonus:'DEF +10'},
+  archer:  {name:'Archer',   bonus:'SPD +10'},
+  rogue:   {name:'Voleur',   bonus:'CRT +10'},
+  paladin: {name:'Paladin',  bonus:'HP +10'}
+};
+
+function drawCharacter() {
+  var svg = document.getElementById('char-svg');
+  if(!svg) return;
+  var s = _charSkin;
+  var h = _charHair;
+  var o = _charOutfit;
+  var isFemale = _charGender === 'f';
+
+  // Lego/Fortnite style - blocky proportions, compact
+  // HEAD: big, square-ish
+  var headW = 34, headH = 30;
+  var headX = (120-headW)/2, headY = 8;
+  var headCX = 60, headCY = headY + headH/2;
+
+  // Hair
+  var hairSVG = '';
+  if(isFemale) {
+    hairSVG = '<rect x="'+(headX-3)+'" y="'+(headY-2)+'" width="'+(headW+6)+'" height="16" rx="8" fill="'+h+'"/>'
+      + '<rect x="'+(headX-5)+'" y="'+(headY+8)+'" width="8" height="22" rx="4" fill="'+h+'"/>'
+      + '<rect x="'+(headX+headW-3)+'" y="'+(headY+8)+'" width="8" height="22" rx="4" fill="'+h+'"/>';
+  } else {
+    hairSVG = '<rect x="'+(headX-2)+'" y="'+(headY-2)+'" width="'+(headW+4)+'" height="14" rx="7" fill="'+h+'"/>';
+  }
+
+  // BODY: square, blocky
+  var bodyW = isFemale ? 34 : 38;
+  var bodyH = 38;
+  var bodyX = (120-bodyW)/2;
+  var bodyY = headY + headH + 2;
+
+  // ARMS: short and blocky, close to body
+  var armW = 10, armH = 30;
+  var armY = bodyY + 2;
+  var armLX = bodyX - armW - 1;
+  var armRX = bodyX + bodyW + 1;
+
+  // LEGS: square and blocky
+  var legW = 15, legH = 35;
+  var legY = bodyY + bodyH;
+  var legLX = bodyX + 2;
+  var legRX = bodyX + bodyW - legW - 2;
+
+  // Class-specific elements
+  var weaponSVG = '';
+  var shieldSVG = '';
+  var helmetSVG = '';
+  var armorSVG = '';
+
+  if(_charClass === 'warrior') {
+    // Sword on right
+    weaponSVG = '<rect x="'+(armRX+armW+2)+'" y="'+(armY-5)+'" width="5" height="42" rx="2" fill="#aaa"/>'
+      + '<rect x="'+(armRX+armW-1)+'" y="'+(armY+10)+'" width="13" height="5" rx="1" fill="'+o+'"/>'
+      + '<rect x="'+(armRX+armW+3)+'" y="'+(armY-14)+'" width="9" height="12" rx="1" fill="#c0c0c0"/>';
+    // Shield on left
+    shieldSVG = '<rect x="'+(armLX-14)+'" y="'+(armY+2)+'" width="15" height="20" rx="3" fill="'+o+'"/>'
+      + '<rect x="'+(armLX-12)+'" y="'+(armY+4)+'" width="11" height="16" rx="2" fill="'+o+'" opacity="0.6"/>';
+    // Helmet
+    helmetSVG = '<rect x="'+(headX-4)+'" y="'+(headY-4)+'" width="'+(headW+8)+'" height="16" rx="8" fill="'+o+'"/>';
+  } else if(_charClass === 'mage') {
+    // Staff on right
+    weaponSVG = '<rect x="'+(armRX+armW+3)+'" y="'+(armY-10)+'" width="5" height="55" rx="2" fill="#8b5e3c"/>'
+      + '<circle cx="'+(armRX+armW+5)+'" cy="'+(armY-14)+'" r="9" fill="#7722cc" opacity="0.9"/>'
+      + '<circle cx="'+(armRX+armW+5)+'" cy="'+(armY-14)+'" r="5" fill="#cc88ff"/>';
+    // Wizard hat
+    helmetSVG = '<polygon points="'+(headCX)+','+(headY-20)+' '+(headX-8)+','+(headY+2)+' '+(headX+headW+8)+','+(headY+2)+'" fill="'+o+'"/>'
+      + '<rect x="'+(headX-10)+'" y="'+(headY)+'" width="'+(headW+20)+'" height="8" rx="4" fill="'+o+'"/>';
+    // Robe bottom
+    armorSVG = '<path d="M'+(bodyX-4)+' '+(bodyY+bodyH)+' L'+(bodyX+bodyW+4)+' '+(bodyY+bodyH)+' L'+(bodyX+bodyW+10)+' '+(legY+legH)+' L'+(bodyX-10)+' '+(legY+legH)+' Z" fill="'+o+'" opacity="0.5"/>';
+  } else if(_charClass === 'archer') {
+    // Bow on left
+    weaponSVG = '<path d="M'+(armLX-8)+' '+(armY+2)+' Q'+(armLX-18)+' '+(armY+15)+' '+(armLX-8)+' '+(armY+28)+'" stroke="#8b4513" stroke-width="4" fill="none" stroke-linecap="round"/>'
+      + '<line x1="'+(armLX-8)+'" y1="'+(armY+2)+'" x2="'+(armLX-8)+'" y2="'+(armY+28)+'" stroke="#daa520" stroke-width="1.5"/>';
+    // Quiver on back
+    shieldSVG = '<rect x="'+(armRX+armW+2)+'" y="'+(armY)+'" width="10" height="25" rx="4" fill="#8b4513"/>'
+      + '<line x1="'+(armRX+armW+5)+'" y1="'+(armY-3)+'" x2="'+(armRX+armW+5)+'" y2="'+(armY+3)+'" stroke="#daa520" stroke-width="2"/>'
+      + '<line x1="'+(armRX+armW+8)+'" y1="'+(armY-2)+'" x2="'+(armRX+armW+8)+'" y2="'+(armY+4)+'" stroke="#daa520" stroke-width="2"/>';
+    // Hood
+    helmetSVG = '<path d="M'+(headX-4)+' '+(headY+headH/2)+' Q'+(headCX)+' '+(headY-10)+' '+(headX+headW+4)+' '+(headY+headH/2)+'" fill="'+o+'" opacity="0.85"/>';
+  } else if(_charClass === 'rogue') {
+    // Dagger right
+    weaponSVG = '<rect x="'+(armRX+armW+3)+'" y="'+(armY+5)+'" width="4" height="22" rx="1" fill="#888"/>'
+      + '<rect x="'+(armRX+armW)+'" y="'+(armY+14)+'" width="10" height="4" rx="1" fill="'+o+'"/>'
+      + '<polygon points="'+(armRX+armW+3)+','+(armY+5)+' '+(armRX+armW+7)+','+(armY+5)+' '+(armRX+armW+5)+','+(armY-5)+'" fill="#c0c0c0"/>';
+    // Second dagger left
+    shieldSVG = '<rect x="'+(armLX-8)+'" y="'+(armY+8)+'" width="4" height="20" rx="1" fill="#888"/>'
+      + '<rect x="'+(armLX-11)+'" y="'+(armY+16)+'" width="10" height="4" rx="1" fill="'+o+'"/>'
+      + '<polygon points="'+(armLX-8)+','+(armY+8)+' '+(armLX-4)+','+(armY+8)+' '+(armLX-6)+','+(armY-2)+'" fill="#c0c0c0"/>';
+    // Hood/cloak
+    helmetSVG = '<path d="M'+(headX-6)+' '+(headY+headH/2)+' Q'+(headCX)+' '+(headY-12)+' '+(headX+headW+6)+' '+(headY+headH/2)+' L'+(headX+headW+6)+' '+(headY+headH)+' L'+(headX-6)+' '+(headY+headH)+' Z" fill="'+o+'" opacity="0.75"/>';
+    armorSVG = '<rect x="'+(bodyX-2)+'" y="'+bodyY+'" width="'+(bodyW+4)+'" height="'+(bodyH)+'" rx="3" fill="'+o+'" opacity="0.4"/>';
+  } else if(_charClass === 'paladin') {
+    // Warhammer right
+    weaponSVG = '<rect x="'+(armRX+armW+3)+'" y="'+(armY)+'" width="5" height="45" rx="2" fill="#8b6914"/>'
+      + '<rect x="'+(armRX+armW-2)+'" y="'+(armY-2)+'" width="15" height="14" rx="3" fill="'+o+'"/>'
+      + '<rect x="'+(armRX+armW-2)+'" y="'+(armY-2)+'" width="15" height="14" rx="3" fill="#ffe566" opacity="0.3"/>';
+    // Big shield left
+    shieldSVG = '<rect x="'+(armLX-16)+'" y="'+(armY)+'" width="17" height="26" rx="4" fill="'+o+'"/>'
+      + '<polygon points="'+(armLX-8)+','+(armY+2)+' '+(armLX-1)+','+(armY+2)+' '+(armLX-1)+','+(armY+20)+' '+(armLX-8)+','+(armY+24)+' '+(armLX-15)+','+(armY+20)+' '+(armLX-15)+','+(armY+2)+'" fill="'+o+'" stroke="#ffe566" stroke-width="1.5"/>'
+      + '<line x1="'+(armLX-8)+'" y1="'+(armY+2)+'" x2="'+(armLX-8)+'" y2="'+(armY+24)+'" stroke="#ffe566" stroke-width="1"/>';
+    // Full helmet
+    helmetSVG = '<rect x="'+(headX-5)+'" y="'+(headY-5)+'" width="'+(headW+10)+'" height="'+(headH+5)+'" rx="10" fill="'+o+'"/>'
+      + '<rect x="'+(headCX-5)+'" y="'+(headY+5)+'" width="10" height="18" rx="2" fill="rgba(0,0,0,0.3)"/>';
+  }
+
+  svg.innerHTML = 
+    // Shadow
+    '<ellipse cx="60" cy="'+(legY+legH+6)+'" rx="25" ry="5" fill="rgba(0,0,0,0.15)"/>' +
+    // LEGS
+    '<rect x="'+legLX+'" y="'+legY+'" width="'+legW+'" height="'+legH+'" rx="4" fill="'+o+'"/>' +
+    '<rect x="'+legRX+'" y="'+legY+'" width="'+legW+'" height="'+legH+'" rx="4" fill="'+o+'"/>' +
+    // Feet (darker)
+    '<rect x="'+(legLX-2)+'" y="'+(legY+legH-6)+'" width="'+(legW+6)+'" height="10" rx="3" fill="#222"/>' +
+    '<rect x="'+(legRX-4)+'" y="'+(legY+legH-6)+'" width="'+(legW+6)+'" height="10" rx="3" fill="#222"/>' +
+    // Leg separator line
+    '<line x1="60" y1="'+legY+'" x2="60" y2="'+(legY+legH)+'" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>' +
+    // BODY
+    '<rect x="'+bodyX+'" y="'+bodyY+'" width="'+bodyW+'" height="'+bodyH+'" rx="5" fill="'+o+'"/>' +
+    armorSVG +
+    // Body detail
+    '<line x1="60" y1="'+(bodyY+4)+'" x2="60" y2="'+(bodyY+bodyH-4)+'" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>' +
+    // ARMS (same color as body for outfit)
+    '<rect x="'+armLX+'" y="'+armY+'" width="'+armW+'" height="'+armH+'" rx="4" fill="'+o+'"/>' +
+    '<rect x="'+armRX+'" y="'+armY+'" width="'+armW+'" height="'+armH+'" rx="4" fill="'+o+'"/>' +
+    // Hands (skin)
+    '<rect x="'+(armLX)+'" y="'+(armY+armH-8)+'" width="'+armW+'" height="12" rx="4" fill="'+s+'"/>' +
+    '<rect x="'+(armRX)+'" y="'+(armY+armH-8)+'" width="'+armW+'" height="12" rx="4" fill="'+s+'"/>' +
+    // Weapons & shields (behind head)
+    weaponSVG + shieldSVG +
+    // NECK
+    '<rect x="53" y="'+(headY+headH-2)+'" width="14" height="8" rx="2" fill="'+s+'"/>' +
+    // HEAD (hair back)
+    hairSVG +
+    // HEAD face
+    '<rect x="'+headX+'" y="'+headY+'" width="'+headW+'" height="'+headH+'" rx="8" fill="'+s+'"/>' +
+    // Helmet on top
+    helmetSVG +
+    // Eyes
+    '<rect x="'+(headCX-11)+'" y="'+(headCY-4)+'" width="8" height="8" rx="2" fill="white"/>' +
+    '<rect x="'+(headCX+3)+'" y="'+(headCY-4)+'" width="8" height="8" rx="2" fill="white"/>' +
+    '<rect x="'+(headCX-9)+'" y="'+(headCY-2)+'" width="5" height="5" rx="1" fill="#222"/>' +
+    '<rect x="'+(headCX+5)+'" y="'+(headCY-2)+'" width="5" height="5" rx="1" fill="#222"/>' +
+    // Eyebrows
+    '<rect x="'+(headCX-12)+'" y="'+(headCY-8)+'" width="10" height="3" rx="1.5" fill="'+h+'"/>' +
+    '<rect x="'+(headCX+2)+'" y="'+(headCY-8)+'" width="10" height="3" rx="1.5" fill="'+h+'"/>' +
+    // Mouth
+    (isFemale ?
+      '<rect x="'+(headCX-5)+'" y="'+(headCY+6)+'" width="10" height="3" rx="1.5" fill="#e88"/>' :
+      '<rect x="'+(headCX-6)+'" y="'+(headCY+6)+'" width="12" height="3" rx="1.5" fill="#888"/>'
+    );
+}
+
+
+function initCharCreator() {
+  if(!user) return;
+
+  // Load saved character
+  if(user.character) {
+    _charGender = user.character.gender || 'm';
+    _charClass = user.character.class || 'warrior';
+    _charSkin = user.character.skin || '#fdbcb4';
+    _charHair = user.character.hair || '#2c1b0e';
+    _charOutfit = user.character.outfit || '#8b6914';
+  }
+
+  // Update name display
+  var nameEl = document.getElementById('char-name-display');
+  if(nameEl) nameEl.textContent = pseudo || '—';
+
+  updateCharClassDisplay();
+  updateCharSelections();
+  drawCharacter();
+
+  // Gender buttons
+  document.querySelectorAll('.char-gender-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      document.querySelectorAll('.char-gender-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      _charGender = btn.getAttribute('data-gender');
+      drawCharacter();
+    };
+  });
+
+  // Class buttons
+  document.querySelectorAll('.char-class-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      document.querySelectorAll('.char-class-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      _charClass = btn.getAttribute('data-class');
+      updateCharClassDisplay();
+      drawCharacter();
+    };
+  });
+
+  // Color dots
+  document.querySelectorAll('.char-color-dot').forEach(function(dot) {
+    dot.onclick = function() {
+      var type = dot.getAttribute('data-type');
+      var color = dot.getAttribute('data-color');
+      document.querySelectorAll('.char-color-dot[data-type="'+type+'"]').forEach(function(d){ d.classList.remove('active'); });
+      dot.classList.add('active');
+      if(type === 'skin') _charSkin = color;
+      if(type === 'hair') _charHair = color;
+      if(type === 'outfit') _charOutfit = color;
+      drawCharacter();
+    };
+  });
+
+  // Save button
+  document.getElementById('char-save-btn').onclick = function() {
+    if(!user) return;
+    user.character = {gender:_charGender, class:_charClass, skin:_charSkin, hair:_charHair, outfit:_charOutfit};
+    saveUser();
+    updateAvatarFromChar();
+    var btn = document.getElementById('char-save-btn');
+    btn.textContent = '✓ Personnage sauvegardé !';
+    setTimeout(function(){ btn.textContent = '⚔️ Sauvegarder mon personnage'; }, 2000);
+  };
+}
+
+function updateCharClassDisplay() {
+  var el = document.getElementById('char-class-display');
+  if(el && CLASSES[_charClass]) {
+    el.textContent = CLASSES[_charClass].name + ' — ' + CLASSES[_charClass].bonus;
+  }
+}
+
+function updateCharSelections() {
+  document.querySelectorAll('.char-gender-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-gender')===_charGender); });
+  document.querySelectorAll('.char-class-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-class')===_charClass); });
+  document.querySelectorAll('.char-color-dot').forEach(function(d){
+    var t = d.getAttribute('data-type');
+    var c = d.getAttribute('data-color');
+    d.classList.toggle('active', (t==='skin'&&c===_charSkin)||(t==='hair'&&c===_charHair)||(t==='outfit'&&c===_charOutfit));
+  });
+}
+
+function updateAvatarFromChar() {
+  var avatarEl = document.getElementById('user-avatar');
+  if(!avatarEl || !user || !user.character) return;
+  // Show mini character SVG as avatar
+  var s = user.character.skin || '#fdbcb4';
+  var h = user.character.hair || '#2c1b0e';
+  var o = user.character.outfit || '#8b6914';
+  avatarEl.innerHTML = '<svg viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><ellipse cx="60" cy="43" rx="12" ry="14" fill="'+s+'"/><ellipse cx="60" cy="30" rx="14" ry="12" fill="'+h+'"/><path d="M42 75 Q44 100 46 120 L74 120 Q76 100 78 75 Z" fill="'+o+'"/></svg>';
+  avatarEl.style.background = 'var(--bg-card)';
+  avatarEl.style.borderColor = 'var(--gold)';
 }
 
 // ══════════════════════════════════════
