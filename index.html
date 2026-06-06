@@ -2576,19 +2576,10 @@ function claimBonusPack() {
 
 function backToMinigames() {
   if(_memTimer) clearInterval(_memTimer);
-  // Clear game area
   document.getElementById('minigame-area').innerHTML = '';
   document.getElementById('minigame-area').style.display = 'none';
-  // Force show pack-grid FIRST
-  var grid = document.getElementById('pack-grid');
-  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; grid.style.opacity = '1'; }
-  // Show other elements
-  ['minigames-container','wb-container','streak-container'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.style.display = 'block';
-  });
-  // Render packs AFTER grid is visible
-  setTimeout(function(){ renderPacks(); }, 50);
+  // Just click the packs nav button - cleanest approach
+  document.querySelector('[data-sec="packs"]').click();
 }
 
 // ══════════════════════════════════════
