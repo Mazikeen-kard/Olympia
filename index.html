@@ -1320,6 +1320,7 @@ function getRandomPack() {
 
 function renderPacks() {
   var grid = document.getElementById('pack-grid');
+  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; }
   var info = document.getElementById('cd-info');
   var ready = canOpen();
   var remaining = timeLeft();
@@ -1950,12 +1951,7 @@ function renderMinigamesList() {
     {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie grecque !', done: user.minigames.quiz},
     {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise la cible mouvante avec ton arc !', done: user.minigames.archery}
   ];
-  var allDone = user.minigames.memory && user.minigames.quiz && user.minigames.archery;
-  if(allDone && !user.minigames.rewardGiven) {
-    user.minigames.rewardGiven = true;
-    user.bonusPack = true;
-    saveUser();
-  }
+
   var doneCount = games.filter(function(g){ return g.done; }).length;
   container.innerHTML = '<div class="streak-bar" style="flex-direction:column;align-items:flex-start;gap:10px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">'
@@ -2089,6 +2085,7 @@ function memGameOver(won) {
     + '</div>';
   if(won) {
     user.minigames.memory = true;
+    checkMinigameBonus();
     saveUser();
     renderMinigamesList();
   }
@@ -2352,6 +2349,7 @@ function startArchery() {
           + '</div>';
         if(won) {
           user.minigames.archery = true;
+          checkMinigameBonus();
           saveUser();
           renderMinigamesList();
         }
@@ -2548,6 +2546,7 @@ function startQuiz() {
               + '</div>';
             if(won) {
               user.minigames.quiz = true;
+              checkMinigameBonus();
               saveUser();
               renderMinigamesList();
             }
@@ -2558,6 +2557,14 @@ function startQuiz() {
     });
   }
   renderQuestion();
+}
+
+function checkMinigameBonus() {
+  if(!user || !user.minigames) return;
+  if(user.minigames.memory && user.minigames.quiz && user.minigames.archery && !user.minigames.rewardGiven) {
+    user.minigames.rewardGiven = true;
+    user.bonusPack = true;
+  }
 }
 
 function claimBonusPack() {
