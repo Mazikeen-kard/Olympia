@@ -1191,10 +1191,7 @@ function launch(p, data) {
   // Paquets offerts par l'admin
   if(user.adminPackPending && user.adminPackPending > 0) {
     setTimeout(function() {
-      alert('🎁 Tu as reçu '+user.adminPackPending+' paquet(s) offert(s) ! Ils sont disponibles dans ta section Paquets.');
-      user.adminPackPending = 0;
-      saveUser();
-      renderPacks();
+      alert('🎁 Tu as reçu '+user.adminPackPending+' paquet(s) offert(s) ! Rends-toi dans la section Paquets pour les ouvrir.');
     }, 1000);
   }
   updateAvatar();
@@ -1501,9 +1498,12 @@ function renderPacks() {
   var isWelcome = user && (user.firstTime || (user.firstPackDone && !user.secondPackDone));
   var isDaily = !isWelcome && hasDailyPack();
 
+  var isAdmin = !isWelcome && !isDaily && (user.adminPackPending && user.adminPackPending > 0);
+
   if(info) {
     if(ready && isWelcome && user.firstTime) info.textContent='🎁 Ton premier paquet t\'attend !';
     else if(ready && isWelcome) info.textContent='🎁 Encore un paquet gratuit pour toi !';
+    else if(isAdmin) info.textContent='🎁 Tu as reçu des paquets offerts !';
     else if(isDaily) info.textContent='';
     else if(ready) info.textContent='✨ Un paquet surprise est disponible !';
     else info.textContent='⏳ Prochain paquet dans '+fmtTime(remaining);
@@ -1529,16 +1529,20 @@ function renderPacks() {
   div.className = ready ? 'pack avail' : 'pack locked';
   div.style.cssText = 'max-width:340px;margin:0 auto;';
 
-  var packLabel = isDaily ? '🌅 Paquet du Jour' : 'Paquet Collector';
+  var packLabel = isDaily ? '🌅 Paquet du Jour' : isAdmin ? '🎁 Paquet Offert' : 'Paquet Collector';
   var packDesc = isDaily
     ? 'Ton paquet quotidien gratuit ! Un mélange de cartes issues de tous les paquets.'
+    : isAdmin
+    ? 'Un paquet t\'a été offert par l\'administrateur. Bonne chance !'
     : 'Un mélange de cartes rares issues de tous les paquets — dieux, héros, monstres, armes et monuments !';
 
-  div.innerHTML = '<span class="pack-icon">'+(ready?(isDaily?'🌅':'🎴'):'⏳')+'</span>'
+  var showTimer = !ready && remaining > 0;
+  div.innerHTML = '<span class="pack-icon">'+(ready?(isDaily?'🌅':isAdmin?'🎁':'🎴'):'⏳')+'</span>'
     +'<div class="pack-name">'+packLabel+'</div>'
     +'<div class="pack-desc">'+packDesc+'</div>'
     +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
-    +(ready?'<button class="open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'🌅 Ouvrir mon paquet du jour':'✨ Ouvrir mon paquet')+'</button>':'<div class="pack-timer">'+fmtTime(remaining)+'</div>');
+    +(ready?'<button class="open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'🌅 Ouvrir mon paquet du jour':isAdmin?'🎁 Ouvrir mon paquet offert':'✨ Ouvrir mon paquet')+'</button>'
+    : showTimer ? '<div class="pack-timer">'+fmtTime(remaining)+'</div>' : '<div class="pack-timer">Bientôt disponible...</div>');
   if(ready) {
     div.querySelector('.open-btn').onclick = function(){ openPack('mixed'); };
   }
