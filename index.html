@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -429,7 +430,89 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   .card:hover .card-in{box-shadow:0 20px 40px rgba(0,0,0,0.3),0 0 30px rgba(var(--rr,122,158,181),0.3);}
   .card.missing:hover{transform:none !important;}
 
-  @media(max-width:600px){
+  @keyframes notifPop{from{opacity:0;transform:translateX(-50%) translateY(10px) scale(0.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+  /* ══ COMBAT ══ */
+  .combat-locked{text-align:center;padding:40px 20px;}
+  .combat-locked-icon{font-size:3rem;margin-bottom:16px;}
+  .combat-locked-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:8px;}
+  .combat-locked-desc{font-size:0.75rem;color:var(--text-dim);line-height:1.7;margin-bottom:16px;}
+  .combat-locked-bar{height:6px;background:var(--border);border-radius:3px;margin:0 auto 8px;max-width:220px;overflow:hidden;}
+  .combat-locked-bar-fill{height:100%;background:linear-gradient(to right,var(--gold-dim),var(--gold-light));border-radius:3px;transition:width 0.5s;}
+  .deck-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-bottom:20px;}
+  .deck-slot{aspect-ratio:2/3;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;transition:all 0.2s;background:var(--bg-card);position:relative;}
+  .deck-slot.filled{border-style:solid;border-color:var(--gold-dim);}
+  .deck-slot.filled img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
+  .deck-slot .slot-remove{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--danger);border-radius:50%;font-size:0.6rem;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+  .deck-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:300px;overflow-y:auto;}
+  .deck-pick-card{aspect-ratio:2/3;border-radius:8px;border:2px solid var(--border);cursor:pointer;overflow:hidden;transition:all 0.2s;background:var(--bg-card);position:relative;}
+  .deck-pick-card:hover{border-color:var(--gold);transform:scale(1.04);}
+  .deck-pick-card.in-deck{border-color:var(--gold-light);box-shadow:0 0 10px rgba(218,165,32,0.4);opacity:1;}
+  .deck-pick-card.in-deck::after{content:'✓';position:absolute;top:4px;right:5px;background:var(--gold);color:white;font-size:0.55rem;font-weight:700;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:sans-serif;}
+  .deck-pick-card img{width:100%;height:65%;object-fit:cover;object-position:top;}
+  .deck-pick-card .dpname{font-family:Cinzel,serif;font-size:0.42rem;padding:2px 3px;text-align:center;color:var(--text);line-height:1.2;}
+  .deck-pick-card .dpstats{font-size:0.4rem;color:var(--gold-dim);text-align:center;padding-bottom:2px;}
+  .battle-arena{background:var(--bg-dark);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+  .battle-hp-bar{padding:10px 14px;display:flex;gap:10px;align-items:center;}
+  .battle-hp-label{font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:40px;}
+  .battle-hp-track{flex:1;height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden;}
+  .battle-hp-fill{height:100%;border-radius:5px;transition:width 0.4s ease;}
+  .battle-hp-fill.player{background:linear-gradient(to right,#22aa44,#44dd66);}
+  .battle-hp-fill.enemy{background:linear-gradient(to right,#cc2233,#ff4455);}
+  .battle-hp-val{font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);min-width:38px;text-align:right;}
+  .battle-field{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 14px;}
+  .battle-zone{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px;min-height:110px;}
+  .battle-zone-title{font-family:Cinzel,serif;font-size:0.5rem;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
+  .battle-zone-cards{display:flex;flex-wrap:wrap;gap:4px;}
+  .battle-card{width:50px;aspect-ratio:2/3;border-radius:5px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;background:var(--bg-card);}
+  .battle-card img{width:100%;height:65%;object-fit:cover;object-position:top;}
+  .battle-card .bc-stats{font-size:0.38rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding:1px;line-height:1.3;}
+  .battle-card.defending{border-color:#2255cc;transform:rotate(-5deg);}
+  .battle-card.can-attack{border-color:#22aa44;box-shadow:0 0 8px rgba(34,170,68,0.4);}
+  .battle-card.selected{border-color:#ffe566;box-shadow:0 0 12px rgba(255,229,102,0.5);}
+  .battle-card.enemy-card{pointer-events:none;}
+  .battle-hand{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;background:rgba(0,0,0,0.2);}
+  .hand-card{width:54px;flex-shrink:0;aspect-ratio:2/3;border-radius:6px;border:1.5px solid var(--border);overflow:hidden;cursor:pointer;transition:all 0.2s;background:var(--bg-card);}
+  .hand-card:hover{transform:translateY(-8px);border-color:var(--gold);}
+  .hand-card img{width:100%;height:70%;object-fit:cover;object-position:top;}
+  .hand-card .hc-name{font-size:0.38rem;font-family:Cinzel,serif;text-align:center;padding:2px;color:var(--text);line-height:1.1;}
+  .battle-log{padding:8px 14px;max-height:90px;overflow-y:auto;background:rgba(0,0,0,0.1);}
+  .battle-log-entry{font-size:0.6rem;color:var(--text-dim);line-height:1.6;padding:1px 0;}
+  .battle-log-entry.hit{color:#44dd66;}
+  .battle-log-entry.dmg{color:#ff4455;}
+  .battle-log-entry.info{color:var(--gold);}
+  .battle-actions{display:flex;gap:8px;padding:10px 14px;flex-wrap:wrap;}
+  .battle-btn{flex:1;background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;padding:10px;border-radius:8px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;min-width:80px;}
+  .battle-btn:hover{filter:brightness(1.1);}
+  .battle-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text-dim);}
+  .battle-btn:disabled{opacity:0.4;pointer-events:none;}
+  @keyframes battleHit{0%{transform:scale(1)}30%{transform:scale(1.2)}100%{transform:scale(1)}}
+  @keyframes battleShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  .anim-hit{animation:battleHit 0.3s ease;}
+  .anim-shake{animation:battleShake 0.3s ease;}
+
+  /* DAILY BANNER */
+  .daily-banner{
+    position:relative;overflow:hidden;
+    background:linear-gradient(135deg,rgba(184,134,11,0.12),rgba(218,165,32,0.06));
+    border:1px solid rgba(218,165,32,0.5);
+    border-radius:14px;padding:18px 20px;margin-bottom:16px;
+    animation:dailyPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes dailyPop{from{opacity:0;transform:scale(0.94) translateY(-8px)}to{opacity:1;transform:none}}
+  .daily-banner-glow{
+    position:absolute;inset:0;
+    background:linear-gradient(115deg,transparent 30%,rgba(218,165,32,0.08) 50%,transparent 70%);
+    background-size:200% 200%;
+    animation:packshine 2.5s linear infinite;
+    pointer-events:none;border-radius:14px;
+  }
+  .daily-banner-content{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+  .daily-banner-icon{font-size:2.4rem;animation:fl 2s ease-in-out infinite;flex-shrink:0;}
+  .daily-banner-title{font-family:'Cinzel Decorative',serif;font-size:0.88rem;color:var(--gold);margin-bottom:3px;}
+  .daily-banner-sub{font-size:0.68rem;color:var(--text-dim);line-height:1.5;}
+
+
   .grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px;}
   .pgrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));}
   .rev-card{width:88px;}
@@ -478,24 +561,24 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div class="logo-sub">Sanctuaire des Cartes Grecques</div>
   </header>
   <div class="ubar">
-    <div id="user-avatar" style="width:36px;height:36px;border-radius:10px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelector('[data-sec=badges]').click()">👤</div>
+    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelector('[data-sec=badges]').click()">👤</div>
     <div class="ubar-name">Bienvenue, <strong id="hdr-pseudo">—</strong></div>
-    <div class="badge wait" id="cd-badge"><div class="dot"></div><span id="cd-txt">...</span></div>
+    <div style="display:flex;align-items:center;gap:4px;font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold);background:rgba(184,134,11,0.08);border:1px solid var(--border);border-radius:20px;padding:3px 10px;flex-shrink:0;">🪙 <span id="s-drachmes">0</span></div>
     <button class="quit-btn" id="btn-dark" title="Mode sombre">🌙</button>
-    <button class="quit-btn" id="btn-quit">Quitter</button>
+    <button class="quit-btn" id="btn-quit">✕</button>
   </div>
   <div class="sbar">
     <div class="stat"><div class="stat-v" id="s-total">0</div><div class="stat-l">Cartes</div></div>
     <div class="stat"><div class="stat-v" id="s-unique">0</div><div class="stat-l">Uniques</div></div>
     <div class="stat"><div class="stat-v" id="s-shiny">0</div><div class="stat-l">✦ Shinys</div></div>
     <div class="stat"><div class="stat-v" id="s-leg">0</div><div class="stat-l">Légendaires</div></div>
-    <div class="stat"><div class="stat-v" id="s-packs">0</div><div class="stat-l">Paquets</div></div>
   </div>
   <nav>
     <button class="nav-btn active" data-sec="packs">📦 Paquets</button>
     <button class="nav-btn" data-sec="collection">⚔️ Collection</button>
     <button class="nav-btn" data-sec="exchange">🔄 Échange</button>
     <button class="nav-btn" data-sec="badges">🏆 Badges</button>
+    <button class="nav-btn" data-sec="combat" id="nav-combat">⚔️ Combat</button>
     <button class="nav-btn" data-sec="perso">🎨 Perso</button>
     <button class="nav-btn rules-btn" id="rules-btn">❓ Règles</button>
   </nav>
@@ -523,6 +606,7 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div class="sec-title">Choisissez un Paquet</div>
     <div class="cd-info" id="cd-info"></div>
     <div class="pgrid" id="pack-grid"></div>
+    <div id="shop-container"></div>
   </div>
 
   <div class="section" id="section-badges">
@@ -599,6 +683,10 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     </div>
   </div>
 
+  <div class="section" id="section-combat">
+    <div id="combat-container"></div>
+  </div>
+
   <div class="section" id="section-exchange">
     <div class="sec-title">Échange de Doublons</div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
@@ -642,6 +730,11 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🔥 Streak de connexion</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
       Connecte-toi <strong style="color:var(--gold)">5 jours de suite</strong> pour gagner un paquet bonus gratuit ! Le compteur repart à zéro si tu rates un jour.
+    </div>
+
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🪙 Drachmes</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      Gagne des <strong style="color:var(--gold)">Drachmes</strong> en ouvrant des paquets (+10), en réussissant les mini-jeux (+15 chacun) et en complétant un streak de 5 jours (+50). Dépense-les pour cibler un paquet thématique de ton choix à <strong style="color:var(--gold)">50 Drachmes</strong>.
     </div>
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🏆 Badges & Histoires</div>
@@ -903,7 +996,26 @@ function saveUser() {
   localStorage.setItem('olympia_u_' + pseudo, JSON.stringify(user));
 }
 function newUser(p) {
-  return {pseudo:p, collection:[], packsOpened:0, lastPackTime:null, firstTime:true, createdAt:Date.now()};
+  return {pseudo:p, collection:[], packsOpened:0, lastPackTime:null, firstTime:true, createdAt:Date.now(), drachmes:0};
+}
+function addDrachmes(amount, reason) {
+  if(!user) return;
+  if(!user.drachmes) user.drachmes = 0;
+  user.drachmes += amount;
+  saveUser();
+  updateDrachmesDisplay();
+  showDrachmesNotif(amount, reason);
+}
+function updateDrachmesDisplay() {
+  var el = document.getElementById('s-drachmes');
+  if(el) el.textContent = (user.drachmes || 0);
+}
+function showDrachmesNotif(amount, reason) {
+  var notif = document.createElement('div');
+  notif.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));color:white;font-family:Cinzel,serif;font-size:0.75rem;font-weight:700;padding:10px 22px;border-radius:30px;z-index:999;box-shadow:0 4px 20px rgba(184,134,11,0.4);animation:notifPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);pointer-events:none;';
+  notif.textContent = '+' + amount + ' 🪙 Drachmes — ' + reason;
+  document.body.appendChild(notif);
+  setTimeout(function(){ notif.style.transition='opacity 0.5s'; notif.style.opacity='0'; setTimeout(function(){ notif.remove(); }, 500); }, 2000);
 }
 function getKnown() { return JSON.parse(localStorage.getItem('olympia_known')||'[]'); }
 function addKnown(p) { var k=getKnown(); if(!k.includes(p)){k.push(p);localStorage.setItem('olympia_known',JSON.stringify(k));} }
@@ -1015,7 +1127,9 @@ function updateStats() {
   document.getElementById('s-unique').textContent = u.length;
   document.getElementById('s-shiny').textContent = u.filter(function(e){return e.isShiny;}).length;
   document.getElementById('s-leg').textContent = u.filter(function(e){return e.card.rarity==='légendaire';}).length;
-  document.getElementById('s-packs').textContent = user.packsOpened;
+  var packsEl = document.getElementById('s-packs');
+  if(packsEl) packsEl.textContent = user.packsOpened;
+  updateDrachmesDisplay();
 }
 
 function launch(p, data) {
@@ -1050,13 +1164,14 @@ function launch(p, data) {
   updateStats();
   renderCol();
   renderPacks();
+  renderCombat();
   startTimer();
   checkStreak();
   checkCombos();
   updateAvatar();
   if(user && user.character) updateAvatarFromChar();
   if(user.firstTime) {
-    document.getElementById('wb-container').innerHTML='<div class="wbanner"><div class="wb-icon">🎁</div><div><div class="wb-title">Bienvenue dans l\'Olympe, '+p+' !</div><div class="wb-desc">Pour ton arrivée, tu peux ouvrir <strong>un paquet gratuitement</strong>. Ensuite, un nouveau paquet sera disponible chaque heure !</div></div></div>';
+    document.getElementById('wb-container').innerHTML='<div class="wbanner"><div class="wb-icon">🎁</div><div><div class="wb-title">Bienvenue dans l\'Olympe, '+p+' !</div><div class="wb-desc">Pour ton arrivée, tu reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> ! Ouvre-les et commence ta collection. Ensuite, un paquet du jour t\'attendra chaque matin !</div></div></div>';
   }
 }
 
@@ -1109,6 +1224,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     document.getElementById('section-'+sec).classList.add('active');
     if(sec==='packs') renderPacks();
     if(sec==='exchange') renderExchange();
+    if(sec==='combat') renderCombat();
     if(sec==='badges') { renderBadges(); renderCombosHint(); }
     if(sec==='perso') { initCharCreator(); initAvatarCreator(); }
   };
@@ -1128,12 +1244,17 @@ document.querySelectorAll('.fbtn').forEach(function(btn) {
 // ══════════════════════════════════════
 //  COOLDOWN
 // ══════════════════════════════════════
+function hasDailyPack() {
+  if(!user) return false;
+  if(user.firstTime || (user.firstPackDone && !user.secondPackDone)) return false;
+  var today = new Date().toDateString();
+  return !user.dailyPackDate || user.dailyPackDate !== today;
+}
 function canOpen() {
   if(!user) return false;
-  // Premiere connexion - 2 paquets gratuits
   if(user.firstTime) return true;
   if(user.firstPackDone && !user.secondPackDone) return true;
-  // Apres les 2 paquets de bienvenue, cooldown normal
+  if(hasDailyPack()) return true;
   if(!user.lastPackTime) return false;
   return (Date.now() - user.lastPackTime) >= COOLDOWN;
 }
@@ -1148,7 +1269,9 @@ function fmtTime(ms) {
   return sec+'s';
 }
 function updateBadge() {
-  var badge=document.getElementById('cd-badge'), txt=document.getElementById('cd-txt');
+  var badge=document.getElementById('cd-badge');
+  var txt=document.getElementById('cd-txt');
+  if(!badge || !txt) return;
   if(canOpen()){
     badge.className='badge ready';
     txt.textContent=user.firstTime?'🎁 Paquet de bienvenue !':'✨ Paquet disponible !';
@@ -1341,30 +1464,97 @@ function renderPacks() {
   var ready = canOpen();
   var remaining = timeLeft();
   var isWelcome = user && (user.firstTime || (user.firstPackDone && !user.secondPackDone));
+  var isDaily = !isWelcome && hasDailyPack();
 
   if(info) {
-    if(ready && isWelcome && user.firstTime) info.textContent='🎁 Bienvenue ! Choisis ton premier paquet !';
-    else if(ready && isWelcome) info.textContent='🎁 Bonus de bienvenue — encore un paquet gratuit !';
+    if(ready && isWelcome && user.firstTime) info.textContent='🎁 Ton premier paquet t\'attend !';
+    else if(ready && isWelcome) info.textContent='🎁 Encore un paquet gratuit pour toi !';
+    else if(isDaily) info.textContent='';
     else if(ready) info.textContent='✨ Un paquet surprise est disponible !';
     else info.textContent='⏳ Prochain paquet dans '+fmtTime(remaining);
   }
 
-  grid.innerHTML = '';
+  // Bannière daily animée
+  var wb = document.getElementById('wb-container');
+  if(isDaily && wb && !user.firstTime) {
+    wb.innerHTML = '<div class="daily-banner" id="daily-banner">'
+      + '<div class="daily-banner-glow"></div>'
+      + '<div class="daily-banner-content">'
+      + '<div class="daily-banner-icon">🎁</div>'
+      + '<div>'
+      + '<div class="daily-banner-title">🌅 Paquet du Jour !</div>'
+      + '<div class="daily-banner-sub">Ton paquet quotidien gratuit t\'attend — ouvre-le !</div>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
+  }
 
-  // Single mixed pack button always
-  var packsLeft = user.firstTime ? 2 : (user.firstPackDone && !user.secondPackDone ? 1 : 1);
+  grid.innerHTML = '';
   var div = document.createElement('div');
   div.className = ready ? 'pack avail' : 'pack locked';
   div.style.cssText = 'max-width:340px;margin:0 auto;';
-  div.innerHTML = '<span class="pack-icon">'+(ready?'🎴':'🎁')+'</span>'
-    +'<div class="pack-name">Paquet Collector</div>'
-    +'<div class="pack-desc">Un mélange de cartes rares issues de tous les paquets — dieux, héros, monstres, armes et monuments !</div>'
+
+  var packLabel = isDaily ? '🌅 Paquet du Jour' : 'Paquet Collector';
+  var packDesc = isDaily
+    ? 'Ton paquet quotidien gratuit ! Un mélange de cartes issues de tous les paquets.'
+    : 'Un mélange de cartes rares issues de tous les paquets — dieux, héros, monstres, armes et monuments !';
+
+  div.innerHTML = '<span class="pack-icon">'+(ready?(isDaily?'🌅':'🎴'):'⏳')+'</span>'
+    +'<div class="pack-name">'+packLabel+'</div>'
+    +'<div class="pack-desc">'+packDesc+'</div>'
     +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
-    +(ready?'<button class="open-btn" style="width:100%;margin-top:8px;">✨ Ouvrir mon paquet</button>':'<div class="pack-timer">'+fmtTime(remaining)+'</div>');
+    +(ready?'<button class="open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'🌅 Ouvrir mon paquet du jour':'✨ Ouvrir mon paquet')+'</button>':'<div class="pack-timer">'+fmtTime(remaining)+'</div>');
   if(ready) {
     div.querySelector('.open-btn').onclick = function(){ openPack('mixed'); };
   }
   grid.appendChild(div);
+
+  // Paquets thématiques achetables
+  var shopContainer = document.getElementById('shop-container');
+  shopContainer.innerHTML = '';
+
+  var shopTitle = document.createElement('div');
+  shopTitle.className = 'sec-title';
+  shopTitle.style.marginTop = '24px';
+  shopTitle.textContent = 'Paquets Thématiques';
+  shopContainer.appendChild(shopTitle);
+
+  var shopDesc = document.createElement('div');
+  shopDesc.style.cssText = 'font-size:0.68rem;color:var(--text-dim);text-align:center;margin-bottom:14px;';
+  shopDesc.innerHTML = 'Cible ce qui te manque — <strong style="color:var(--gold)">50 🪙 Drachmes</strong> par paquet';
+  shopContainer.appendChild(shopDesc);
+
+  var shopGrid = document.createElement('div');
+  shopGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;';
+  var drachmes = user.drachmes || 0;
+
+  Object.keys(PACKS).forEach(function(packId) {
+    var p = PACKS[packId];
+    var canBuy = drachmes >= 50;
+    var d = document.createElement('div');
+    d.className = canBuy ? 'pack avail' : 'pack locked';
+    d.style.cssText = 'padding:16px 12px;';
+    d.innerHTML = '<span class="pack-icon" style="font-size:2rem;">'+p.icon+'</span>'
+      + '<div class="pack-name" style="font-size:0.78rem;">'+p.name+'</div>'
+      + '<div class="pack-desc" style="font-size:0.62rem;margin-bottom:8px;">'+p.desc+'</div>'
+      + (canBuy
+        ? '<button class="open-btn" style="width:100%;font-size:0.62rem;padding:7px;">50 🪙 Acheter</button>'
+        : '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);">'+drachmes+' / 50 🪙</div>'
+           +'<div style="height:4px;background:rgba(0,0,0,0.07);border-radius:2px;margin-top:6px;overflow:hidden;"><div style="height:100%;width:'+Math.min(drachmes/50*100,100)+'%;background:linear-gradient(to right,var(--gold-dim),var(--gold-light));border-radius:2px;"></div></div>');
+    if(canBuy) {
+      (function(pid){
+        d.querySelector('.open-btn').onclick = function() {
+          if(!user || (user.drachmes||0) < 50) return;
+          user.drachmes -= 50;
+          saveUser();
+          updateDrachmesDisplay();
+          openPack(pid);
+        };
+      })(packId);
+    }
+    shopGrid.appendChild(d);
+  });
+  shopContainer.appendChild(shopGrid);
 }
 
 
@@ -1466,6 +1656,9 @@ function openPack(packId) {
   } else if(user.firstPackDone && !user.secondPackDone) {
     user.secondPackDone = true;
     user.lastPackTime = Date.now();
+  } else if(hasDailyPack()) {
+    user.dailyPackDate = new Date().toDateString();
+    user.lastPackTime = Date.now();
   } else {
     user.lastPackTime = Date.now();
   }
@@ -1474,6 +1667,9 @@ function openPack(packId) {
     user.collection.push(d.card.id + (d.isShiny?'|shiny':''));
   });
   saveUser();
+  // Drachmes pour ouverture de paquet
+  var packBonus = hasDailyPack() ? 5 : 10;
+  addDrachmes(10, 'Paquet ouvert');
 
   document.getElementById('wb-container').innerHTML='';
 
@@ -1848,7 +2044,8 @@ function checkStreak() {
       user.streakBonus = true;
       saveUser();
       setTimeout(function() {
-        alert('🔥 Bravo ! 5 jours de connexion d\'affilee ! Tu gagnes un paquet bonus !');
+        addDrachmes(50, '5 jours de streak !');
+        alert('🔥 Bravo ! 5 jours de connexion d\'affilee ! Tu gagnes un paquet bonus + 50 Drachmes !');
         openPack('mixed');
       }, 1000);
     }
@@ -2104,33 +2301,42 @@ function startMemory() {
   _memMatched = 0;
   _memFlipped = [];
   _memLocked = false;
-  _memSeconds = 90;
+  _memSeconds = 75; // 1min15
 
-  // Get player's unique owned cards with images
-  var owned = getUniqueOwned();
-  var withImg = owned.filter(function(e){ return e.card.img; });
-  
-  // Shuffle and take 12
-  for(var i=withImg.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=withImg[i];withImg[i]=withImg[j];withImg[j]=t;}
-  var selected = withImg.slice(0, 12);
-  
-  // Fill with greek symbols if not enough cards
-  var greekSymbols = ['⚡','🔱','🏛️','⚔️','🦉','🐍','🌙','☀️','🔥','🌊','💀','🏆'];
-  while(selected.length < 12) {
-    var symIdx = selected.length - withImg.length;
-    selected.push({card:{id:'sym'+symIdx, name: greekSymbols[symIdx % greekSymbols.length], img:null}, isShiny:false});
-  }
+  // Set fixe de 12 cartes Memory — indépendant de la collection
+  var MEMORY_SET = [
+    {id:'eclair',     name:'Éclair de Zeus',      img:'https://i.imgur.com/Dmny1rw.jpeg'},
+    {id:'casque',     name:'Casque d\'Hermès',     img:'https://i.imgur.com/12jstda.jpeg'},
+    {id:'trident',    name:'Trident de Poséidon',  img:'https://i.imgur.com/eC9ekyU.jpeg'},
+    {id:'bouclier',   name:'Bouclier d\'Athéna',   img:'https://i.imgur.com/p97OQ1s.jpeg'},
+    {id:'lyre',       name:'Lyre d\'Apollon',      img:'https://i.imgur.com/EndnS94.jpeg'},
+    {id:'arc',        name:'Arc d\'Artémis',       img:'https://i.imgur.com/G2ifM0Q.jpeg'},
+    {id:'cerbere',    name:'Cerbère',              img:'https://i.imgur.com/PjL10De.jpeg'},
+    {id:'meduse',     name:'Méduse',               img:'https://i.imgur.com/pXIUmVo.jpeg'},
+    {id:'pegase',     name:'Pégase',               img:'https://i.imgur.com/PfQZUGp.jpeg'},
+    {id:'labyrinthe', name:'Labyrinthe',           img:'https://i.imgur.com/LzZR3xe.jpeg'},
+    {id:'toison',     name:'Toison d\'Or',         img:'https://i.imgur.com/yh2BEht.jpeg'},
+    {id:'flamme',     name:'Flamme de l\'Olympe',  img:'https://i.imgur.com/NthpTZm.jpeg'}
+  ];
 
-  // Create 12 cards (6 pairs)
-  var pairs = selected.concat(selected.map(function(e){ return {card:e.card, isShiny:e.isShiny, pair:true}; }));
+  // Mélanger et créer les paires
+  var shuffled = MEMORY_SET.slice();
+  for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t;}
+  var selected = shuffled.slice(0, 12); // 12 paires = 24 cartes
+
+  var pairs = [];
+  selected.forEach(function(card) {
+    pairs.push({card:card, uid:card.id+'_a'});
+    pairs.push({card:card, uid:card.id+'_b'});
+  });
   for(var i=pairs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pairs[i];pairs[i]=pairs[j];pairs[j]=t;}
   _memCards = pairs;
 
   var area = document.getElementById('minigame-area');
   area.innerHTML = '<div class="memory-game">'
     + '<div class="memory-header">'
-    + '<div><div class="memory-timer" id="mem-timer">1:30</div></div>'
-    + '<div class="memory-pairs" id="mem-pairs">0 / 6 paires</div>'
+    + '<div><div class="memory-timer" id="mem-timer">1:15</div></div>'
+    + '<div class="memory-pairs" id="mem-pairs">0 / 12 paires</div>'
     + '<button class="mg-back-btn" onclick="backToMinigames()">← Retour</button>'
     + '</div>'
     + '<div class="memory-grid" id="mem-grid"></div>'
@@ -2150,15 +2356,10 @@ function startMemory() {
       + '<div style="font-size:1.2rem;opacity:0.6;">⚡</div>'
       + '</div>';
     
-    // Face = card illustration or emoji, NO name
-    var backHtml;
-    if(item.card.img) {
-      backHtml = '<div class="mem-card-back" style="padding:0;overflow:hidden;border-radius:8px;">'
-        + '<img src="'+item.card.img+'" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;">'
-        + '</div>';
-    } else {
-      backHtml = '<div class="mem-card-back" style="font-size:1.6rem;display:flex;align-items:center;justify-content:center;">'+item.card.name+'</div>';
-    }
+    // Face = illustration, toujours une image avec le set fixe
+    var backHtml = '<div class="mem-card-back" style="padding:0;overflow:hidden;border-radius:8px;">'
+      + '<img src="'+item.card.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">'
+      + '</div>';
     
     card.innerHTML = frontHtml + backHtml;
     card.onclick = function() { flipMemCard(this); };
@@ -2227,6 +2428,7 @@ function memGameOver(won) {
     + '</div>';
   if(won) {
     user.minigames.memory = true;
+    addDrachmes(15, 'Memory réussi');
     checkMinigameBonus();
     saveUser();
     renderMinigamesList();
@@ -2237,220 +2439,335 @@ function startArchery() {
   var archTries = 3;
   var archHits = 0;
   var archAnimFrame = null;
-  var targetX = 280;
-  var targetY = 60;
+  var targetY = 140;
   var targetDir = 1;
-  var targetSpeed = 2.5;
-  var pulling = false;
-  var pullY = 0;
+  var targetSpeed = 2.2;
   var arrowFlying = false;
+  var arrowX, arrowY, arrowVX, arrowVY;
+  var particles = [];
+
+  // Power gauge state
+  var gaugeValue = 0;
+  var gaugeDir = 1;
+  var gaugeSpeed = 1.8;
+  var gaugeActive = true; // oscillating
+  var fired = false;
 
   var area = document.getElementById('minigame-area');
-  area.innerHTML = '<div class="archery-game">'
-    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);margin-bottom:4px;">🏹 Tir à Arc</div>'
-    + '<div id="arch-tries" style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:4px;">Essais : 🏹🏹🏹</div>'
-    + '<div id="arch-hits" style="font-family:Cinzel,serif;font-size:0.7rem;color:#2ecc71;margin-bottom:8px;">Touches : 0 / 3</div>'
-    + '<canvas id="arch-canvas" width="340" height="280" style="border-radius:12px;background:linear-gradient(180deg,#0d1b3e,#1a3a6e,#2d5a9e);display:block;margin:0 auto;touch-action:none;"></canvas>'
-    + '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);margin-top:8px;">Maintiens et relâche pour tirer</div>'
-    + '<button class="mg-back-btn" onclick="stopArchery()" style="margin-top:10px;">← Retour</button>'
+  area.innerHTML = '<div class="archery-game" style="padding:12px 8px;">'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:0.85rem;color:var(--gold);margin-bottom:6px;text-align:center;">🏹 Tir à l\'Arc</div>'
+    + '<div style="display:flex;justify-content:center;gap:24px;margin-bottom:8px;">'
+    + '<div id="arch-tries" style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--gold);">🏹🏹🏹</div>'
+    + '<div id="arch-hits" style="font-family:Cinzel,serif;font-size:0.65rem;color:#2ecc71;">0 / 3 touches</div>'
+    + '</div>'
+    + '<canvas id="arch-canvas" width="340" height="320" style="border-radius:14px;display:block;margin:0 auto;touch-action:none;max-width:100%;"></canvas>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.58rem;color:var(--text-dim);margin-top:8px;text-align:center;letter-spacing:0.1em;">TAPE L\'ÉCRAN AU BON MOMENT</div>'
+    + '<button class="mg-back-btn" onclick="stopArchery()" style="margin-top:10px;display:block;margin-left:auto;margin-right:auto;">← Retour</button>'
     + '</div>';
+
 
   var canvas = document.getElementById('arch-canvas');
   var ctx = canvas.getContext('2d');
   var W = canvas.width, H = canvas.height;
+  var bowX = 55, bowY = H / 2;
+  var targetX = W - 55;
 
-  // Arc position (left side)
-  var arcX = 60, arcY = H/2;
-  // Arrow
-  var arrowX = arcX + 10, arrowY = arcY;
-  var arrowVX = 0, arrowVY = 0;
-  // Pull point
-  var stringPullX = arcX + 10, stringPullY = arcY;
+  // Stars (pre-computed)
+  var stars = [];
+  for(var si=0; si<40; si++) stars.push({x:(si*137)%W, y:(si*97)%H, r:0.5+Math.random()*1.2, a:0.3+Math.random()*0.7});
 
-  function drawScene() {
-    ctx.clearRect(0, 0, W, H);
+  function drawBackground() {
+    // Night sky gradient
+    var sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#080514');
+    sky.addColorStop(0.6, '#0d1b3e');
+    sky.addColorStop(1, '#1a0a00');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
 
-    // Background stars
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    for(var s=0; s<20; s++) {
+    // Stars
+    stars.forEach(function(s) {
       ctx.beginPath();
-      ctx.arc((s*73)%W, (s*47)%H, 0.8, 0, Math.PI*2);
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,'+s.a+')';
       ctx.fill();
+    });
+
+    // Moon
+    ctx.beginPath();
+    ctx.arc(W-40, 30, 18, 0, Math.PI*2);
+    var moonGrad = ctx.createRadialGradient(W-44, 26, 2, W-40, 30, 18);
+    moonGrad.addColorStop(0, '#fffbe0');
+    moonGrad.addColorStop(1, '#daa520');
+    ctx.fillStyle = moonGrad;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(W-33, 24, 14, 0, Math.PI*2);
+    ctx.fillStyle = '#0d1b3e';
+    ctx.fill();
+
+    // Greek columns — bords seulement, fins et discrets
+    var cols = [8, W-22];
+    cols.forEach(function(cx) {
+      var cw = 10, ch = H * 0.52;
+      var cg = ctx.createLinearGradient(cx, 0, cx+cw, 0);
+      cg.addColorStop(0, 'rgba(200,180,120,0.08)');
+      cg.addColorStop(0.5, 'rgba(230,210,150,0.18)');
+      cg.addColorStop(1, 'rgba(180,160,100,0.06)');
+      ctx.fillStyle = cg;
+      ctx.fillRect(cx, H-ch, cw, ch);
+      ctx.fillStyle = 'rgba(230,210,150,0.15)';
+      ctx.fillRect(cx-3, H-ch, cw+6, 7);
+      ctx.fillRect(cx-3, H-14, cw+6, 14);
+    });
+
+    // Ground
+    var ground = ctx.createLinearGradient(0, H-12, 0, H);
+    ground.addColorStop(0, 'rgba(139,105,20,0.4)');
+    ground.addColorStop(1, 'rgba(80,60,10,0.2)');
+    ctx.fillStyle = ground;
+    ctx.fillRect(0, H-12, W, 12);
+  }
+
+  function drawBow() {
+    ctx.save();
+    ctx.translate(bowX, bowY);
+
+    // Tension glow when gauge active
+    if(gaugeActive && !arrowFlying) {
+      var glowAlpha = gaugeValue / 100 * 0.4;
+      ctx.shadowColor = '#daa520';
+      ctx.shadowBlur = 10 + gaugeValue * 0.15;
     }
 
-    // Moving target
-    ctx.save();
-    ctx.translate(targetX, targetY);
-    // Target rings
-    // Greek style target - bigger and prettier
-    var rings = [
-      {r:38,c:'#1a0a00'},
-      {r:32,c:'#8b0000'},
-      {r:25,c:'#cc2200'},
-      {r:18,c:'#daa520'},
-      {r:11,c:'#ffe566'},
-      {r:5,c:'#ffffff'}
-    ];
-    rings.forEach(function(ring) {
-      ctx.beginPath();
-      ctx.arc(0, 0, ring.r, 0, Math.PI*2);
-      ctx.fillStyle = ring.c;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(218,165,32,0.4)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    });
-    // Greek pattern around target
-    ctx.beginPath();
-    ctx.arc(0, 0, 40, 0, Math.PI*2);
-    ctx.strokeStyle = 'rgba(218,165,32,0.6)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([4,3]);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    // Center dot glow
-    ctx.beginPath();
-    ctx.arc(0, 0, 5, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fill();
-    ctx.restore();
-
-    // Draw bow (arc shape)
-    ctx.save();
-    ctx.translate(arcX, arcY);
     // Bow body
     ctx.beginPath();
-    ctx.moveTo(0, -70);
-    ctx.quadraticCurveTo(-25, 0, 0, 70);
-    ctx.strokeStyle = '#8b6914';
-    ctx.lineWidth = 6;
+    ctx.moveTo(0, -72);
+    ctx.quadraticCurveTo(-28, 0, 0, 72);
+    ctx.strokeStyle = '#6b4a10';
+    ctx.lineWidth = 8;
     ctx.lineCap = 'round';
     ctx.stroke();
-    // Bow gradient
     ctx.beginPath();
-    ctx.moveTo(0, -70);
-    ctx.quadraticCurveTo(-20, 0, 0, 70);
+    ctx.moveTo(0, -72);
+    ctx.quadraticCurveTo(-22, 0, 0, 72);
     ctx.strokeStyle = '#daa520';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.stroke();
 
-    // String
-    var pullOffsetX = stringPullX - arcX;
-    var pullOffsetY = stringPullY - arcY;
+    // String — pulled back proportional to gauge
+    var pullBack = gaugeActive ? -(gaugeValue / 100) * 22 : 0;
     ctx.beginPath();
-    ctx.moveTo(0, -70);
-    ctx.lineTo(pullOffsetX, pullOffsetY);
-    ctx.lineTo(0, 70);
-    ctx.strokeStyle = pulling ? '#ffe566' : '#e0d0b0';
-    ctx.lineWidth = pulling ? 2 : 1.5;
+    ctx.moveTo(0, -72);
+    ctx.lineTo(pullBack, 0);
+    ctx.lineTo(0, 72);
+    ctx.strokeStyle = gaugeValue > 60 ? '#ffe566' : '#c8b88a';
+    ctx.lineWidth = 1.8;
+    ctx.shadowBlur = 0;
     ctx.stroke();
 
-    // Arrow on string
-    if(!arrowFlying) {
+    // Arrow on string (before fire)
+    if(!arrowFlying && !fired) {
       ctx.save();
-      ctx.translate(pullOffsetX, pullOffsetY);
-      // Arrow shaft
+      ctx.translate(pullBack, 0);
       ctx.beginPath();
-      ctx.moveTo(-5, 0);
-      ctx.lineTo(40, 0);
-      ctx.strokeStyle = '#8b6914';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      // Arrowhead
+      ctx.moveTo(-8, 0); ctx.lineTo(38, 0);
+      ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 3; ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(40, 0);
-      ctx.lineTo(30, -4);
-      ctx.lineTo(30, 4);
-      ctx.closePath();
-      ctx.fillStyle = '#c0c0c0';
-      ctx.fill();
-      // Feathers
+      ctx.moveTo(38,0); ctx.lineTo(28,-5); ctx.lineTo(28,5); ctx.closePath();
+      ctx.fillStyle = '#c8c8c8'; ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(-5, 0);
-      ctx.lineTo(-15, -6);
-      ctx.lineTo(-5, 0);
-      ctx.lineTo(-15, 6);
-      ctx.strokeStyle = '#cc3300';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      ctx.moveTo(-8,0); ctx.lineTo(-18,-7); ctx.moveTo(-8,0); ctx.lineTo(-18,7);
+      ctx.strokeStyle = '#cc2200'; ctx.lineWidth = 2; ctx.stroke();
       ctx.restore();
     }
+
     ctx.restore();
+  }
 
-    // Flying arrow
-    if(arrowFlying) {
-      ctx.save();
-      ctx.translate(arrowX, arrowY);
-      var angle = Math.atan2(arrowVY, arrowVX);
-      ctx.rotate(angle);
+  function drawTarget() {
+    ctx.save();
+    ctx.translate(targetX, targetY);
+    // Glow
+    ctx.shadowColor = '#daa520';
+    ctx.shadowBlur = 14;
+    var rings = [
+      {r:38,c:'#1a0800'},{r:31,c:'#8b0000'},{r:24,c:'#cc2200'},
+      {r:17,c:'#daa520'},{r:10,c:'#ffe566'},{r:5,c:'#fff'}
+    ];
+    rings.forEach(function(ring) {
+      ctx.beginPath(); ctx.arc(0,0,ring.r,0,Math.PI*2);
+      ctx.fillStyle = ring.c; ctx.fill();
+      ctx.strokeStyle = 'rgba(218,165,32,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+    });
+    // Greek meander border
+    ctx.beginPath(); ctx.arc(0,0,42,0,Math.PI*2);
+    ctx.strokeStyle = 'rgba(218,165,32,0.7)'; ctx.lineWidth = 2.5;
+    ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function drawGauge() {
+    if(arrowFlying || fired) return;
+    var gx = 20, gy = H - 34, gw = W - 40, gh = 16;
+    // Background
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(gx, gy, gw, gh, 8) : ctx.fillRect(gx, gy, gw, gh);
+    ctx.fill();
+
+    // Color zones
+    var zones = [
+      {start:0, end:0.4, color:'rgba(231,76,60,0.7)'},
+      {start:0.4, end:0.65, color:'rgba(241,196,15,0.8)'},
+      {start:0.65, end:0.85, color:'rgba(46,204,113,0.9)'},
+      {start:0.85, end:1, color:'rgba(241,196,15,0.8)'}
+    ];
+    zones.forEach(function(z) {
+      ctx.fillStyle = z.color;
+      ctx.fillRect(gx + gw*z.start, gy, gw*(z.end-z.start), gh);
+    });
+
+    // Indicator needle
+    var needleX = gx + (gaugeValue/100)*gw;
+    ctx.fillStyle = 'white';
+    ctx.shadowColor = 'white'; ctx.shadowBlur = 8;
+    ctx.fillRect(needleX-3, gy-4, 6, gh+8);
+    ctx.shadowBlur = 0;
+
+    // Border
+    ctx.strokeStyle = 'rgba(218,165,32,0.6)'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(gx, gy, gw, gh, 8) : ctx.strokeRect(gx, gy, gw, gh);
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font = '500 9px Cinzel, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('PUISSANCE', W/2, gy - 5);
+    ctx.textAlign = 'left';
+  }
+
+  function drawArrow() {
+    if(!arrowFlying) return;
+    // Trail
+    ctx.save();
+    ctx.translate(arrowX, arrowY);
+    var angle = Math.atan2(arrowVY, arrowVX);
+    ctx.rotate(angle);
+    // Glow trail
+    for(var t=1; t<=4; t++) {
       ctx.beginPath();
-      ctx.moveTo(-15, 0);
-      ctx.lineTo(20, 0);
-      ctx.strokeStyle = '#8b6914';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(20, 0);
-      ctx.lineTo(10, -4);
-      ctx.lineTo(10, 4);
-      ctx.closePath();
-      ctx.fillStyle = '#c0c0c0';
+      ctx.arc(-t*7, 0, 3-t*0.5, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(218,165,32,'+(0.15*t)+')';
       ctx.fill();
-      // Trail
-      ctx.beginPath();
-      ctx.moveTo(-15, 0);
-      ctx.lineTo(-30, -3);
-      ctx.strokeStyle = '#cc3300';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.restore();
     }
+    // Shaft
+    ctx.beginPath(); ctx.moveTo(-18,0); ctx.lineTo(22,0);
+    ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 3; ctx.stroke();
+    // Head
+    ctx.beginPath(); ctx.moveTo(22,0); ctx.lineTo(12,-5); ctx.lineTo(12,5); ctx.closePath();
+    ctx.fillStyle = '#ddd'; ctx.fill();
+    // Feathers
+    ctx.beginPath(); ctx.moveTo(-18,0); ctx.lineTo(-28,-7); ctx.moveTo(-18,0); ctx.lineTo(-28,7);
+    ctx.strokeStyle = '#cc2200'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+  }
 
-    // Pull indicator
-    if(pulling) {
-      var power = Math.min(100, Math.abs(pullOffsetX) * 2);
-      ctx.fillStyle = 'rgba(255,229,102,0.15)';
-      ctx.fillRect(10, H-20, (W-20), 8);
-      ctx.fillStyle = power > 60 ? '#2ecc71' : '#f1c40f';
-      ctx.fillRect(10, H-20, (W-20) * power/100, 8);
-      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(10, H-20, (W-20), 8);
+  function drawParticles() {
+    particles = particles.filter(function(p){ return p.life > 0; });
+    particles.forEach(function(p) {
+      ctx.save();
+      ctx.globalAlpha = p.life / p.maxLife;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 6;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life--;
+    });
+  }
+
+  function spawnHitParticles(x, y) {
+    for(var i=0; i<18; i++) {
+      var angle = Math.random()*Math.PI*2;
+      var speed = 1.5 + Math.random()*3.5;
+      particles.push({
+        x:x, y:y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed,
+        r:2+Math.random()*3, life:25+Math.random()*15, maxLife:40,
+        color: i%2===0 ? '#daa520' : '#ffe566'
+      });
     }
   }
 
+  function drawScene() {
+    ctx.clearRect(0,0,W,H);
+    drawBackground();
+    drawTarget();
+    drawBow();
+    drawArrow();
+    drawParticles();
+    drawGauge();
+  }
+
+  function fire() {
+    if(arrowFlying || fired) return;
+    fired = true;
+    gaugeActive = false;
+    var power = gaugeValue / 100;
+    // Zone verte (0.65-0.85) = tir précis, jaune = déviation modérée, rouge = très forte déviation
+    var deviation;
+    if(power >= 0.65 && power <= 0.85) {
+      deviation = (Math.random() - 0.5) * 0.08; // quasi droit
+    } else if(power >= 0.5 && power < 0.65) {
+      deviation = (Math.random() - 0.5) * 0.45; // jaune bas
+    } else if(power > 0.85 && power <= 0.95) {
+      deviation = (Math.random() - 0.5) * 0.45; // jaune haut
+    } else {
+      deviation = (Math.random() < 0.5 ? 1 : -1) * (0.6 + Math.random() * 0.6); // rouge = raté
+    }
+    var baseAngle = Math.atan2(targetY - bowY, targetX - bowX);
+    var speed = 8 + power * 7;
+    arrowX = bowX + 40;
+    arrowY = bowY;
+    arrowVX = Math.cos(baseAngle + deviation) * speed;
+    arrowVY = Math.sin(baseAngle + deviation) * speed;
+    arrowFlying = true;
+  }
+
   function gameLoop() {
-    // Move target up and down
-    if(!arrowFlying) {
-      targetY += targetDir * targetSpeed;
-      if(targetY > H-40) { targetY = H-40; targetDir = -1; }
-      if(targetY < 30) { targetY = 30; targetDir = 1; }
+    // Gauge oscillation
+    if(gaugeActive && !arrowFlying) {
+      gaugeValue += gaugeDir * gaugeSpeed;
+      if(gaugeValue >= 100) { gaugeValue = 100; gaugeDir = -1; }
+      if(gaugeValue <= 0)   { gaugeValue = 0;   gaugeDir = 1; }
     }
 
-    // Move arrow
+    // Target moves vertically
+    if(!arrowFlying) {
+      targetY += targetDir * targetSpeed;
+      if(targetY > H - 55) { targetY = H-55; targetDir = -1; }
+      if(targetY < 45)     { targetY = 45;   targetDir = 1; }
+    }
+
+    // Arrow physics
     if(arrowFlying) {
       arrowX += arrowVX;
       arrowY += arrowVY;
-      arrowVY += 0.04; // gravity reduced
+      arrowVY += 0.06;
 
-      // Check hit
-      var dx = arrowX - targetX;
-      var dy = arrowY - targetY;
+      var dx = arrowX - targetX, dy = arrowY - targetY;
       var dist = Math.sqrt(dx*dx + dy*dy);
-
-      if(dist < 40) {
+      if(dist < 42) {
         arrowFlying = false;
         archHits++;
-        showFlash(true, dist);
-        nextTry();
+        spawnHitParticles(targetX, targetY);
+        showResult(true, dist);
         return;
       }
-
-      // Miss (out of bounds)
-      if(arrowX > W+50 || arrowY > H+50 || arrowY < -50) {
+      if(arrowX > W+30 || arrowY > H+30 || arrowY < -30) {
         arrowFlying = false;
-        showFlash(false, 999);
-        nextTry();
+        showResult(false, 999);
         return;
       }
     }
@@ -2459,22 +2776,21 @@ function startArchery() {
     archAnimFrame = requestAnimationFrame(gameLoop);
   }
 
-  function showFlash(hit, dist) {
-    ctx.fillStyle = hit ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.2)';
-    ctx.fillRect(0, 0, W, H);
-    ctx.font = 'bold 40px serif';
+  function showResult(hit, dist) {
+    // Flash overlay on canvas
+    ctx.fillStyle = hit ? 'rgba(46,204,113,0.25)' : 'rgba(231,76,60,0.2)';
+    ctx.fillRect(0,0,W,H);
+    ctx.font = 'bold 32px serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = hit ? '#2ecc71' : '#e74c3c';
-    ctx.fillText(hit ? (dist < 7 ? 'BULLSEYE!' : 'TOUCHE !') : 'RATE !', W/2, H/2);
+    ctx.fillText(hit ? (dist < 8 ? '⭐ BULLSEYE !' : '✓ TOUCHE !') : '✗ RATÉ !', W/2, H/2);
     ctx.textAlign = 'left';
-  }
 
-  function nextTry() {
-    archTries--;
     var triesEl = document.getElementById('arch-tries');
     var hitsEl = document.getElementById('arch-hits');
-    if(triesEl) triesEl.textContent = 'Essais : ' + '🏹'.repeat(Math.max(0, archTries));
-    if(hitsEl) hitsEl.textContent = 'Touches : ' + archHits + ' / 3';
+    archTries--;
+    if(triesEl) triesEl.textContent = '🏹'.repeat(Math.max(0, archTries));
+    if(hitsEl) hitsEl.textContent = archHits + ' / 3 touches';
 
     if(archTries <= 0) {
       cancelAnimationFrame(archAnimFrame);
@@ -2492,85 +2808,530 @@ function startArchery() {
           + '</div>';
         if(won) {
           user.minigames.archery = true;
+          addDrachmes(15, 'Tir à l\'arc réussi');
           checkMinigameBonus();
           saveUser();
           renderMinigamesList();
         }
-      }, 1000);
+      }, 1200);
       return;
     }
 
-    // Reset for next try
+    // Next try
     setTimeout(function() {
-      pulling = false;
+      fired = false;
       arrowFlying = false;
-      stringPullX = arcX + 10;
-      stringPullY = arcY;
+      gaugeValue = 0;
+      gaugeDir = 1;
+      gaugeActive = true;
       archAnimFrame = requestAnimationFrame(gameLoop);
-    }, 800);
+    }, 900);
   }
 
-  // Input handling
-  function getCanvasPos(e) {
-    var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width / rect.width;
-    var scaleY = canvas.height / rect.height;
-    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    var clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return {x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY};
-  }
-
-  canvas.addEventListener('mousedown', function(e) {
-    if(arrowFlying) return;
-    var pos = getCanvasPos(e);
-    var dx = pos.x - arcX, dy = pos.y - arcY;
-    if(Math.sqrt(dx*dx+dy*dy) < 80) { pulling = true; }
-  });
-  canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    if(arrowFlying) return;
-    var pos = getCanvasPos(e);
-    pulling = true;
-    stringPullX = Math.max(arcX - 50, Math.min(arcX + 30, pos.x));
-    stringPullY = Math.max(arcY - 70, Math.min(arcY + 70, pos.y));
-  }, {passive:false});
-
-  canvas.addEventListener('mousemove', function(e) {
-    if(!pulling || arrowFlying) return;
-    var pos = getCanvasPos(e);
-    stringPullX = Math.max(arcX - 60, Math.min(arcX + 20, pos.x));
-    stringPullY = Math.max(arcY - 70, Math.min(arcY + 70, pos.y));
-  });
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if(!pulling || arrowFlying) return;
-    var pos = getCanvasPos(e);
-    stringPullX = Math.max(arcX - 60, Math.min(arcX + 20, pos.x));
-    stringPullY = Math.max(arcY - 70, Math.min(arcY + 70, pos.y));
-  }, {passive:false});
-
-  function releaseArrow() {
-    if(!pulling || arrowFlying) return;
-    pulling = false;
-    arrowFlying = true;
-    arrowX = arcX + 10 + (stringPullX - arcX);
-    arrowY = arcY + (stringPullY - arcY);
-    // Velocity based on pull
-    var pullDX = arcX + 10 - stringPullX;
-    var pullDY = arcY - stringPullY;
-    var power = Math.sqrt(pullDX*pullDX + pullDY*pullDY);
-    var speed = Math.min(power * 0.2, 18);
-    var angle = Math.atan2(pullDY, pullDX);
-    arrowVX = Math.cos(angle) * speed;
-    arrowVY = Math.sin(angle) * speed;
-    stringPullX = arcX + 10;
-    stringPullY = arcY;
-  }
-
-  canvas.addEventListener('mouseup', releaseArrow);
-  canvas.addEventListener('touchend', function(e) { e.preventDefault(); releaseArrow(); }, {passive:false});
+  // Input — single tap/click fires
+  canvas.addEventListener('click', function(e) { e.preventDefault(); fire(); });
+  canvas.addEventListener('touchend', function(e) { e.preventDefault(); fire(); }, {passive:false});
 
   archAnimFrame = requestAnimationFrame(gameLoop);
+}
+
+// ══════════════════════════════════════
+//  COMBAT SYSTEM
+// ══════════════════════════════════════
+
+// Génère les stats Yu-Gi-Oh d'une carte selon sa rareté
+function getCombatStats(card) {
+  var seed = card.id.charCodeAt(0) * 31 + (card.id.charCodeAt(1)||7) * 17;
+  var rng = function(min, max) { seed = (seed * 9301 + 49297) % 233280; return min + Math.floor((seed/233280) * (max-min)); };
+  var base = card.atk || 50; // utilise atk existant comme seed
+  var stats = {
+    commune:    {atk:[500,800],  def:[400,700],  hp:1000},
+    rare:       {atk:[900,1300], def:[800,1100],  hp:1500},
+    épique:     {atk:[1400,1800],def:[1200,1600], hp:2000},
+    légendaire: {atk:[1900,2500],def:[1700,2200], hp:2500}
+  };
+  var s = stats[card.rarity] || stats.commune;
+  var atk = s.atk[0] + Math.floor((base/100) * (s.atk[1]-s.atk[0]));
+  var def = s.def[0] + Math.floor(((100-base)/100) * (s.def[1]-s.def[0]));
+  return {atk: atk, def: def, hp: s.hp, maxHp: s.hp};
+}
+
+// Bonus de famille
+var FAMILY_BONUS = {
+  olympe:    {label:'Olympiens',  bonus:'ATK +200',  apply:function(deck){deck.forEach(function(c){c.combatAtk+=200;});}},
+  titans:    {label:'Titans',     bonus:'DEF +300',  apply:function(deck){deck.forEach(function(c){c.combatDef+=300;});}},
+  monstres:  {label:'Monstres',   bonus:'Ennemis -150 DEF', apply:function(deck, enemy){enemy.forEach(function(c){c.combatDef=Math.max(0,c.combatDef-150);});}},
+  heros:     {label:'Héros',      bonus:'Main +1',   apply:function(){}}, // handled at draw
+  armes:     {label:'Armes',      bonus:'Dégâts +10%', apply:function(){}}, // handled at attack
+  monuments: {label:'Monuments',  bonus:'PV +500',   apply:function(deck, enemy, state){state.playerHp+=500; state.playerMaxHp+=500;}}
+};
+
+function getFamilyBonus(deckCards) {
+  var counts = {};
+  deckCards.forEach(function(c) {
+    var pack = c._pack;
+    if(pack) counts[pack] = (counts[pack]||0)+1;
+  });
+  var bonuses = [];
+  Object.keys(counts).forEach(function(pack) {
+    if(counts[pack] >= 4 && FAMILY_BONUS[pack]) bonuses.push(pack);
+  });
+  return bonuses;
+}
+
+// État du combat
+var battleState = null;
+
+function renderCombat() {
+  var container = document.getElementById('combat-container');
+  if(!container) return;
+  var unique = getUniqueOwned();
+  var uniqueCount = unique.length;
+  var needed = 12;
+
+  if(uniqueCount < needed) {
+    container.innerHTML = '<div class="combat-locked">'
+      + '<div class="combat-locked-icon">🔒</div>'
+      + '<div class="combat-locked-title">Combats Verrouillés</div>'
+      + '<div class="combat-locked-desc">Il te faut <strong style="color:var(--gold)">12 cartes uniques</strong> pour débloquer les combats et construire ton deck.<br>Continue à ouvrir des paquets !</div>'
+      + '<div class="combat-locked-bar"><div class="combat-locked-bar-fill" style="width:'+Math.min(100,uniqueCount/needed*100)+'%"></div></div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);">'+uniqueCount+' / '+needed+' cartes</div>'
+      + '</div>';
+    return;
+  }
+
+  // Deck sauvegardé ou vide
+  var savedDeck = user.deck || [];
+  renderDeckBuilder(container, savedDeck);
+}
+
+function renderDeckBuilder(container, savedDeck) {
+  var unique = getUniqueOwned();
+  var deckIds = savedDeck.slice();
+
+  container.innerHTML = '<div class="sec-title">⚔️ Mon Deck</div>'
+    + '<div style="font-size:0.68rem;color:var(--text-dim);text-align:center;margin-bottom:14px;">Choisis 12 cartes pour ton deck de combat</div>'
+    + '<div class="deck-slots" id="deck-slots-grid"></div>'
+    + '<div class="sec-title" style="margin-top:4px;">Ma Collection</div>'
+    + '<div class="deck-pick-grid" id="deck-pick-grid"></div>'
+    + '<div style="display:flex;gap:10px;margin-top:16px;">'
+    + '<button class="battle-btn secondary" id="deck-reset-btn">🗑 Vider</button>'
+    + '<button class="battle-btn" id="deck-fight-btn" '+(deckIds.length>=12?'':'disabled')+'>⚔️ Combattre !</button>'
+    + '</div>';
+
+  function refresh() {
+    // Slots
+    var slotsEl = document.getElementById('deck-slots-grid');
+    slotsEl.innerHTML = '';
+    for(var i=0; i<12; i++) {
+      var slot = document.createElement('div');
+      slot.className = 'deck-slot' + (deckIds[i] ? ' filled' : '');
+      if(deckIds[i]) {
+        var entry = unique.find(function(e){ return (e.card.id+(e.isShiny?'|shiny':'')) === deckIds[i]; });
+        if(entry && entry.card.img) {
+          slot.innerHTML = '<img src="'+entry.card.img+'">'
+            + '<div class="slot-remove" data-i="'+i+'">×</div>';
+        } else if(entry) {
+          slot.textContent = entry.card.icon || '?';
+          slot.innerHTML += '<div class="slot-remove" data-i="'+i+'">×</div>';
+        }
+        (function(idx){ slot.querySelector('.slot-remove').onclick = function(e){ e.stopPropagation(); deckIds.splice(idx,1); refresh(); }; })(i);
+      } else {
+        slot.textContent = '+';
+      }
+      slotsEl.appendChild(slot);
+    }
+
+    // Pick grid
+    var pickEl = document.getElementById('deck-pick-grid');
+    pickEl.innerHTML = '';
+    unique.forEach(function(entry) {
+      var key = entry.card.id + (entry.isShiny?'|shiny':'');
+      var inDeck = deckIds.includes(key);
+      var d = document.createElement('div');
+      d.className = 'deck-pick-card' + (inDeck ? ' in-deck' : '');
+      var stats = getCombatStats(entry.card);
+      d.innerHTML = (entry.card.img ? '<img src="'+entry.card.img+'">' : '<div style="text-align:center;font-size:1.5rem;padding:6px;">'+entry.card.icon+'</div>')
+        + '<div class="dpname">'+entry.card.name+'</div>'
+        + '<div class="dpstats">⚔'+stats.atk+' 🛡'+stats.def+'</div>';
+      (function(k, isIn){ d.onclick = function() {
+        if(isIn) {
+          // Retirer du deck
+          var idx = deckIds.indexOf(k);
+          if(idx >= 0) deckIds.splice(idx, 1);
+        } else {
+          if(deckIds.length >= 12) return;
+          deckIds.push(k);
+        }
+        refresh();
+      }; })(key, inDeck);
+      pickEl.appendChild(d);
+    });
+
+    // Fight button
+    var fightBtn = document.getElementById('deck-fight-btn');
+    if(fightBtn) fightBtn.disabled = deckIds.length < 12;
+  }
+
+  refresh();
+
+  document.getElementById('deck-reset-btn').onclick = function() { deckIds = []; refresh(); };
+  document.getElementById('deck-fight-btn').onclick = function() {
+    user.deck = deckIds.slice();
+    saveUser();
+    startBattle(deckIds);
+  };
+}
+
+function startBattle(deckIds) {
+  var container = document.getElementById('combat-container');
+  var unique = getUniqueOwned();
+
+  // Construire les cartes du joueur
+  function buildBattleCard(key, isEnemy) {
+    var entry = unique.find(function(e){ return (e.card.id+(e.isShiny?'|shiny':'')) === key; });
+    if(!entry) return null;
+    var stats = getCombatStats(entry.card);
+    // Identifier le pack
+    var pack = null;
+    Object.keys(CARDS).forEach(function(pk){ if(CARDS[pk].find(function(c){return c.id===entry.card.id;})) pack=pk; });
+    return {
+      card: entry.card, isShiny: entry.isShiny,
+      combatAtk: stats.atk, combatDef: stats.def,
+      hp: stats.hp, maxHp: stats.hp,
+      mode: 'attack', // 'attack' ou 'defense'
+      canAttack: !isEnemy,
+      hasAttacked: false,
+      _pack: pack,
+      key: key
+    };
+  }
+
+  var playerDeckFull = deckIds.map(function(k){ return buildBattleCard(k, false); }).filter(Boolean);
+  
+  // IA deck — cartes aléatoires de la collection globale
+  var allC = allCards();
+  var shuffled = allC.slice(); for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t;}
+  var aiCards = shuffled.slice(0,12).map(function(card){
+    var stats = getCombatStats(card);
+    var pack = null;
+    Object.keys(CARDS).forEach(function(pk){ if(CARDS[pk].find(function(c){return c.id===card.id;})) pack=pk; });
+    return {card:card, isShiny:false, combatAtk:stats.atk, combatDef:stats.def, hp:stats.hp, maxHp:stats.hp, mode:'attack', canAttack:true, hasAttacked:false, _pack:pack, key:card.id};
+  });
+
+  // Mélanger et distribuer 5 cartes en main
+  for(var i=playerDeckFull.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=playerDeckFull[i];playerDeckFull[i]=playerDeckFull[j];playerDeckFull[j]=t;}
+  for(var i=aiCards.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=aiCards[i];aiCards[i]=aiCards[j];aiCards[j]=t;}
+
+  battleState = {
+    playerDeck: playerDeckFull.slice(5),
+    playerHand: playerDeckFull.slice(0,5),
+    playerField: [],
+    playerHp: 8000, playerMaxHp: 8000,
+    aiDeck: aiCards.slice(5),
+    aiHand: aiCards.slice(0,5),
+    aiField: [],
+    aiHp: 8000, aiMaxHp: 8000,
+    phase: 'player', // 'player' ou 'ai'
+    turn: 1,
+    log: [],
+    cardsPlayed: 0,
+    selectedFieldCard: null,
+    bonuses: getFamilyBonus(playerDeckFull),
+    aiBonuses: getFamilyBonus(aiCards)
+  };
+
+  // Appliquer bonus de famille
+  battleState.bonuses.forEach(function(pack) {
+    if(FAMILY_BONUS[pack]) FAMILY_BONUS[pack].apply(battleState.playerField, battleState.aiField, battleState);
+  });
+  if(battleState.bonuses.includes('monuments')) {
+    battleState.playerHp = Math.min(8500, battleState.playerHp);
+    battleState.playerMaxHp = battleState.playerHp;
+  }
+
+  addBattleLog('⚔️ Le combat commence ! Tour '+battleState.turn, 'info');
+  if(battleState.bonuses.length) addBattleLog('✨ Bonus famille : '+battleState.bonuses.map(function(b){return FAMILY_BONUS[b].label+' ('+FAMILY_BONUS[b].bonus+')';}).join(', '), 'info');
+
+  renderBattle();
+}
+
+function addBattleLog(msg, type) {
+  if(!battleState) return;
+  battleState.log.unshift({msg:msg, type:type||''});
+  if(battleState.log.length > 20) battleState.log.pop();
+}
+
+function renderBattle() {
+  var container = document.getElementById('combat-container');
+  if(!container || !battleState) return;
+  var s = battleState;
+
+  container.innerHTML = '<div class="battle-arena">'
+    // HP bars
+    + '<div class="battle-hp-bar"><span class="battle-hp-label">Toi</span><div class="battle-hp-track"><div class="battle-hp-fill player" style="width:'+Math.max(0,s.playerHp/s.playerMaxHp*100)+'%"></div></div><span class="battle-hp-val">'+s.playerHp+'</span></div>'
+    + '<div class="battle-hp-bar"><span class="battle-hp-label">IA</span><div class="battle-hp-track"><div class="battle-hp-fill enemy" style="width:'+Math.max(0,s.aiHp/s.aiMaxHp*100)+'%"></div></div><span class="battle-hp-val">'+s.aiHp+'</span></div>'
+    // Fields
+    + '<div class="battle-field">'
+    + '<div class="battle-zone"><div class="battle-zone-title">🤺 Terrain IA</div><div class="battle-zone-cards" id="ai-field"></div></div>'
+    + '<div class="battle-zone"><div class="battle-zone-title">⚔️ Ton Terrain</div><div class="battle-zone-cards" id="player-field"></div></div>'
+    + '</div>'
+    // Hand
+    + '<div style="font-family:Cinzel,serif;font-size:0.5rem;letter-spacing:0.15em;color:var(--text-dim);padding:4px 14px;">MA MAIN ('+s.playerHand.length+' cartes)</div>'
+    + '<div class="battle-hand" id="player-hand"></div>'
+    // Log
+    + '<div class="battle-log" id="battle-log"></div>'
+    // Actions
+    + '<div class="battle-actions">'
+    + '<button class="battle-btn secondary" id="btn-toggle-mode">🛡 Mode Défense</button>'
+    + '<button class="battle-btn" id="btn-attack" '+(s.phase==='player'?'':'disabled')+'>⚔️ Attaquer</button>'
+    + '<button class="battle-btn" id="btn-end-turn" '+(s.phase==='player'?'':'disabled')+'>⏭ Fin de tour</button>'
+    + '</div>'
+    + '<div style="padding:4px 14px 10px;"><button class="battle-btn secondary" id="btn-flee" style="width:100%;font-size:0.55rem;">🏳 Abandonner</button></div>'
+    + '</div>';
+
+  // Render AI field
+  var aiFieldEl = document.getElementById('ai-field');
+  s.aiField.forEach(function(bc, idx) {
+    var d = document.createElement('div');
+    d.className = 'battle-card enemy-card' + (bc.mode==='defense'?' defending':'');
+    d.innerHTML = (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="text-align:center;font-size:1.2rem;">'+bc.card.icon+'</div>')
+      + '<div class="bc-stats">ATK '+bc.combatAtk+'<br>DEF '+bc.combatDef+'<br>♥ '+bc.hp+'</div>';
+    aiFieldEl.appendChild(d);
+  });
+
+  // Render player field
+  var playerFieldEl = document.getElementById('player-field');
+  s.playerField.forEach(function(bc, idx) {
+    var d = document.createElement('div');
+    d.className = 'battle-card'
+      + (bc.mode==='defense'?' defending':'')
+      + (!bc.hasAttacked && s.phase==='player'?' can-attack':'')
+      + (s.selectedFieldCard===idx?' selected':'');
+    d.innerHTML = (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="text-align:center;font-size:1.2rem;">'+bc.card.icon+'</div>')
+      + '<div class="bc-stats">ATK '+bc.combatAtk+'<br>DEF '+bc.combatDef+'<br>♥ '+bc.hp+'</div>';
+    (function(i){ d.onclick = function() {
+      battleState.selectedFieldCard = (battleState.selectedFieldCard===i) ? null : i;
+      renderBattle();
+    }; })(idx);
+    playerFieldEl.appendChild(d);
+  });
+
+  // Render hand
+  var handEl = document.getElementById('player-hand');
+  s.playerHand.forEach(function(bc, idx) {
+    var d = document.createElement('div');
+    d.className = 'hand-card';
+    d.innerHTML = (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="text-align:center;font-size:1.2rem;padding:4px;">'+bc.card.icon+'</div>')
+      + '<div class="hc-name">'+bc.card.name+'</div>'
+      + '<div style="font-size:0.36rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding-bottom:2px;">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+    (function(i){ d.onclick = function() {
+      if(s.phase !== 'player') return;
+      if(s.cardsPlayed >= 2) { addBattleLog('Tu ne peux poser que 2 cartes par tour.', ''); renderBattle(); return; }
+      var card = s.playerHand.splice(i, 1)[0];
+      card.hasAttacked = false;
+      // Apply armes bonus
+      if(s.bonuses.includes('armes')) card._armesBonus = true;
+      s.playerField.push(card);
+      s.cardsPlayed++;
+      addBattleLog('Tu poses '+card.card.name+' (ATK '+card.combatAtk+' / DEF '+card.combatDef+')', 'info');
+      renderBattle();
+    }; })(idx);
+    handEl.appendChild(d);
+  });
+
+  // Log
+  var logEl = document.getElementById('battle-log');
+  s.log.forEach(function(entry) {
+    var d = document.createElement('div');
+    d.className = 'battle-log-entry ' + entry.type;
+    d.textContent = entry.msg;
+    logEl.appendChild(d);
+  });
+
+  // Buttons
+  document.getElementById('btn-toggle-mode').onclick = function() {
+    if(s.selectedFieldCard === null) { addBattleLog('Sélectionne une de tes cartes sur le terrain.', ''); renderBattle(); return; }
+    var bc = s.playerField[s.selectedFieldCard];
+    bc.mode = bc.mode === 'attack' ? 'defense' : 'attack';
+    addBattleLog(bc.card.name+' passe en mode '+(bc.mode==='defense'?'défense':'attaque')+'.', 'info');
+    renderBattle();
+  };
+
+  document.getElementById('btn-attack').onclick = function() {
+    if(s.phase !== 'player') return;
+    if(s.selectedFieldCard === null) { addBattleLog('Sélectionne une de tes cartes pour attaquer.', ''); renderBattle(); return; }
+    var attacker = s.playerField[s.selectedFieldCard];
+    if(attacker.hasAttacked) { addBattleLog(attacker.card.name+' a déjà attaqué ce tour.', ''); renderBattle(); return; }
+    if(attacker.mode === 'defense') { addBattleLog('Une carte en défense ne peut pas attaquer.', ''); renderBattle(); return; }
+    playerAttack(attacker);
+  };
+
+  document.getElementById('btn-end-turn').onclick = function() {
+    if(s.phase !== 'player') return;
+    endPlayerTurn();
+  };
+
+  document.getElementById('btn-flee').onclick = function() {
+    if(confirm('Abandonner le combat ?')) {
+      battleState = null;
+      renderCombat();
+    }
+  };
+}
+
+function playerAttack(attacker) {
+  var s = battleState;
+  attacker.hasAttacked = true;
+  var atkVal = attacker.combatAtk;
+  if(attacker._armesBonus) atkVal = Math.floor(atkVal * 1.1);
+
+  if(s.aiField.length === 0) {
+    // Attaque directe
+    var dmg = atkVal;
+    s.aiHp = Math.max(0, s.aiHp - dmg);
+    addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
+  } else {
+    // Attaque la carte la plus faible de l'IA
+    var target = s.aiField.reduce(function(a,b){ return (a.mode==='defense'?a.combatDef:a.combatAtk) < (b.mode==='defense'?b.combatDef:b.combatAtk) ? a : b; });
+    var targetVal = target.mode === 'defense' ? target.combatDef : target.combatAtk;
+    if(atkVal > targetVal) {
+      addBattleLog('⚡ '+attacker.card.name+' détruit '+target.card.name+' !', 'hit');
+      if(target.mode === 'attack') {
+        var excess = atkVal - targetVal;
+        s.aiHp = Math.max(0, s.aiHp - excess);
+        if(excess > 0) addBattleLog('   → '+excess+' dégâts excédentaires à l\'IA.', 'hit');
+      }
+      s.aiField.splice(s.aiField.indexOf(target), 1);
+    } else if(atkVal < targetVal) {
+      var diff = targetVal - atkVal;
+      if(target.mode === 'defense') {
+        addBattleLog('💥 '+attacker.card.name+' n\'a pas percé la défense ! Tu perds '+diff+' PV.', 'dmg');
+        s.playerHp = Math.max(0, s.playerHp - diff);
+      } else {
+        addBattleLog('💥 '+attacker.card.name+' est détruit par '+target.card.name+' ! Tu perds '+diff+' PV.', 'dmg');
+        s.playerField.splice(s.playerField.indexOf(attacker), 1);
+        s.playerHp = Math.max(0, s.playerHp - diff);
+        battleState.selectedFieldCard = null;
+      }
+    } else {
+      addBattleLog('⚖️ Égalité ! Les deux cartes sont détruites.', 'info');
+      s.aiField.splice(s.aiField.indexOf(target), 1);
+      s.playerField.splice(s.playerField.indexOf(attacker), 1);
+      battleState.selectedFieldCard = null;
+    }
+  }
+
+  checkBattleEnd();
+  if(battleState) renderBattle();
+}
+
+function endPlayerTurn() {
+  var s = battleState;
+  s.phase = 'ai';
+  s.cardsPlayed = 0;
+  s.selectedFieldCard = null;
+  s.playerField.forEach(function(c){ c.hasAttacked = false; });
+  addBattleLog('— Tour IA —', 'info');
+
+  // Pioche joueur
+  if(s.playerDeck.length > 0) {
+    var drawn = s.playerDeck.pop();
+    s.playerHand.push(drawn);
+    addBattleLog('Tu pioches une carte.', '');
+  }
+
+  renderBattle();
+  setTimeout(function(){ aiTurn(); }, 600);
+}
+
+function aiTurn() {
+  var s = battleState;
+  if(!s) return;
+
+  // IA pioche
+  if(s.aiDeck.length > 0) {
+    var drawn = s.aiDeck.pop();
+    s.aiHand.push(drawn);
+  }
+
+  // IA pose jusqu'à 2 cartes (les plus fortes)
+  var sorted = s.aiHand.slice().sort(function(a,b){ return b.combatAtk - a.combatAtk; });
+  var played = 0;
+  sorted.forEach(function(bc) {
+    if(played >= 2) return;
+    var idx = s.aiHand.indexOf(bc);
+    if(idx >= 0) {
+      s.aiHand.splice(idx, 1);
+      bc.hasAttacked = false;
+      s.aiField.push(bc);
+      played++;
+      addBattleLog('🤖 IA pose '+bc.card.name+'.', 'info');
+    }
+  });
+
+  // IA attaque avec chaque carte
+  setTimeout(function() {
+    if(!battleState) return;
+    var attackers = s.aiField.filter(function(c){ return c.mode === 'attack'; });
+    attackers.forEach(function(attacker) {
+      if(!battleState) return;
+      var atkVal = attacker.combatAtk;
+      if(s.playerField.length === 0) {
+        s.playerHp = Math.max(0, s.playerHp - atkVal);
+        addBattleLog('💥 '+attacker.card.name+' t\'attaque directement ! Tu perds '+atkVal+' PV.', 'dmg');
+      } else {
+        var target = s.playerField.reduce(function(a,b){ return (a.mode==='defense'?a.combatDef:a.combatAtk) < (b.mode==='defense'?b.combatDef:b.combatAtk) ? a : b; });
+        var targetVal = target.mode === 'defense' ? target.combatDef : target.combatAtk;
+        if(atkVal > targetVal) {
+          addBattleLog('💥 '+attacker.card.name+' détruit '+target.card.name+' !', 'dmg');
+          if(target.mode === 'attack') { s.playerHp = Math.max(0, s.playerHp - (atkVal-targetVal)); }
+          s.playerField.splice(s.playerField.indexOf(target), 1);
+        } else if(atkVal < targetVal && target.mode === 'attack') {
+          addBattleLog('⚡ '+target.card.name+' résiste à '+attacker.card.name+' !', 'hit');
+          s.aiHp = Math.max(0, s.aiHp - (targetVal-atkVal));
+        } else {
+          addBattleLog('⚖️ Égalité entre '+attacker.card.name+' et '+target.card.name+'.', 'info');
+        }
+      }
+      checkBattleEnd();
+    });
+
+    if(battleState) {
+      s.phase = 'player';
+      s.turn++;
+      addBattleLog('— Ton Tour '+s.turn+' —', 'info');
+      // Héros bonus : pioche extra au 1er tour
+      if(s.bonuses.includes('heros') && s.turn === 2 && s.playerDeck.length > 0) {
+        s.playerHand.push(s.playerDeck.pop());
+        addBattleLog('✨ Bonus Héros : tu pioches une carte supplémentaire !', 'info');
+      }
+      renderBattle();
+    }
+  }, 800);
+}
+
+function checkBattleEnd() {
+  if(!battleState) return;
+  var s = battleState;
+  if(s.playerHp <= 0 || s.aiHp <= 0) {
+    var won = s.aiHp <= 0;
+    cancelAnimationFrame(0);
+    setTimeout(function() {
+      var container = document.getElementById('combat-container');
+      if(!container) return;
+      container.innerHTML = '<div style="text-align:center;padding:40px 20px;">'
+        + '<div style="font-size:3.5rem;margin-bottom:16px;">'+(won?'🏆':'💀')+'</div>'
+        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Victoire !':'Défaite...')+'</div>'
+        + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">'+(won?'Tu as vaincu l\'IA ! +15 🪙 Drachmes':'L\'IA t\'a eu cette fois. Retente !')+'</div>'
+        + '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">'
+        + '<button class="battle-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
+        + '<button class="battle-btn secondary" onclick="battleState=null;renderCombat();">📋 Deck</button>'
+        + '</div></div>';
+      battleState = null;
+      if(won) addDrachmes(15, 'Victoire en combat !');
+    }, 500);
+  }
 }
 
 function stopArchery() {
@@ -2692,6 +3453,7 @@ function startQuiz() {
               + '</div>';
             if(won) {
               user.minigames.quiz = true;
+              addDrachmes(15, 'Quiz réussi');
               checkMinigameBonus();
               saveUser();
               renderMinigamesList();
