@@ -567,21 +567,14 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <button class="quit-btn" id="btn-dark" title="Mode sombre">🌙</button>
     <button class="quit-btn" id="btn-quit">✕</button>
   </div>
-  <div class="sbar">
-    <div class="stat"><div class="stat-v" id="s-total">0</div><div class="stat-l">Cartes</div></div>
-    <div class="stat"><div class="stat-v" id="s-unique">0</div><div class="stat-l">Uniques</div></div>
-    <div class="stat"><div class="stat-v" id="s-shiny">0</div><div class="stat-l">✦ Shinys</div></div>
-    <div class="stat"><div class="stat-v" id="s-leg">0</div><div class="stat-l">Légendaires</div></div>
-  </div>
-  <nav>
+  <nav style="display:flex;justify-content:center;flex-wrap:wrap;">
     <button class="nav-btn active" data-sec="packs">📦 Paquets</button>
-    <button class="nav-btn" data-sec="collection">⚔️ Collection</button>
+    <button class="nav-btn" data-sec="collection">📚 Collection</button>
     <button class="nav-btn" data-sec="exchange">🔄 Échange</button>
     <button class="nav-btn" data-sec="badges">🏆 Badges</button>
     <button class="nav-btn" data-sec="combat" id="nav-combat">⚔️ Combat</button>
     <button class="nav-btn" data-sec="perso">🎨 Perso</button>
-    <button class="nav-btn rules-btn" id="rules-btn">❓ Règles</button>
-    <button class="nav-btn" id="contact-btn">✉️ Contact</button>
+    <button class="nav-btn" id="info-btn">ℹ Infos</button>
     <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;">🔧 Admin</button>
   </nav>
 
@@ -708,15 +701,15 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 
 
 
-<!-- RULES MODAL -->
+<!-- INFOS MODAL -->
 <div class="overlay" id="rules-modal">
   <div class="modal" style="max-width:480px;text-align:left;">
     <button class="m-close" id="rules-close">×</button>
-    <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:18px;">📜 Règles du Jeu</div>
-    
+    <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:18px;">ℹ Infos & Règles</div>
+
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">📦 Comment jouer</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Connecte-toi avec un pseudo et reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> dès ta première connexion. Ensuite, un nouveau paquet est disponible toutes les <strong style="color:var(--gold)">3 heures</strong>.
+      Connecte-toi avec un pseudo et reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> dès ta première connexion. Ensuite, un <strong style="color:var(--gold)">paquet du jour</strong> t'attend chaque matin, et un nouveau paquet toutes les <strong style="color:var(--gold)">1h30</strong>.
     </div>
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🎴 Ouvrir un paquet</div>
@@ -729,24 +722,34 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
       <span style="color:#7a9eb5">⚪ Commune</span> · <span style="color:#2255cc">🔵 Rare</span> · <span style="color:#7722cc">🟣 Épique</span> · <span style="color:#cc7700">🟡 Légendaire</span> · <span style="color:#ff44aa">✦ Shiny</span> (très rare !)
     </div>
 
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🪙 Drachmes</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
+      Gagne des <strong style="color:var(--gold)">Drachmes</strong> en ouvrant des paquets (+10), en réussissant les mini-jeux (+15 chacun) et en complétant un streak de 5 jours (+50). Dépense-les pour cibler un paquet thématique à <strong style="color:var(--gold)">50 Drachmes</strong>.
+    </div>
+
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🔄 Échange de doublons</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Accumule <strong style="color:var(--gold)">5 doublons</strong> du même type et échange-les contre un paquet thématique dans l'onglet 🔄 Échange.
+      Accumule <strong style="color:var(--gold)">5 doublons</strong> du même pack et échange-les contre un paquet thématique dans l'onglet 🔄 Échange.
     </div>
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🔥 Streak de connexion</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Connecte-toi <strong style="color:var(--gold)">5 jours de suite</strong> pour gagner un paquet bonus gratuit ! Le compteur repart à zéro si tu rates un jour.
+      Connecte-toi <strong style="color:var(--gold)">5 jours de suite</strong> pour gagner un paquet bonus + 50 Drachmes ! Le compteur repart à zéro si tu rates un jour.
     </div>
 
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🪙 Drachmes</div>
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⚔️ Combats</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Gagne des <strong style="color:var(--gold)">Drachmes</strong> en ouvrant des paquets (+10), en réussissant les mini-jeux (+15 chacun) et en complétant un streak de 5 jours (+50). Dépense-les pour cibler un paquet thématique de ton choix à <strong style="color:var(--gold)">50 Drachmes</strong>.
+      Débloque les combats à <strong style="color:var(--gold)">12 cartes uniques</strong>. Construis un deck de 12 cartes et affronte l'IA tour par tour. Victoire = +15 Drachmes.
     </div>
 
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🏆 Badges & Histoires</div>
-    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;">
-      Réunis certaines cartes et leurs armes pour débloquer des <strong style="color:var(--gold)">badges exclusifs</strong> et découvrir leurs histoires mythologiques ! Les badges peuvent être utilisés comme avatar.
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🏆 Badges</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:20px;">
+      Réunis certaines cartes pour débloquer des <strong style="color:var(--gold)">badges exclusifs</strong> et découvrir leurs histoires mythologiques !
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:16px;text-align:center;">
+      <div style="font-family:'Cinzel',serif;font-size:0.6rem;color:var(--text-dim);margin-bottom:10px;">Un bug ? Une suggestion ? Écris-nous !</div>
+      <button onclick="window.location.href='mailto:mazikeen.e@icloud.com?subject=Olympia%20-%20Contact&body=Bonjour%2C%0A%0A'" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;padding:10px 24px;border-radius:8px;cursor:pointer;">✉️ Contacter l'équipe</button>
     </div>
   </div>
 </div>
@@ -1105,7 +1108,7 @@ document.getElementById('m-close').onclick = function(){document.getElementById(
 document.getElementById('card-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
 document.getElementById('rev-close').onclick = closeReveal;
 
-var ADMIN_PASSWORD = '260494';
+var ADMIN_PASSWORD = 'CHANGE_MOI_2024';
 
 function doLogin() {
   var v = document.getElementById('inp-login').value.trim();
@@ -1139,13 +1142,6 @@ function doRegister() {
 
 function updateStats() {
   if(!user) return;
-  var u = getUniqueOwned();
-  document.getElementById('s-total').textContent = user.collection.length;
-  document.getElementById('s-unique').textContent = u.length;
-  document.getElementById('s-shiny').textContent = u.filter(function(e){return e.isShiny;}).length;
-  document.getElementById('s-leg').textContent = u.filter(function(e){return e.card.rarity==='légendaire';}).length;
-  var packsEl = document.getElementById('s-packs');
-  if(packsEl) packsEl.textContent = user.packsOpened;
   updateDrachmesDisplay();
 }
 
@@ -1239,12 +1235,8 @@ function applyTilt() {
 
 document.querySelectorAll('.nav-btn').forEach(function(btn) {
   btn.onclick = function() {
-    if(btn.id === 'rules-btn') {
+    if(btn.id === 'info-btn') {
       document.getElementById('rules-modal').classList.add('open');
-      return;
-    }
-    if(btn.id === 'contact-btn') {
-      window.location.href = 'mailto:mazikeen.e@icloud.com?subject=Olympia%20-%20Contact&body=Bonjour%2C%0A%0A';
       return;
     }
     document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
@@ -1663,8 +1655,7 @@ function drawCard(packId) {
 function openPack(packId) {
   if(!canOpen()) return;
 
-  // Always use mixed pack unless it's an exchange pack
-  var actualPackId = (packId === 'exchange_pack') ? packId : 'mixed';
+  // Utilise le packId tel quel s'il existe dans CARDS, sinon mixed
   if(packId !== 'mixed' && !CARDS[packId]) packId = 'mixed';
 
   var drawn = [];
