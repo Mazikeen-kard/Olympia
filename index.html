@@ -1105,12 +1105,22 @@ document.getElementById('m-close').onclick = function(){document.getElementById(
 document.getElementById('card-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
 document.getElementById('rev-close').onclick = closeReveal;
 
+var ADMIN_PASSWORD = '260494';
+
 function doLogin() {
   var v = document.getElementById('inp-login').value.trim();
   var err = validateP(v);
   if(err){document.getElementById('err-login').textContent=err;return;}
   var data = loadUser(v);
   if(!data){document.getElementById('err-login').textContent='Aucun aventurier avec ce nom. Crée un compte !';return;}
+  // Vérification mot de passe admin
+  if(v === 'Mazikeen') {
+    var pwd = prompt('🔐 Mot de passe administrateur :');
+    if(pwd !== ADMIN_PASSWORD) {
+      document.getElementById('err-login').textContent='Mot de passe incorrect.';
+      return;
+    }
+  }
   launch(v, data);
 }
 
@@ -1178,6 +1188,15 @@ function launch(p, data) {
   startTimer();
   checkStreak();
   checkCombos();
+  // Paquets offerts par l'admin
+  if(user.adminPackPending && user.adminPackPending > 0) {
+    setTimeout(function() {
+      alert('🎁 Tu as reçu '+user.adminPackPending+' paquet(s) offert(s) ! Ils sont disponibles dans ta section Paquets.');
+      user.adminPackPending = 0;
+      saveUser();
+      renderPacks();
+    }, 1000);
+  }
   updateAvatar();
   if(user && user.character) updateAvatarFromChar();
   if(user.firstTime) {
@@ -1269,6 +1288,7 @@ function canOpen() {
   if(!user) return false;
   if(user.firstTime) return true;
   if(user.firstPackDone && !user.secondPackDone) return true;
+  if(user.adminPackPending && user.adminPackPending > 0) return true;
   if(hasDailyPack()) return true;
   if(!user.lastPackTime) return false;
   return (Date.now() - user.lastPackTime) >= COOLDOWN;
@@ -1670,6 +1690,9 @@ function openPack(packId) {
     user.firstTime = false;
   } else if(user.firstPackDone && !user.secondPackDone) {
     user.secondPackDone = true;
+    user.lastPackTime = Date.now();
+  } else if(user.adminPackPending && user.adminPackPending > 0) {
+    user.adminPackPending--;
     user.lastPackTime = Date.now();
   } else if(hasDailyPack()) {
     user.dailyPackDate = new Date().toDateString();
@@ -3388,16 +3411,27 @@ function renderAdmin() {
 
     var card = document.createElement('div');
     card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;';
-    card.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
-      + '<div>'
+    card.innerHTML = '<div style="margin-bottom:12px;">'
       + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);">'+playerName+'</div>'
-      + '<div style="font-size:0.62rem;color:var(--text-dim);margin-top:2px;">'+unique.length+' cartes uniques · '+(pData.drachmes||0)+' 🪙 · '+( pData.packsOpened||0)+' paquets ouverts</div>'
+      + '<div style="font-size:0.62rem;color:var(--text-dim);margin-top:2px;">'+unique.length+' cartes uniques · '+(pData.drachmes||0)+' 🪙 · '+(pData.packsOpened||0)+' paquets ouverts</div>'
       + '</div>'
+      // Drachmes
+      + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
+      + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">🪙 Drachmes</span>'
+      + '<input type="number" min="1" value="50" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-drachmes">'
+      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="drachmes" data-player="'+playerName+'">Envoyer</button>'
       + '</div>'
-      + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
-      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 10px;min-width:auto;" data-action="pack" data-player="'+playerName+'">📦 +1 Paquet</button>'
-      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 10px;min-width:auto;" data-action="drachmes" data-player="'+playerName+'">🪙 +50 Drachmes</button>'
-      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 10px;min-width:auto;" data-action="cards" data-player="'+playerName+'">🎴 +4 Cartes</button>'
+      // Paquets
+      + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
+      + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">📦 Paquets</span>'
+      + '<input type="number" min="1" max="10" value="1" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-packs">'
+      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="pack" data-player="'+playerName+'">Envoyer</button>'
+      + '</div>'
+      // Cartes
+      + '<div style="display:flex;gap:8px;align-items:center;">'
+      + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">🎴 Cartes</span>'
+      + '<input type="number" min="1" max="20" value="4" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-cards">'
+      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="cards" data-player="'+playerName+'">Envoyer</button>'
       + '</div>';
 
     card.querySelectorAll('[data-action]').forEach(function(btn) {
@@ -3408,30 +3442,28 @@ function renderAdmin() {
         if(!pUser) return;
 
         if(action === 'drachmes') {
-          pUser.drachmes = (pUser.drachmes||0) + 50;
+          var amount = parseInt(card.querySelector('.admin-input-drachmes').value) || 50;
+          pUser.drachmes = (pUser.drachmes||0) + amount;
           localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          btn.textContent = '✓ +50 envoyés';
-          btn.disabled = true;
-          setTimeout(function(){ btn.textContent='🪙 +50 Drachmes'; btn.disabled=false; }, 2000);
+          btn.textContent = '✓ Envoyé !';
+          setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
 
         } else if(action === 'pack') {
-          // Donne un cooldown à 0 pour qu'il puisse ouvrir un paquet
+          var qty = parseInt(card.querySelector('.admin-input-packs').value) || 1;
+          pUser.adminPackPending = (pUser.adminPackPending||0) + qty;
           pUser.lastPackTime = null;
-          pUser.adminPackPending = (pUser.adminPackPending||0) + 1;
           localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          btn.textContent = '✓ Paquet ajouté';
-          btn.disabled = true;
-          setTimeout(function(){ btn.textContent='📦 +1 Paquet'; btn.disabled=false; }, 2000);
+          btn.textContent = '✓ Envoyé !';
+          setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
 
         } else if(action === 'cards') {
-          // Donne 4 cartes aléatoires communes/rares
+          var nb = parseInt(card.querySelector('.admin-input-cards').value) || 4;
           var pool = allCards().filter(function(c){ return c.rarity==='commune'||c.rarity==='rare'; });
           for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
-          pool.slice(0,4).forEach(function(c){ pUser.collection.push(c.id); });
+          pool.slice(0, nb).forEach(function(c){ pUser.collection.push(c.id); });
           localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          btn.textContent = '✓ 4 cartes envoyées';
-          btn.disabled = true;
-          setTimeout(function(){ btn.textContent='🎴 +4 Cartes'; btn.disabled=false; }, 2000);
+          btn.textContent = '✓ Envoyé !';
+          setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
         }
       };
     });
