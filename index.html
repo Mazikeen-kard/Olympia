@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Olympia</title>
 <link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 <link rel="apple-touch-icon" href="https://i.imgur.com/3VszR3Z.jpeg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1530,52 +1531,70 @@ function setupTearGesture() {
 function tearPack() {
   if(_torn) return;
   _torn = true;
-  var hint = document.getElementById('pr-hint');
-  hint.textContent = '';
+  document.getElementById('pr-hint').textContent = '';
   var wrapper = document.getElementById('pack-wrapper');
-  var img = document.getElementById('pack-img');
 
-  // Create tear effect overlay
-  var tearOverlay = document.createElement('div');
-  tearOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;height:25%;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,229,102,0.6));z-index:20;transform-origin:top;animation:tearFlap 0.5s ease-in forwards;clip-path:polygon(0 0,100% 0,100% 100%,90% 85%,80% 100%,70% 82%,60% 100%,50% 80%,40% 100%,30% 85%,20% 100%,10% 82%,0 100%);';
-  wrapper.appendChild(tearOverlay);
+  // Create particles container
+  var particleContainer = document.createElement('div');
+  particleContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:30;';
+  wrapper.appendChild(particleContainer);
 
-  // Light burst from tear
-  var burst = document.createElement('div');
-  burst.style.cssText = 'position:absolute;top:22%;left:50%;transform:translate(-50%,-50%);width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,229,102,0.9) 0%,rgba(255,165,0,0.6) 30%,transparent 70%);animation:lightBurst 0.6s ease-out forwards;pointer-events:none;z-index:25;';
-  wrapper.appendChild(burst);
-
-  // Rays of light
-  for(var r=0; r<8; r++) {
-    var ray = document.createElement('div');
-    var angle = r * 45;
-    ray.style.cssText = 'position:absolute;top:22%;left:50%;width:3px;height:60px;background:linear-gradient(to bottom,rgba(255,229,102,0.8),transparent);transform-origin:top center;transform:translate(-50%,-10%) rotate('+angle+'deg);animation:lightBurst 0.5s ease-out forwards;pointer-events:none;z-index:24;';
-    wrapper.appendChild(ray);
+  // Spawn gold particles with Anime.js
+  var colors = ['#ffe566','#daa520','#fff','#ff8c00'];
+  for(var i=0; i<30; i++) {
+    var p = document.createElement('div');
+    var size = 4 + Math.random() * 8;
+    p.style.cssText = 'position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+colors[Math.floor(Math.random()*colors.length)]+';top:22%;left:50%;opacity:0;';
+    particleContainer.appendChild(p);
+    anime({
+      targets: p,
+      translateX: (Math.random()-0.5) * 300,
+      translateY: (Math.random()-0.5) * 300,
+      opacity: [1, 0],
+      scale: [1, 0],
+      duration: 600 + Math.random() * 400,
+      delay: Math.random() * 100,
+      easing: 'easeOutExpo'
+    });
   }
 
-  setTimeout(function() {
-    wrapper.style.transition = 'transform 0.3s ease-in, opacity 0.3s';
-    wrapper.style.transform = 'scale(1.05)';
-    wrapper.style.opacity = '0';
-    setTimeout(function() {
+  // Pack shake then fly up
+  anime({
+    targets: wrapper,
+    keyframes: [
+      {rotate: -3, duration: 80},
+      {rotate: 3, duration: 80},
+      {rotate: -2, duration: 80},
+      {rotate: 0, duration: 80},
+      {translateY: -20, scale: 1.05, duration: 200},
+      {translateY: -200, scale: 0.5, opacity: 0, duration: 400}
+    ],
+    easing: 'easeInOutQuad',
+    complete: function() {
       wrapper.style.display = 'none';
       showRevealCardNew(0);
-    }, 300);
-  }, 500);
+    }
+  });
 }
 
 function spawnParticles(container, c1, c2, c3) {
   var colors = [c1, c2, c3];
-  for(var i=0; i<12; i++) {
+  for(var i=0; i<20; i++) {
     var p = document.createElement('div');
-    var angle = Math.random() * Math.PI * 2;
-    var dist = 80 + Math.random() * 120;
-    var px = Math.cos(angle) * dist;
-    var py = Math.sin(angle) * dist;
-    var color = colors[Math.floor(Math.random()*colors.length)];
-    p.style.cssText = 'position:absolute;width:'+(4+Math.random()*6)+'px;height:'+(4+Math.random()*6)+'px;border-radius:50%;background:'+color+';top:50%;left:50%;--px:'+px+'px;--py:'+py+'px;animation:particleFly '+(0.5+Math.random()*0.7)+'s ease-out forwards;animation-delay:'+(Math.random()*0.3)+'s;pointer-events:none;z-index:10;';
+    var size = 4 + Math.random() * 8;
+    p.style.cssText = 'position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+colors[Math.floor(Math.random()*colors.length)]+';top:50%;left:50%;opacity:0;pointer-events:none;z-index:10;';
     container.appendChild(p);
-    setTimeout(function(el){ el.remove(); }, 1200);
+    anime({
+      targets: p,
+      translateX: (Math.random()-0.5) * 250,
+      translateY: (Math.random()-0.5) * 250,
+      opacity: [1, 0],
+      scale: [1.5, 0],
+      duration: 700 + Math.random() * 500,
+      delay: Math.random() * 200,
+      easing: 'easeOutExpo',
+      complete: function(a){ a.animatables[0].target.remove(); }
+    });
   }
 }
 
@@ -1632,11 +1651,33 @@ function showRevealCardNew(index) {
     anim = 'cardRevealRare 0.7s ease-out forwards';
     glow = '#2255cc';
   }
-  cardEl.style.animation = anim;
+  // Initial state
   cardEl.style.opacity = '0';
-  if(glow) cardEl.style.boxShadow = '0 0 30px ' + glow;
-
+  cardEl.style.transform = 'translateY(60px) scale(0.7)';
+  if(glow) cardEl.style.boxShadow = '0 0 40px ' + glow;
   slot.appendChild(cardEl);
+
+  // Animate with Anime.js
+  if(d.isShiny) {
+    anime({targets: cardEl, opacity: [0,1], translateY: [60,0], scale: [0.7,1.05,1], rotate: [-5,2,0],
+      duration: 1000, easing: 'easeOutElastic(1,0.6)',
+      complete: function(){ if(glow) anime({targets:cardEl, boxShadow:['0 0 40px '+glow,'0 0 15px '+glow,'0 0 30px '+glow], duration:1500, loop:true, easing:'easeInOutSine'}); }
+    });
+  } else if(d.card.rarity === 'légendaire') {
+    anime({targets: cardEl, opacity: [0,1], translateY: [80,0], scale: [0.6,1.08,1], rotate: [-8,3,0],
+      duration: 900, easing: 'easeOutElastic(1,0.5)',
+      complete: function(){ if(glow) anime({targets:cardEl, boxShadow:['0 0 40px '+glow,'0 0 10px '+glow,'0 0 35px '+glow], duration:1200, loop:true, easing:'easeInOutSine'}); }
+    });
+  } else if(d.card.rarity === 'épique') {
+    anime({targets: cardEl, opacity: [0,1], translateY: [50,0], scale: [0.75,1.04,1],
+      duration: 750, easing: 'easeOutBack'});
+  } else if(d.card.rarity === 'rare') {
+    anime({targets: cardEl, opacity: [0,1], translateY: [40,0], scale: [0.85,1],
+      duration: 600, easing: 'easeOutQuart'});
+  } else {
+    anime({targets: cardEl, opacity: [0,1], translateY: [30,0], scale: [0.9,1],
+      duration: 450, easing: 'easeOutCubic'});
+  }
 
   setTimeout(function() {
     slot.style.transition = 'transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s';
@@ -2064,31 +2105,60 @@ function startMemory() {
   _memFlipped = [];
   _memLocked = false;
   _memSeconds = 90;
-  var symbols = MEMORY_SYMBOLS.concat(MEMORY_SYMBOLS);
-  // Shuffle
-  for(var i = symbols.length-1; i > 0; i--) {
-    var j = Math.floor(Math.random()*(i+1));
-    var tmp = symbols[i]; symbols[i]=symbols[j]; symbols[j]=tmp;
+
+  // Get player's unique owned cards with images
+  var owned = getUniqueOwned();
+  var withImg = owned.filter(function(e){ return e.card.img; });
+  
+  // Shuffle and take 12
+  for(var i=withImg.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=withImg[i];withImg[i]=withImg[j];withImg[j]=t;}
+  var selected = withImg.slice(0, 12);
+  
+  // Fill with greek symbols if not enough cards
+  var greekSymbols = ['⚡','🔱','🏛️','⚔️','🦉','🐍','🌙','☀️','🔥','🌊','💀','🏆'];
+  while(selected.length < 12) {
+    var symIdx = selected.length - withImg.length;
+    selected.push({card:{id:'sym'+symIdx, name: greekSymbols[symIdx % greekSymbols.length], img:null}, isShiny:false});
   }
-  _memCards = symbols;
+
+  // Create 12 cards (6 pairs)
+  var pairs = selected.concat(selected.map(function(e){ return {card:e.card, isShiny:e.isShiny, pair:true}; }));
+  for(var i=pairs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pairs[i];pairs[i]=pairs[j];pairs[j]=t;}
+  _memCards = pairs;
 
   var area = document.getElementById('minigame-area');
   area.innerHTML = '<div class="memory-game">'
     + '<div class="memory-header">'
     + '<div><div class="memory-timer" id="mem-timer">1:30</div></div>'
-    + '<div class="memory-pairs" id="mem-pairs">0 / 12 paires</div>'
+    + '<div class="memory-pairs" id="mem-pairs">0 / 6 paires</div>'
     + '<button class="mg-back-btn" onclick="backToMinigames()">← Retour</button>'
     + '</div>'
     + '<div class="memory-grid" id="mem-grid"></div>'
     + '</div>';
 
   var grid = document.getElementById('mem-grid');
-  symbols.forEach(function(sym, i) {
+  pairs.forEach(function(item, i) {
     var card = document.createElement('div');
     card.className = 'mem-card';
     card.setAttribute('data-index', i);
-    card.setAttribute('data-symbol', sym);
-    card.innerHTML = '<div class="mem-card-front" style="border-radius:8px;"><span style="font-size:1.2rem;">⚡</span></div><div class="mem-card-back">'+sym+'</div>';
+    card.setAttribute('data-id', i);
+    card.setAttribute('data-pair', item.card.id);
+    
+    // Back = pack image
+    var frontHtml = '<div class="mem-card-front" style="background:url(https://i.imgur.com/AGGWuAL.jpeg) center/cover;border-radius:8px;"></div>';
+    
+    // Face = card illustration or emoji
+    var backHtml;
+    if(item.card.img) {
+      backHtml = '<div class="mem-card-back" style="padding:0;overflow:hidden;border-radius:8px;">'
+        + '<img src="'+item.card.img+'" style="width:100%;height:75%;object-fit:cover;object-position:top;display:block;">'
+        + '<div style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--gold);text-align:center;padding:2px;line-height:1.2;height:25%;display:flex;align-items:center;justify-content:center;">'+item.card.name+'</div>'
+        + '</div>';
+    } else {
+      backHtml = '<div class="mem-card-back" style="font-size:1.6rem;display:flex;align-items:center;justify-content:center;">'+item.card.name+'</div>';
+    }
+    
+    card.innerHTML = frontHtml + backHtml;
     card.onclick = function() { flipMemCard(this); };
     grid.appendChild(card);
   });
@@ -2111,6 +2181,7 @@ function startMemory() {
   }, 1000);
 }
 
+
 function flipMemCard(card) {
   if(_memLocked) return;
   if(card.classList.contains('flipped') || card.classList.contains('matched')) return;
@@ -2119,8 +2190,8 @@ function flipMemCard(card) {
   _memFlipped.push(card);
   if(_memFlipped.length === 2) {
     _memLocked = true;
-    var sym1 = _memFlipped[0].getAttribute('data-symbol');
-    var sym2 = _memFlipped[1].getAttribute('data-symbol');
+    var sym1 = _memFlipped[0].getAttribute('data-pair');
+    var sym2 = _memFlipped[1].getAttribute('data-pair');
     if(sym1 === sym2) {
       _memFlipped[0].classList.add('matched');
       _memFlipped[1].classList.add('matched');
