@@ -180,9 +180,9 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 }
 #img-fullscreen .fs-close:hover { background:rgba(255,255,255,0.2); }
 
-.overlay{position:fixed;inset:0;background:rgba(26,21,16,0.65);z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
+.overlay{position:fixed;inset:0;background:rgba(26,21,16,0.65);z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);overflow-y:auto;padding:20px 0;}
 .overlay.open{display:flex;}
-.modal{position:relative;max-width:520px;width:95%;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:30px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:min 0.35s cubic-bezier(0.175,0.885,0.32,1.275);}
+.modal{position:relative;max-width:520px;width:95%;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:30px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:min 0.35s cubic-bezier(0.175,0.885,0.32,1.275);max-height:90vh;overflow-y:auto;margin:auto;}
 @keyframes min{from{opacity:0;transform:scale(0.9) translateY(14px)}to{opacity:1;transform:none}}
 .m-close{position:absolute;top:11px;right:15px;background:none;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;}
 .m-close:hover{color:var(--gold);}
@@ -432,7 +432,101 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
 
   @keyframes notifPop{from{opacity:0;transform:translateX(-50%) translateY(10px) scale(0.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
 
-  /* ══ COMBAT ══ */
+  /* ══ COMBAT FULLSCREEN ══ */
+  #combat-screen.open{display:flex !important;}
+  .combat-topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,0.5);border-bottom:1px solid rgba(218,165,32,0.2);flex-shrink:0;}
+  .combat-topbar-title{font-family:'Cinzel Decorative',serif;font-size:0.65rem;color:var(--gold);letter-spacing:0.1em;}
+  .combat-turn-badge{font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.06em;}
+  .combat-turn-badge.player{background:rgba(34,170,68,0.25);color:#44dd66;border:1px solid #22aa44;}
+  .combat-turn-badge.enemy{background:rgba(204,34,51,0.25);color:#ff6677;border:1px solid #cc2233;}
+
+  /* HP compacte */
+  .combat-hp-row{display:flex;gap:8px;padding:6px 14px;flex-shrink:0;}
+  .combat-hp-block{flex:1;display:flex;align-items:center;gap:6px;}
+  .combat-hp-name{font-family:Cinzel,serif;font-size:0.45rem;letter-spacing:0.1em;color:rgba(255,255,255,0.4);min-width:24px;}
+  .combat-hp-track{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+  .combat-hp-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
+  .combat-hp-fill.player{background:linear-gradient(to right,#22aa44,#44dd66);}
+  .combat-hp-fill.enemy{background:linear-gradient(to right,#cc2233,#ff4455);}
+  .combat-hp-val{font-family:'Cinzel',serif;font-size:0.5rem;color:var(--gold);min-width:34px;text-align:right;}
+
+  /* TAPIS DE JEU */
+  .combat-battlefield{flex:1;display:flex;flex-direction:column;position:relative;overflow:visible;min-height:280px;}
+  .combat-carpet{flex:1;display:flex;flex-direction:column;border-top:2px solid rgba(218,165,32,0.2);border-bottom:2px solid rgba(218,165,32,0.2);position:relative;min-height:0;}
+  .combat-carpet::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 30px,rgba(218,165,32,0.02) 30px,rgba(218,165,32,0.02) 31px),repeating-linear-gradient(90deg,transparent,transparent 30px,rgba(218,165,32,0.02) 30px,rgba(218,165,32,0.02) 31px);pointer-events:none;z-index:1;}
+  .combat-carpet-divider{height:1px;background:linear-gradient(to right,transparent,rgba(218,165,32,0.4),transparent);flex-shrink:0;z-index:2;position:relative;}
+  .combat-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 10px;gap:10px;flex-wrap:wrap;min-height:90px;position:relative;z-index:2;}
+  .combat-zone-label{position:absolute;font-family:Cinzel,serif;font-size:0.35rem;letter-spacing:0.15em;color:rgba(218,165,32,0.25);text-transform:uppercase;}
+  .combat-zone.enemy .combat-zone-label{top:4px;left:8px;}
+  .combat-zone.player .combat-zone-label{bottom:4px;left:8px;}
+
+  /* Cartes sur le tapis — plus grandes */
+  .combat-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 10px;gap:8px;flex-wrap:wrap;position:relative;z-index:2;overflow:visible;min-height:120px;}
+  .tapis-card{width:clamp(55px,16vw,80px);aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;background:rgba(0,0,0,0.5);position:relative;flex-shrink:0;}
+  .tapis-card img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
+  .tapis-card .tc-stats{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);font-size:0.3rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding:2px;line-height:1.3;}
+  .tapis-card .tc-hp{position:absolute;top:2px;left:2px;background:rgba(180,20,20,0.9);border-radius:3px;font-size:0.28rem;font-family:Cinzel,serif;color:white;padding:1px 3px;}
+  .tapis-card.defending{border-color:#4488ff;transform:rotate(-8deg);box-shadow:0 0 12px rgba(68,136,255,0.4);}
+  .tapis-card.can-attack{border-color:#44dd66;box-shadow:0 0 12px rgba(68,221,102,0.5);}
+  .tapis-card.selected{border-color:#ffe566;box-shadow:0 0 18px rgba(255,229,102,0.7);transform:translateY(-10px);}
+  .tapis-card.enemy-card{pointer-events:none;border-color:rgba(204,34,51,0.5);}
+  @keyframes cardAttack{0%{transform:translateX(0)}40%{transform:translateX(55px) scale(1.1)}70%{transform:translateX(0)}100%{transform:translateX(0)}}
+  @keyframes cardHit{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  @keyframes cardDestroy{0%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.15) rotate(8deg)}100%{opacity:0;transform:scale(0) rotate(20deg)}}
+  .anim-attack{animation:cardAttack 0.5s ease;}
+  .anim-hit{animation:cardHit 0.4s ease;}
+  .anim-destroy{animation:cardDestroy 0.4s ease forwards;}
+
+  /* Main en éventail */
+  .combat-hand-area{flex-shrink:0;background:rgba(0,0,0,0.45);border-top:1px solid rgba(218,165,32,0.15);padding:5px 14px 4px;}
+  .combat-hand-label{font-family:Cinzel,serif;font-size:0.38rem;letter-spacing:0.12em;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:3px;text-align:center;}
+  .combat-hand-fan{position:relative;height:105px;display:flex;align-items:flex-end;justify-content:center;}
+  .fan-card{position:absolute;width:65px;aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.2s;transform-origin:bottom center;background:var(--bg-card);}
+  .fan-card img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
+  .fan-card .fan-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:Cinzel,serif;font-size:0.3rem;text-align:center;padding:8px 2px 3px;color:white;line-height:1.1;}
+  .fan-card .fan-stats{display:none;}
+  .fan-card.selected-hand{border-color:#ffe566 !important;box-shadow:0 -12px 24px rgba(255,229,102,0.5);transform:var(--fan-base) translateY(-20px) !important;}
+
+  /* Log & actions */
+  .combat-log{padding:3px 14px;max-height:48px;overflow-y:auto;flex-shrink:0;background:rgba(0,0,0,0.3);}
+  .combat-log-entry{font-size:0.52rem;color:rgba(255,255,255,0.3);line-height:1.4;padding:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .combat-log-entry.hit{color:#44dd66;}
+  .combat-log-entry.dmg{color:#ff6677;}
+  .combat-log-entry.info{color:rgba(218,165,32,0.7);}
+  .combat-actions{display:flex;gap:5px;padding:6px 14px;flex-shrink:0;background:rgba(0,0,0,0.5);border-top:1px solid rgba(218,165,32,0.12);}
+  .combat-btn{flex:1;background:linear-gradient(135deg,rgba(184,134,11,0.8),rgba(218,165,32,0.95));border:none;color:white;font-family:Cinzel,serif;font-size:0.48rem;font-weight:700;letter-spacing:0.06em;padding:8px 3px;border-radius:7px;cursor:pointer;text-transform:uppercase;}
+  .combat-btn.sec{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.45);}
+  .combat-btn:disabled{opacity:0.25;pointer-events:none;}
+
+  /* Deck builder */
+  #deck-slots-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:12px;}
+  #deck-slots-grid > div{aspect-ratio:2/3;max-height:70px;}
+
+  /* Carte sélectionnée en aperçu */
+  .hand-preview-overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);}
+  .hand-preview-card{width:140px;aspect-ratio:2/3;border-radius:12px;border:2px solid var(--gold);overflow:hidden;box-shadow:0 0 30px rgba(218,165,32,0.5);animation:previewPop 0.25s cubic-bezier(0.175,0.885,0.32,1.275);position:relative;}
+  .hand-preview-card img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
+  .hand-preview-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.92));padding:18px 6px 6px;}
+  .hand-preview-name{font-family:'Cinzel',serif;font-size:0.6rem;color:white;margin-bottom:3px;text-align:center;}
+  .hand-preview-stats{display:flex;gap:6px;justify-content:center;}
+  .hand-preview-stat{font-family:Cinzel,serif;font-size:0.52rem;color:rgba(255,255,255,0.7);}
+  .hand-preview-stat span{color:var(--gold);font-weight:700;}
+  .hand-preview-btns{display:flex;gap:8px;margin-top:14px;}
+  @keyframes previewPop{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+  /* COIN FLIP */
+  .coin-flip-screen{position:fixed;inset:0;z-index:250;background:rgba(8,4,18,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;}
+  .coin{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffe566,#daa520,#8b6914);border:3px solid #daa520;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 0 30px rgba(218,165,32,0.5);flex-shrink:0;}
+  .coin.spin{animation:coinSpin 1.2s ease-in-out;}
+  @keyframes coinSpin{0%{transform:rotateY(0)}50%{transform:rotateY(900deg) scale(1.2)}100%{transform:rotateY(1800deg)}}
+  .secret-card-pick{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s;width:130px;}
+  .secret-card-pick:hover{border-color:var(--gold);transform:scale(1.05);}
+  .secret-card-pick.selected{border-color:#ffe566;box-shadow:0 0 16px rgba(255,229,102,0.5);}
+
+  .deck-filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+  .deck-filter-btn{font-family:Cinzel,serif;font-size:0.5rem;padding:3px 9px;border-radius:14px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:all 0.2s;}
+  .deck-filter-btn.active{background:var(--gold-dim);border-color:var(--gold);color:white;}
+
+
   .combat-locked{text-align:center;padding:40px 20px;}
   .combat-locked-icon{font-size:3rem;margin-bottom:16px;}
   .combat-locked-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:8px;}
@@ -569,10 +663,11 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   </div>
   <nav style="display:flex;justify-content:center;flex-wrap:wrap;">
     <button class="nav-btn active" data-sec="packs">📦 Paquets</button>
+    <button class="nav-btn" data-sec="minijeux">🎮 Mini-Jeux</button>
     <button class="nav-btn" data-sec="collection">📚 Collection</button>
-    <button class="nav-btn" data-sec="exchange">🔄 Échange</button>
     <button class="nav-btn" data-sec="badges">🏆 Badges</button>
     <button class="nav-btn" data-sec="combat" id="nav-combat">⚔️ Combat</button>
+    <button class="nav-btn" data-sec="boutique">🏺 Boutique</button>
     <button class="nav-btn" data-sec="perso">🎨 Perso</button>
     <button class="nav-btn" id="info-btn">ℹ Infos</button>
     <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;">🔧 Admin</button>
@@ -596,12 +691,17 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
   <div class="section" id="section-packs">
     <div id="wb-container"></div>
     <div id="streak-container"></div>
-    <div id="minigames-container"></div>
-    <div id="minigame-area" style="margin-bottom:16px;display:none;"></div>
-    <div class="sec-title">Choisissez un Paquet</div>
+    <div class="sec-title" id="pack-section-title">Choisissez un Paquet</div>
     <div class="cd-info" id="cd-info"></div>
     <div class="pgrid" id="pack-grid"></div>
     <div id="shop-container"></div>
+    <div id="exchange-in-packs"></div>
+  </div>
+
+  <!-- SECTION MINI-JEUX -->
+  <div class="section" id="section-minijeux">
+    <div id="minigames-container"></div>
+    <div id="minigame-area" style="margin-bottom:16px;display:none;"></div>
   </div>
 
   <div class="section" id="section-badges">
@@ -683,7 +783,23 @@ nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;
     <div id="admin-container"></div>
   </div>
 
-  <div class="section" id="section-combat">
+  <!-- COMBAT FULLSCREEN -->
+<div id="combat-screen" style="display:none;position:fixed;inset:0;z-index:200;flex-direction:column;overflow:hidden;">
+  <div id="combat-bg" style="position:absolute;inset:0;background:linear-gradient(180deg,#080412 0%,#12082a 35%,#080d04 65%,#040808 100%);z-index:0;"></div>
+  <div style="position:absolute;inset:0;z-index:1;pointer-events:none;">
+    <div style="position:absolute;bottom:0;left:0;width:45px;height:65%;background:linear-gradient(to right,rgba(218,165,32,0.05),rgba(218,165,32,0.1),transparent);border-right:1px solid rgba(218,165,32,0.08);"></div>
+    <div style="position:absolute;bottom:0;right:0;width:45px;height:65%;background:linear-gradient(to left,rgba(218,165,32,0.05),rgba(218,165,32,0.1),transparent);border-left:1px solid rgba(218,165,32,0.08);"></div>
+    <div id="combat-stars"></div>
+  </div>
+  <div id="combat-screen-content" style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%;"></div>
+</div>
+
+  <div class="section" id="section-boutique">
+    <div class="sec-title">🏺 Boutique</div>
+    <div id="boutique-container"></div>
+  </div>
+
+<div class="section" id="section-combat">
     <div id="combat-container"></div>
   </div>
 
@@ -1180,6 +1296,7 @@ function launch(p, data) {
   updateStats();
   renderCol();
   renderPacks();
+  renderMinigamesList();
   renderCombat();
   startTimer();
   checkStreak();
@@ -1245,8 +1362,10 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     var sec = btn.getAttribute('data-sec');
     document.getElementById('section-'+sec).classList.add('active');
     if(sec==='packs') renderPacks();
+    if(sec==='minijeux') { renderMinigamesList(); }
     if(sec==='exchange') renderExchange();
     if(sec==='combat') renderCombat();
+    if(sec==='boutique') renderBoutique();
     if(sec==='admin') renderAdmin();
     if(sec==='badges') { renderBadges(); renderCombosHint(); }
     if(sec==='perso') { initCharCreator(); initAvatarCreator(); }
@@ -1343,10 +1462,11 @@ function buildCard(card, isShiny, delay, count) {
   if(isShiny) div.setAttribute('data-shiny', '1');
   div.style.cssText = '--rc:'+r.color+';--rr:'+r.rgb+';--d:'+delay+'s;--fd:'+(Math.random()*3)+'s;--at:'+card.at+';--ab:'+card.ab+';';
   var imgSrc = (isShiny && card.imgShiny) ? card.imgShiny : card.img;
+  var cs = getCombatStats(card);
   if(imgSrc) {
-    div.innerHTML = '<div class="card-in" style="position:relative;"><div class="card-badge" title="'+(isShiny?'Shiny':card.rarity)+'"></div><img src="'+imgSrc+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;border-radius:8px;" alt="'+card.name+'">'+(count>1?'<div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.75);color:white;font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;z-index:5;">x'+count+'</div>':'')+'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.88));border-radius:0 0 8px 8px;padding:8px 8px 6px;"><div style="font-family:Cinzel,serif;font-size:0.62rem;font-weight:600;color:white;">'+card.name+(isShiny?' ✦':'')+' </div><div style="font-size:0.46rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.08em;font-style:italic;">'+card.atkName+'</div><div style="display:flex;gap:4px;margin-top:4px;"><div style="flex:1;background:rgba(0,0,0,0.5);border-radius:3px;padding:2px 4px;text-align:center;border:1px solid rgba(184,134,11,0.4);"><div style="font-family:Cinzel,serif;font-size:0.66rem;color:#daa520;font-weight:600;">'+card.atk+'</div><div style="font-size:0.4rem;color:rgba(255,255,255,0.5);">ATK</div></div><div style="flex:1;background:rgba(0,0,0,0.5);border-radius:3px;padding:2px 4px;text-align:center;border:1px solid rgba(184,134,11,0.4);"><div style="font-family:Cinzel,serif;font-size:0.66rem;color:#daa520;font-weight:600;">'+card.def+'</div><div style="font-size:0.4rem;color:rgba(255,255,255,0.5);">DEF</div></div></div></div></div>';
+    div.innerHTML = '<div class="card-in" style="position:relative;"><div class="card-badge" title="'+(isShiny?'Shiny':card.rarity)+'"></div><img src="'+imgSrc+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;border-radius:8px;" alt="'+card.name+'">'+(count>1?'<div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.75);color:white;font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;z-index:5;">x'+count+'</div>':'')+'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.88));border-radius:0 0 8px 8px;padding:8px 8px 6px;"><div style="font-family:Cinzel,serif;font-size:0.62rem;font-weight:600;color:white;">'+card.name+(isShiny?' ✦':'')+' </div><div style="font-size:0.46rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.08em;font-style:italic;">'+card.atkName+'</div><div style="display:flex;gap:4px;margin-top:4px;"><div style="flex:1;background:rgba(0,0,0,0.5);border-radius:3px;padding:2px 4px;text-align:center;border:1px solid rgba(184,134,11,0.4);"><div style="font-family:Cinzel,serif;font-size:0.66rem;color:#daa520;font-weight:600;">'+cs.atk+'</div><div style="font-size:0.4rem;color:rgba(255,255,255,0.5);">ATK</div></div><div style="flex:1;background:rgba(0,0,0,0.5);border-radius:3px;padding:2px 4px;text-align:center;border:1px solid rgba(184,134,11,0.4);"><div style="font-family:Cinzel,serif;font-size:0.66rem;color:#daa520;font-weight:600;">'+cs.def+'</div><div style="font-size:0.4rem;color:rgba(255,255,255,0.5);">DEF</div></div></div></div></div>';
   } else {
-    div.innerHTML = '<div class="card-in"><div class="card-badge" title="'+(isShiny?'Shiny':card.rarity)+'"></div><div class="card-art"><div class="card-art-bg"></div><span class="card-emoji">'+card.icon+'</span></div><div class="card-body"><div class="card-bar"></div><div class="card-name">'+card.name+(isShiny?' ✦':'')+'</div><div class="card-type">'+card.type+'</div><div class="card-atk">'+card.atkName+'</div><div class="card-stats"><div class="cs"><div class="cs-v">'+card.atk+'</div><div class="cs-k">ATK</div></div><div class="cs"><div class="cs-v">'+card.def+'</div><div class="cs-k">DEF</div></div></div></div></div>';
+    div.innerHTML = '<div class="card-in"><div class="card-badge" title="'+(isShiny?'Shiny':card.rarity)+'"></div><div class="card-art"><div class="card-art-bg"></div><span class="card-emoji">'+card.icon+'</span></div><div class="card-body"><div class="card-bar"></div><div class="card-name">'+card.name+(isShiny?' ✦':'')+'</div><div class="card-type">'+card.type+'</div><div class="card-atk">'+card.atkName+'</div><div class="card-stats"><div class="cs"><div class="cs-v">'+cs.atk+'</div><div class="cs-k">ATK</div></div><div class="cs"><div class="cs-v">'+cs.def+'</div><div class="cs-k">DEF</div></div></div></div></div>';
   }
   div.onclick = function() { openModal(card, isShiny); };
   return div;
@@ -1412,8 +1532,6 @@ function buildMissingCard(card, num) {
 function renderCol() {
   updateFilterCounts();
   var grid = document.getElementById('col-grid');
-  renderStreak();
-  renderMinigamesList();
   grid.innerHTML = '';
 
   // Bonus pack from minigames
@@ -1521,6 +1639,15 @@ function renderPacks() {
   div.className = ready ? 'pack avail' : 'pack locked';
   div.style.cssText = 'max-width:340px;margin:0 auto;';
 
+  var titleEl = document.getElementById('pack-section-title');
+  if(titleEl) {
+    if(isWelcome) titleEl.textContent = '🎁 Tes paquets de bienvenue';
+    else if(isAdmin) titleEl.textContent = '🎁 Paquet offert';
+    else if(ready && !isDaily) titleEl.textContent = '✨ Un paquet t\'attend !';
+    else if(!ready) titleEl.textContent = '⏳ Prochain paquet';
+    else titleEl.textContent = '';
+  }
+
   var packLabel = isDaily ? '🌅 Paquet du Jour' : isAdmin ? '🎁 Paquet Offert' : 'Paquet Collector';
   var packDesc = isDaily
     ? 'Ton paquet quotidien gratuit ! Un mélange de cartes issues de tous les paquets.'
@@ -1579,20 +1706,40 @@ function renderPacks() {
           user.drachmes -= 50;
           saveUser();
           updateDrachmesDisplay();
-          openPack(pid);
+          openPackDrachmes(pid);
         };
       })(packId);
     }
     shopGrid.appendChild(d);
   });
   shopContainer.appendChild(shopGrid);
-}
 
+  // Échange dans la section paquets
+  var exchangeInPacks = document.getElementById('exchange-in-packs');
+  if(exchangeInPacks) {
+    exchangeInPacks.innerHTML = '';
+    var exTitle = document.createElement('div');
+    exTitle.className = 'sec-title';
+    exTitle.style.marginTop = '24px';
+    exTitle.textContent = '🔄 Échange de Doublons';
+    exchangeInPacks.appendChild(exTitle);
+    var exDesc = document.createElement('div');
+    exDesc.style.cssText = 'font-size:0.68rem;color:var(--text-dim);text-align:center;margin-bottom:14px;';
+    exDesc.textContent = '5 doublons d\'un même pack = 1 paquet thématique';
+    exchangeInPacks.appendChild(exDesc);
+    var exGrid = document.createElement('div');
+    exGrid.id = 'exchange-grid';
+    exGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;';
+    exchangeInPacks.appendChild(exGrid);
+    renderExchange();
+  }
+}
 
 function openModal(card, isShiny) {
   var r = getRarity(card.rarity, isShiny);
   var imgSrc = (isShiny && card.imgShiny) ? card.imgShiny : card.img;
   var modal = document.getElementById('card-modal');
+  var cs = getCombatStats(card); // Stats de combat Yu-Gi-Oh
 
   if(imgSrc) {
     modal.querySelector('.modal').innerHTML =
@@ -1609,12 +1756,16 @@ function openModal(card, isShiny) {
           '<div style="font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin-bottom:12px;">⚔️ '+card.atkName+'</div>' +
           '<div style="display:flex;gap:8px;">' +
             '<div style="flex:1;background:rgba(0,0,0,0.04);border-radius:6px;padding:8px;text-align:center;border:1px solid var(--border);">' +
-              '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);">'+card.atk+'</div>' +
+              '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);">'+cs.atk+'</div>' +
               '<div style="font-size:0.5rem;color:var(--text-dim);letter-spacing:0.15em;">ATK</div>' +
             '</div>' +
             '<div style="flex:1;background:rgba(0,0,0,0.04);border-radius:6px;padding:8px;text-align:center;border:1px solid var(--border);">' +
-              '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);">'+card.def+'</div>' +
+              '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);">'+cs.def+'</div>' +
               '<div style="font-size:0.5rem;color:var(--text-dim);letter-spacing:0.15em;">DEF</div>' +
+            '</div>' +
+            '<div style="flex:1;background:rgba(0,0,0,0.04);border-radius:6px;padding:8px;text-align:center;border:1px solid var(--border);">' +
+              '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:#e74c3c;">'+cs.hp+'</div>' +
+              '<div style="font-size:0.5rem;color:var(--text-dim);letter-spacing:0.15em;">PV</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1629,8 +1780,9 @@ function openModal(card, isShiny) {
       '<div style="font-size:0.8rem;color:var(--text-dim);line-height:1.7;font-style:italic;margin-bottom:16px;padding:0 8px;">'+card.lore+'</div>' +
       '<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:14px;">⚔️ '+card.atkName+'</div>' +
       '<div style="display:flex;justify-content:center;gap:24px;">' +
-        '<div style="text-align:center;"><div style="font-family:Cinzel Decorative,serif;font-size:1.5rem;color:var(--gold);">'+card.atk+'</div><div style="font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;">ATK</div></div>' +
-        '<div style="text-align:center;"><div style="font-family:Cinzel Decorative,serif;font-size:1.5rem;color:var(--gold);">'+card.def+'</div><div style="font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;">DEF</div></div>' +
+        '<div style="text-align:center;"><div style="font-family:Cinzel Decorative,serif;font-size:1.5rem;color:var(--gold);">'+cs.atk+'</div><div style="font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;">ATK</div></div>' +
+        '<div style="text-align:center;"><div style="font-family:Cinzel Decorative,serif;font-size:1.5rem;color:var(--gold);">'+cs.def+'</div><div style="font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;">DEF</div></div>' +
+        '<div style="text-align:center;"><div style="font-family:Cinzel Decorative,serif;font-size:1.5rem;color:#e74c3c;">'+cs.hp+'</div><div style="font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;">PV</div></div>' +
       '</div>';
   }
   document.getElementById('card-modal').classList.add('open');
@@ -1650,6 +1802,30 @@ function drawCard(packId) {
   var card = pool.length ? pool[Math.floor(Math.random()*pool.length)] : packs[Math.floor(Math.random()*packs.length)];
   var canBeShiny = !!card.imgShiny;
   return {card:card, isShiny:canBeShiny && Math.random()<0.02};
+}
+
+function openPackDrachmes(packId) {
+  if(!packId || (packId !== 'mixed' && !CARDS[packId])) packId = 'mixed';
+  var drawn = [];
+  var hasRare = false;
+  for(var i=0;i<4;i++) {
+    var d = drawCard(packId);
+    if(['rare','épique','légendaire'].indexOf(d.card.rarity)>=0 || d.isShiny) hasRare=true;
+    drawn.push(d);
+  }
+  if(!hasRare) {
+    var pool = (packId === 'mixed') ? allCards() : CARDS[packId];
+    var rares = pool.filter(function(c){return c.rarity==='rare';});
+    if(rares.length) drawn[0] = {card:rares[Math.floor(Math.random()*rares.length)], isShiny:false};
+  }
+  user.packsOpened++;
+  drawn.forEach(function(d) {
+    user.collection.push(d.card.id + (d.isShiny?'|shiny':''));
+  });
+  // Ne pas toucher à lastPackTime — le cooldown normal n'est pas affecté
+  saveUser();
+  addDrachmes(10, 'Paquet ouvert');
+  setTimeout(function(){ startSwipeReveal(drawn); }, 50);
 }
 
 function openPack(packId) {
@@ -1843,7 +2019,49 @@ function showRevealCardNew(index) {
     doneBtn.classList.add('show');
     hint.style.display = 'none';
     counter.style.display = 'none';
-    prTitle.textContent = 'Collection mise à jour !';
+    prTitle.textContent = '✨ Ton nouveau butin !';
+
+    // Afficher le récap de toutes les cartes
+    slot.innerHTML = '';
+    slot.style.transform = 'none';
+    slot.style.opacity = '1';
+
+    var recap = document.createElement('div');
+    recap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0;';
+
+    // Grille des cartes
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;gap:8px;justify-content:center;flex-wrap:wrap;';
+    _revealCards.forEach(function(d) {
+      var el = buildCard(d.card, d.isShiny, 0, 1);
+      el.style.width = '80px';
+      el.style.pointerEvents = 'none';
+      el.style.flexShrink = '0';
+      grid.appendChild(el);
+    });
+    recap.appendChild(grid);
+
+    // Résumé raretés
+    var rarities = _revealCards.map(function(d) { return d.isShiny ? '✦ Shiny' : d.card.rarity; });
+    var summary = document.createElement('div');
+    summary.style.cssText = 'font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);text-align:center;line-height:1.8;';
+    var shinyCount = rarities.filter(function(r){return r==='✦ Shiny';}).length;
+    var legCount = rarities.filter(function(r){return r==='légendaire';}).length;
+    var epicCount = rarities.filter(function(r){return r==='épique';}).length;
+    var txt = [];
+    if(shinyCount) txt.push('<span style="color:#ff44aa">✦ '+shinyCount+' Shiny !</span>');
+    if(legCount) txt.push('<span style="color:#cc7700">🟡 '+legCount+' Légendaire !</span>');
+    if(epicCount) txt.push('<span style="color:#7722cc">🟣 '+epicCount+' Épique !</span>');
+    if(txt.length) summary.innerHTML = txt.join(' &nbsp; ');
+    if(txt.length) recap.appendChild(summary);
+
+    // +10 drachmes
+    var bonus = document.createElement('div');
+    bonus.style.cssText = 'font-family:Cinzel,serif;font-size:0.65rem;color:var(--gold);';
+    bonus.textContent = '+10 🪙 Drachmes gagnés';
+    recap.appendChild(bonus);
+
+    slot.appendChild(recap);
     return;
   }
 
@@ -2298,16 +2516,16 @@ function renderMinigamesList() {
     saveUser();
   }
   var games = [
-    {id:'memory', icon:'🃏', title:'Memory Olympien', desc:'Retrouve les 12 paires de symboles en 90 secondes !', done: user.minigames.memory},
-    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie grecque !', done: user.minigames.quiz},
-    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise la cible mouvante avec ton arc !', done: user.minigames.archery}
+    {id:'memory', icon:'🃏', title:'Memory Olympien', desc:'Retrouve les 12 paires en 1min15 · +15 🪙', done: user.minigames.memory},
+    {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie · +15 🪙', done: user.minigames.quiz},
+    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise la cible mouvante avec ton arc · +15 🪙', done: user.minigames.archery}
   ];
 
   var doneCount = games.filter(function(g){ return g.done; }).length;
   container.innerHTML = '<div class="streak-bar" style="flex-direction:column;align-items:flex-start;gap:10px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">'
     + '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">🎮 Mini-Jeux du jour</div>'
-    + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:'+(doneCount===3?'#2ecc71':'var(--text-dim)')+';">'+doneCount+'/3 '+(doneCount===3?'🎁 Paquet gagné !':'complétés')+'</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:'+(doneCount===3?'#2ecc71':'var(--text-dim)')+';">'+doneCount+'/3 '+(doneCount===3?'✅ +45 🪙 gagnés !':'complétés')+'</div>'
     + '</div>'
     + '<div id="minigames-list" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>'
     + '</div>';
@@ -2329,8 +2547,7 @@ function renderMinigamesList() {
 }
 
 function startGame(id) {
-  // Store original packs content and replace with game
-  var section = document.getElementById('section-packs');
+  var section = document.getElementById('section-minijeux');
   section.setAttribute('data-original', section.innerHTML);
   section.innerHTML = '<div id="minigame-area" style="padding:16px;min-height:400px;"></div>';
   if(id === 'memory') startMemory();
@@ -2490,9 +2707,14 @@ function startArchery() {
   // Power gauge state
   var gaugeValue = 0;
   var gaugeDir = 1;
-  var gaugeSpeed = 1.8;
-  var gaugeActive = true; // oscillating
+  var gaugeSpeed = 2.2; // un peu moins rapide
+  var gaugeActive = true;
   var fired = false;
+
+  // Position de la zone verte — aléatoire selon le jour
+  var todaySeed = new Date().toDateString().split('').reduce(function(a,c){return a+c.charCodeAt(0);},0);
+  var greenStart = 0.45 + ((todaySeed % 30) / 100); // entre 0.45 et 0.75
+  var greenEnd = greenStart + 0.10; // zone verte de 10% seulement
 
   var area = document.getElementById('minigame-area');
   area.innerHTML = '<div class="archery-game" style="padding:12px 8px;">'
@@ -2657,17 +2879,12 @@ function startArchery() {
     ctx.roundRect ? ctx.roundRect(gx, gy, gw, gh, 8) : ctx.fillRect(gx, gy, gw, gh);
     ctx.fill();
 
-    // Color zones
-    var zones = [
-      {start:0, end:0.4, color:'rgba(231,76,60,0.7)'},
-      {start:0.4, end:0.65, color:'rgba(241,196,15,0.8)'},
-      {start:0.65, end:0.85, color:'rgba(46,204,113,0.9)'},
-      {start:0.85, end:1, color:'rgba(241,196,15,0.8)'}
-    ];
-    zones.forEach(function(z) {
-      ctx.fillStyle = z.color;
-      ctx.fillRect(gx + gw*z.start, gy, gw*(z.end-z.start), gh);
-    });
+    // Color zones — rouge partout sauf zone verte
+    ctx.fillStyle = 'rgba(204,34,51,0.75)';
+    ctx.fillRect(gx, gy, gw, gh);
+    // Zone verte (position du jour)
+    ctx.fillStyle = 'rgba(46,204,113,0.95)';
+    ctx.fillRect(gx + gw*greenStart, gy, gw*(greenEnd-greenStart), gh);
 
     // Indicator needle
     var needleX = gx + (gaugeValue/100)*gw;
@@ -2756,16 +2973,12 @@ function startArchery() {
     fired = true;
     gaugeActive = false;
     var power = gaugeValue / 100;
-    // Zone verte (0.65-0.85) = tir précis, jaune = déviation modérée, rouge = très forte déviation
+    var inGreen = power >= greenStart && power <= greenEnd;
     var deviation;
-    if(power >= 0.65 && power <= 0.85) {
-      deviation = (Math.random() - 0.5) * 0.08; // quasi droit
-    } else if(power >= 0.5 && power < 0.65) {
-      deviation = (Math.random() - 0.5) * 0.45; // jaune bas
-    } else if(power > 0.85 && power <= 0.95) {
-      deviation = (Math.random() - 0.5) * 0.45; // jaune haut
+    if(inGreen) {
+      deviation = (Math.random()-0.5) * 0.06; // zone verte = quasi droit
     } else {
-      deviation = (Math.random() < 0.5 ? 1 : -1) * (0.6 + Math.random() * 0.6); // rouge = raté
+      deviation = (Math.random()<0.5?1:-1) * (0.5 + Math.random()*0.7); // rouge = raté
     }
     var baseAngle = Math.atan2(targetY - bowY, targetX - bowX);
     var speed = 8 + power * 7;
@@ -2877,6 +3090,146 @@ function startArchery() {
 }
 
 // ══════════════════════════════════════
+//  CARTES SPÉCIALES
+// ══════════════════════════════════════
+var SPECIAL_CARDS = [
+  {id:'potion',  name:'Potion Divine',    icon:'🧪', img:'https://i.imgur.com/McZSliz.jpeg', price:80,  rarity:'rare',
+   desc:'Restaure 1000 PV immédiatement.',
+   effect:function(s){ s.playerHp=Math.min(s.playerMaxHp,s.playerHp+1000); addBattleLog('🧪 Potion Divine ! +1000 PV.','hit'); }},
+  {id:'bouclier',name:'Bouclier d\'Arès', icon:'🛡', img:'https://i.imgur.com/kTeSnrt.jpeg', price:100, rarity:'épique',
+   desc:'+400 DEF à toutes tes cartes ce tour.',
+   effect:function(s){ s.playerField.forEach(function(c){c.combatDef+=400;}); addBattleLog('🛡 Bouclier d\'Arès ! +400 DEF à toutes tes cartes.','info'); }},
+  {id:'souffle', name:'Souffle Divin',    icon:'⚡', img:'https://i.imgur.com/IvKzAUZ.jpeg', price:200, rarity:'légendaire',
+   desc:'Détruit une carte ennemie au choix.',
+   effect:function(s){ battleState._pendingEffect='souffle'; addBattleLog('⚡ Souffle Divin ! Choisis une carte ennemie à détruire.','info'); renderBattle(); }},
+  {id:'nectar',  name:'Nectar des Dieux', icon:'🌿', img:'https://i.imgur.com/C8UGUu5.jpeg', price:150, rarity:'légendaire',
+   desc:'Ressuscite ta dernière carte détruite avec 50% PV.',
+   effect:function(s){ if(s._lastDestroyed){ var c=s._lastDestroyed; c.hp=Math.floor(c.maxHp*0.5); s.playerField.push(c); s._lastDestroyed=null; addBattleLog('🌿 Nectar des Dieux ! '+c.card.name+' ressuscite !','hit'); } else { addBattleLog('🌿 Aucune carte à ressusciter.',''); } }},
+  {id:'colere',  name:'Colère de Zeus',   icon:'🔥', img:'https://i.imgur.com/3cu2PQB.jpeg', price:120, rarity:'épique',
+   desc:'-500 ATK à toutes les cartes ennemies ce tour.',
+   effect:function(s){ s.aiField.forEach(function(c){c.combatAtk=Math.max(0,c.combatAtk-500);}); addBattleLog('🔥 Colère de Zeus ! -500 ATK aux cartes ennemies.','hit'); }},
+  {id:'meduse',  name:'Regard de Méduse', icon:'🐍', img:'https://i.imgur.com/a6YmpEw.jpeg', price:180, rarity:'légendaire',
+   desc:'L\'ennemi ne peut pas attaquer pendant 1 tour.',
+   effect:function(s){ s._petrified=true; addBattleLog('🐍 Regard de Méduse ! L\'IA est pétrifiée ce tour.','hit'); }}
+];
+
+function getSpecialCard(id) {
+  return SPECIAL_CARDS.find(function(c){ return c.id===id; });
+}
+
+function showCoinFlip(deckIds, specialId) {
+  var screen = document.createElement('div');
+  screen.className = 'coin-flip-screen';
+  screen.id = 'coin-flip-screen';
+
+  // Tapis monument
+  var ownedMonuments = getUniqueOwned().filter(function(e){ return e.card.id.startsWith('mn'); });
+  var carpetHtml = '';
+  if(ownedMonuments.length > 0) {
+    carpetHtml = '<div style="width:100%;max-width:440px;padding:0 16px;margin-bottom:16px;">'
+      +'<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);text-align:center;margin-bottom:8px;">🗿 Tapis de combat</div>'
+      +'<div style="display:flex;gap:6px;overflow-x:auto;">'
+      +'<div class="secret-card-pick '+((!user.lastCarpet)?'selected':'')+'" id="carpet-none" style="width:60px;flex-shrink:0;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:var(--text-dim);font-family:Cinzel,serif;">Défaut</div>';
+    ownedMonuments.forEach(function(e) {
+      carpetHtml += '<div class="secret-card-pick '+(user.lastCarpet===e.card.id?'selected':'')+'" data-carpet="'+e.card.id+'" data-img="'+(e.card.img||'')+'" style="width:60px;flex-shrink:0;">'
+        +(e.card.img?'<img src="'+e.card.img+'" style="width:100%;height:40px;object-fit:cover;display:block;">':'')
+        +'<div style="font-size:0.3rem;color:var(--gold);text-align:center;padding:1px;font-family:Cinzel,serif;">'+e.card.name+'</div>'
+        +'</div>';
+    });
+    carpetHtml += '</div></div>';
+  }
+
+  screen.innerHTML = carpetHtml
+    +'<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);text-align:center;">⚡ Qui commence ?</div>'
+    +'<div class="coin" id="the-coin" style="cursor:pointer;">⚡</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--text-dim);text-align:center;" id="coin-result">Tape la pièce !</div>'
+    +'<button class="combat-btn" id="coin-btn" style="flex:none;min-width:160px;max-width:200px;padding:12px 24px;font-size:0.65rem;">🪙 Lancer</button>';
+  document.body.appendChild(screen);
+
+  // Handlers tapis
+  if(ownedMonuments.length > 0) {
+    screen.querySelectorAll('[data-carpet]').forEach(function(el) {
+      el.onclick = function() {
+        screen.querySelectorAll('.secret-card-pick').forEach(function(e){e.classList.remove('selected');});
+        el.classList.add('selected');
+        user.lastCarpet = el.getAttribute('data-carpet');
+        user.carpetImg = el.getAttribute('data-img');
+        saveUser();
+      };
+    });
+    var cn = document.getElementById('carpet-none');
+    if(cn) cn.onclick = function() {
+      screen.querySelectorAll('.secret-card-pick').forEach(function(e){e.classList.remove('selected');});
+      cn.classList.add('selected');
+      user.lastCarpet = null; user.carpetImg = null; saveUser();
+    };
+  }
+
+  var flipped = false;
+  document.getElementById('coin-btn').onclick = function() {
+    if(flipped) return;
+    var coin = document.getElementById('the-coin');
+    coin.classList.add('spin');
+    document.getElementById('coin-btn').disabled = true;
+    setTimeout(function() {
+      var playerFirst = Math.random() >= 0.5;
+      flipped = true;
+      coin.textContent = playerFirst ? '⚡' : '🤖';
+      var res = document.getElementById('coin-result');
+      res.textContent = playerFirst ? '✅ Tu attaques en premier !' : '❌ L\'IA attaque en premier...';
+      res.style.color = playerFirst ? '#44dd66' : '#ff6677';
+      setTimeout(function() { screen.remove(); startBattle(deckIds, playerFirst, specialId); }, 1200);
+    }, 1300);
+  };
+}
+function renderBoutique() {
+  var container = document.getElementById('boutique-container');
+  if(!container) return;
+  var drachmes = user.drachmes || 0;
+  var inventory = user.specialCards || {};
+
+  container.innerHTML = '<div style="font-size:0.7rem;color:var(--text-dim);text-align:center;margin-bottom:6px;">Cartes spéciales utilisables en combat · 1 par combat</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);text-align:center;margin-bottom:18px;">🪙 '+drachmes+' Drachmes disponibles</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;" id="boutique-grid"></div>';
+
+  var grid = document.getElementById('boutique-grid');
+  SPECIAL_CARDS.forEach(function(sc) {
+    var owned = inventory[sc.id] || 0;
+    var canBuy = drachmes >= sc.price;
+    var d = document.createElement('div');
+    d.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;';
+    d.innerHTML = '<div style="position:relative;">'
+      +'<img src="'+sc.img+'" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;">'
+      +'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:8px 8px 6px;">'
+      +'<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--gold);">'+sc.icon+' '+sc.name+'</div>'
+      +'<div style="font-size:0.52rem;color:rgba(255,255,255,0.7);margin-top:2px;line-height:1.3;">'+sc.desc+'</div>'
+      +'</div>'
+      +'</div>'
+      +'<div style="padding:8px;display:flex;align-items:center;justify-content:space-between;gap:6px;">'
+      +'<div style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);">Stock : <strong style="color:var(--gold);">'+owned+'</strong></div>'
+      +(canBuy
+        ? '<button class="battle-btn" style="font-size:0.52rem;padding:5px 10px;min-width:auto;white-space:nowrap;" data-id="'+sc.id+'">'+sc.price+' 🪙</button>'
+        : '<div style="font-size:0.5rem;color:var(--text-dim);">'+drachmes+'/'+sc.price+' 🪙</div>')
+      +'</div>';
+    if(canBuy) {
+      (function(sid, sprice){
+        d.querySelector('[data-id]').onclick = function() {
+          if((user.drachmes||0) < sprice) return;
+          user.drachmes -= sprice;
+          if(!user.specialCards) user.specialCards = {};
+          user.specialCards[sid] = (user.specialCards[sid]||0) + 1;
+          saveUser();
+          updateDrachmesDisplay();
+          renderBoutique();
+          showDrachmesNotif(-sprice, 'Achat '+getSpecialCard(sid).name);
+        };
+      })(sc.id, sc.price);
+    }
+    grid.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════
 //  COMBAT SYSTEM
 // ══════════════════════════════════════
 
@@ -2948,75 +3301,132 @@ function renderCombat() {
 
 function renderDeckBuilder(container, savedDeck) {
   var unique = getUniqueOwned();
-  var deckIds = savedDeck.slice();
+  var deckIds = (savedDeck||[]).filter(function(id){ return !id.startsWith('mn'); }).slice(0, 11);
+  var specialSlot = user.deckSpecial || null;
+  var activeFilter = 'all';
 
-  container.innerHTML = '<div class="sec-title">⚔️ Mon Deck</div>'
-    + '<div style="font-size:0.68rem;color:var(--text-dim);text-align:center;margin-bottom:12px;">Choisis 12 cartes · Tape pour ajouter/retirer</div>'
-    + '<div id="deck-slots-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:16px;"></div>'
-    + '<div style="font-family:Cinzel,serif;font-size:0.58rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:10px;">Ma Collection</div>'
-    + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>'
-    + '<div style="display:flex;gap:10px;margin-top:16px;">'
-    + '<button class="battle-btn secondary" id="deck-reset-btn" style="flex:0 0 auto;padding:10px 14px;">🗑</button>'
-    + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;">⚔️ Combattre !</button>'
-    + '</div>';
+  function buildHTML() {
+    container.innerHTML = '<div class="sec-title">⚔️ Mon Deck</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:10px;">11 cartes de combat + 1 carte spéciale optionnelle</div>'
+      + '<div id="deck-slots-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px;"></div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-align:center;margin-bottom:6px;">✨ CARTE SPÉCIALE</div>'
+      + '<div id="special-slot-area" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;align-items:center;"></div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:8px;">Ma Collection</div>'
+      + '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;" id="deck-filters">'
+      + '<button class="deck-filter-btn active" data-f="all">Toutes</button>'
+      + '<button class="deck-filter-btn" data-f="commune">⚪</button>'
+      + '<button class="deck-filter-btn" data-f="rare">🔵</button>'
+      + '<button class="deck-filter-btn" data-f="épique">🟣</button>'
+      + '<button class="deck-filter-btn" data-f="légendaire">🟡</button>'
+      + '</div>'
+      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-height:260px;overflow-y:auto;"></div>'
+      + '<div style="display:flex;gap:10px;margin-top:16px;">'
+      + '<button class="battle-btn secondary" id="deck-reset-btn" style="flex:0 0 auto;padding:10px 14px;">🗑</button>'
+      + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;" '+(deckIds.length<11?'disabled':'')+'>⚔️ Combattre !</button>'
+      + '</div>';
 
-  function refresh() {
-    var slotsEl = document.getElementById('deck-slots-grid');
-    slotsEl.innerHTML = '';
-    for(var i=0; i<12; i++) {
-      var slot = document.createElement('div');
-      slot.style.cssText = 'aspect-ratio:2/3;border-radius:6px;overflow:hidden;position:relative;border:1.5px dashed rgba(139,105,20,0.3);display:flex;align-items:center;justify-content:center;background:var(--bg-card);font-size:1rem;color:var(--text-dim);';
-      if(deckIds[i]) {
-        var entry = unique.find(function(e){ return (e.card.id+(e.isShiny?'|shiny':'')) === deckIds[i]; });
-        if(entry) {
-          slot.style.border = '1.5px solid var(--gold-dim)';
-          slot.innerHTML = (entry.card.img ? '<img src="'+entry.card.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">' : '<span style="font-size:1.1rem;">'+entry.card.icon+'</span>');
-          var rm = document.createElement('div');
-          rm.style.cssText = 'position:absolute;top:2px;right:2px;width:13px;height:13px;background:rgba(200,0,0,0.85);border-radius:50%;font-size:0.45rem;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;font-weight:700;';
-          rm.textContent = '×';
-          (function(idx){ rm.onclick = function(e){ e.stopPropagation(); deckIds.splice(idx,1); refresh(); }; })(i);
-          slot.appendChild(rm);
-        }
-      } else {
-        slot.textContent = '+';
-      }
-      slotsEl.appendChild(slot);
-    }
-
-    var pickEl = document.getElementById('deck-pick-grid');
-    pickEl.innerHTML = '';
-    unique.forEach(function(entry) {
-      var key = entry.card.id + (entry.isShiny?'|shiny':'');
-      var inDeck = deckIds.includes(key);
-      var stats = getCombatStats(entry.card);
-      var d = document.createElement('div');
-      d.style.cssText = 'border-radius:8px;border:2px solid '+(inDeck?'var(--gold-light)':'var(--border)')+';cursor:pointer;overflow:hidden;background:var(--bg-card);position:relative;';
-      d.innerHTML = (entry.card.img ? '<img src="'+entry.card.img+'" style="width:100%;height:60%;object-fit:cover;object-position:top;display:block;">' : '<div style="height:60%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">'+entry.card.icon+'</div>')
-        + (inDeck ? '<div style="position:absolute;top:3px;right:3px;background:var(--gold);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:white;font-weight:700;">✓</div>' : '')
-        + '<div style="padding:3px 4px;">'
-        + '<div style="font-family:Cinzel,serif;font-size:0.42rem;color:var(--text);line-height:1.2;margin-bottom:1px;">'+entry.card.name+'</div>'
-        + '<div style="font-size:0.38rem;color:var(--gold-dim);">⚔'+stats.atk+'  🛡'+stats.def+'</div>'
-        + '</div>';
-      (function(k, isIn){ d.onclick = function() {
-        if(isIn) { var idx=deckIds.indexOf(k); if(idx>=0){deckIds.splice(idx,1);refresh();} }
-        else { if(deckIds.length>=12) return; deckIds.push(k); refresh(); }
-      }; })(key, inDeck);
-      pickEl.appendChild(d);
+    document.getElementById('deck-filters').querySelectorAll('.deck-filter-btn').forEach(function(btn) {
+      btn.onclick = function() {
+        document.getElementById('deck-filters').querySelectorAll('.deck-filter-btn').forEach(function(b){b.classList.remove('active');});
+        btn.classList.add('active');
+        activeFilter = btn.getAttribute('data-f');
+        refreshPicks();
+      };
     });
-
-    var fightBtn = document.getElementById('deck-fight-btn');
-    if(fightBtn) fightBtn.disabled = deckIds.length < 12;
+    refreshSlots(); refreshSpecialSlot(); refreshPicks();
+    document.getElementById('deck-reset-btn').onclick = function(){ deckIds=[]; specialSlot=null; user.deckSpecial=null; saveUser(); buildHTML(); };
+    document.getElementById('deck-fight-btn').onclick = function(){
+      user.deck = deckIds.slice(); user.deckSpecial = specialSlot; saveUser();
+      showCoinFlip(deckIds, specialSlot);
+    };
   }
 
-  refresh();
-  document.getElementById('deck-reset-btn').onclick = function(){ deckIds=[]; refresh(); };
-  document.getElementById('deck-fight-btn').onclick = function(){
-    user.deck = deckIds.slice(); saveUser(); startBattle(deckIds);
-  };
+  function refreshSlots() {
+    var slotsEl = document.getElementById('deck-slots-grid'); if(!slotsEl) return;
+    slotsEl.innerHTML = '';
+    for(var i=0; i<11; i++) {
+      var slot = document.createElement('div');
+      slot.style.cssText = 'aspect-ratio:2/3;max-height:68px;border-radius:6px;overflow:hidden;position:relative;border:1.5px dashed rgba(139,105,20,0.3);display:flex;align-items:center;justify-content:center;background:var(--bg-card);font-size:1rem;color:var(--text-dim);';
+      if(deckIds[i]) {
+        var entry = unique.find(function(e){ return (e.card.id+(e.isShiny?'|shiny':''))===deckIds[i]; });
+        if(entry) {
+          slot.style.border='1.5px solid var(--gold-dim)';
+          slot.innerHTML=(entry.card.img?'<img src="'+entry.card.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">'  :'<span>'+entry.card.icon+'</span>');
+          var rm=document.createElement('div');
+          rm.style.cssText='position:absolute;top:2px;right:2px;width:13px;height:13px;background:rgba(200,0,0,0.85);border-radius:50%;font-size:0.45rem;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;font-weight:700;';
+          rm.textContent='×';
+          (function(idx){rm.onclick=function(e){e.stopPropagation();deckIds.splice(idx,1);refreshSlots();refreshPicks();updateFightBtn();};})(i);
+          slot.appendChild(rm);
+        }
+      } else { slot.textContent='+'; }
+      slotsEl.appendChild(slot);
+    }
+  }
+
+  function refreshSpecialSlot() {
+    var area=document.getElementById('special-slot-area'); if(!area) return;
+    area.innerHTML='';
+    var inventory=user.specialCards||{};
+    var emptySlot=document.createElement('div');
+    emptySlot.style.cssText='width:55px;flex-shrink:0;aspect-ratio:2/3;max-height:80px;border-radius:8px;border:1.5px dashed '+(specialSlot?'var(--gold)':'rgba(139,105,20,0.3)')+';display:flex;align-items:center;justify-content:center;background:var(--bg-card);flex-direction:column;gap:2px;';
+    if(specialSlot) {
+      var sc=getSpecialCard(specialSlot);
+      emptySlot.style.cursor='pointer';
+      emptySlot.innerHTML='<img src="'+sc.img+'" style="width:100%;height:65%;object-fit:cover;display:block;border-radius:6px 6px 0 0;"><div style="font-family:Cinzel,serif;font-size:0.26rem;color:var(--gold);text-align:center;padding:1px;">'+sc.icon+' '+sc.name+'<br><span style="color:rgba(255,100,100,0.8)">× retirer</span></div>';
+      emptySlot.onclick=function(){specialSlot=null;user.deckSpecial=null;saveUser();refreshSpecialSlot();updateFightBtn();};
+    } else {
+      emptySlot.innerHTML='<div style="font-size:1.2rem;">✨</div><div style="font-family:Cinzel,serif;font-size:0.28rem;color:var(--text-dim);text-align:center;">Spéciale</div>';
+    }
+    area.appendChild(emptySlot);
+    var hasAny=false;
+    SPECIAL_CARDS.forEach(function(sc){
+      if((inventory[sc.id]||0)===0) return;
+      hasAny=true;
+      var d=document.createElement('div');
+      d.style.cssText='width:55px;flex-shrink:0;aspect-ratio:2/3;max-height:80px;border-radius:8px;border:1.5px solid '+(specialSlot===sc.id?'#ffe566':'var(--border)')+';overflow:hidden;cursor:pointer;background:var(--bg-card);';
+      d.innerHTML='<img src="'+sc.img+'" style="width:100%;height:65%;object-fit:cover;display:block;"><div style="font-family:Cinzel,serif;font-size:0.26rem;color:var(--gold);text-align:center;padding:2px;line-height:1.2;">'+sc.icon+'<br>'+sc.name+'</div>';
+      (function(sid){d.onclick=function(){specialSlot=(specialSlot===sid)?null:sid;user.deckSpecial=specialSlot;saveUser();refreshSpecialSlot();updateFightBtn();};})(sc.id);
+      area.appendChild(d);
+    });
+    if(!hasAny) {
+      var hint=document.createElement('div');
+      hint.style.cssText='font-family:Cinzel,serif;font-size:0.5rem;color:var(--text-dim);padding-left:8px;';
+      hint.textContent='Achète des cartes à la Boutique';
+      area.appendChild(hint);
+    }
+  }
+
+  function refreshPicks() {
+    var pickEl=document.getElementById('deck-pick-grid'); if(!pickEl) return;
+    pickEl.innerHTML='';
+    var filtered=unique.filter(function(e){return !e.card.id.startsWith('mn');});
+    filtered=activeFilter==='all'?filtered:filtered.filter(function(e){return e.card.rarity===activeFilter;});
+    filtered.forEach(function(entry){
+      var key=entry.card.id+(entry.isShiny?'|shiny':'');
+      var inDeck=deckIds.includes(key);
+      var stats=getCombatStats(entry.card);
+      var d=document.createElement('div');
+      d.style.cssText='border-radius:8px;border:2px solid '+(inDeck?'var(--gold-light)':'var(--border)')+';cursor:pointer;overflow:hidden;background:var(--bg-card);position:relative;';
+      d.innerHTML=(entry.card.img?'<img src="'+entry.card.img+'" style="width:100%;height:60%;object-fit:cover;object-position:top;display:block;">':'<div style="height:60%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">'+entry.card.icon+'</div>')
+        +(inDeck?'<div style="position:absolute;top:3px;right:3px;background:var(--gold);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:white;font-weight:700;">✓</div>':'')
+        +'<div style="padding:3px 4px;"><div style="font-family:Cinzel,serif;font-size:0.42rem;color:var(--text);line-height:1.2;margin-bottom:1px;">'+entry.card.name+'</div>'
+        +'<div style="font-size:0.38rem;color:var(--gold-dim);">⚔'+stats.atk+' 🛡'+stats.def+'</div></div>';
+      (function(k,isIn){d.onclick=function(){
+        if(isIn){var idx=deckIds.indexOf(k);if(idx>=0){deckIds.splice(idx,1);refreshSlots();refreshPicks();updateFightBtn();}}
+        else{if(deckIds.length>=11)return;deckIds.push(k);refreshSlots();refreshPicks();updateFightBtn();}
+      };})(key,inDeck);
+      pickEl.appendChild(d);
+    });
+  }
+
+  function updateFightBtn(){var btn=document.getElementById('deck-fight-btn');if(btn)btn.disabled=deckIds.length<11;}
+  buildHTML();
 }
 
 
-function startBattle(deckIds) {
+
+function startBattle(deckIds, playerFirst, secretId) {
+  if(playerFirst === undefined) playerFirst = Math.random() >= 0.5;
   var container = document.getElementById('combat-container');
   var unique = getUniqueOwned();
 
@@ -3061,6 +3471,20 @@ function startBattle(deckIds) {
   for(var i=playerDeckFull.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=playerDeckFull[i];playerDeckFull[i]=playerDeckFull[j];playerDeckFull[j]=t;}
   for(var i=aiCards.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=aiCards[i];aiCards[i]=aiCards[j];aiCards[j]=t;}
 
+  // Ajouter la carte spéciale au deck si sélectionnée
+  var specialCard = secretId ? getSpecialCard(secretId) : null;
+  var specialBattleCard = null;
+  if(specialCard) {
+    specialBattleCard = {
+      card: {id:'special_'+specialCard.id, name:specialCard.name, img:specialCard.img, icon:specialCard.icon, rarity:'légendaire'},
+      isShiny:false, combatAtk:0, combatDef:0, hp:1, maxHp:1,
+      mode:'attack', canAttack:false, hasAttacked:true,
+      _pack:'special', _specialId:specialCard.id, key:'special_'+specialCard.id,
+      isSpecial:true, specialEffect:specialCard.effect, specialDesc:specialCard.desc
+    };
+    playerDeckFull.push(specialBattleCard);
+  }
+
   battleState = {
     playerDeck: playerDeckFull.slice(5),
     playerHand: playerDeckFull.slice(0,5),
@@ -3070,13 +3494,20 @@ function startBattle(deckIds) {
     aiHand: aiCards.slice(0,5),
     aiField: [],
     aiHp: 8000, aiMaxHp: 8000,
-    phase: 'player', // 'player' ou 'ai'
+    phase: 'place',
     turn: 1,
     log: [],
     cardsPlayed: 0,
     selectedFieldCard: null,
+    selectedHandCard: null,
     bonuses: getFamilyBonus(playerDeckFull),
-    aiBonuses: getFamilyBonus(aiCards)
+    aiBonuses: getFamilyBonus(aiCards),
+    playerFirst: playerFirst,
+    secretCard: secretId ? getSpecialCard(secretId) : null,
+    secretUsed: false,
+    _petrified: false,
+    _lastDestroyed: null,
+    _pendingEffect: null
   };
 
   // Appliquer bonus de famille
@@ -3100,160 +3531,340 @@ function addBattleLog(msg, type) {
   if(battleState.log.length > 20) battleState.log.pop();
 }
 
+function openCombatScreen() {
+  var screen = document.getElementById('combat-screen');
+  screen.classList.add('open');
+  var starsEl = document.getElementById('combat-stars');
+  if(starsEl && !starsEl.hasChildNodes()) {
+    for(var i=0;i<40;i++) {
+      var s = document.createElement('div');
+      s.style.cssText='position:absolute;border-radius:50%;background:white;width:'+(0.8+Math.random()*1.8)+'px;height:'+(0.8+Math.random()*1.8)+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*55)+'%;opacity:'+(0.15+Math.random()*0.5)+';';
+      starsEl.appendChild(s);
+    }
+  }
+}
+function closeCombatScreen() {
+  document.getElementById('combat-screen').classList.remove('open');
+  battleState = null;
+  renderCombat();
+}
 function renderBattle() {
-  var container = document.getElementById('combat-container');
-  if(!container || !battleState) return;
+  openCombatScreen();
+  var content = document.getElementById('combat-screen-content');
+  if(!content || !battleState) return;
   var s = battleState;
+  var playerPct = Math.max(0,s.playerHp/s.playerMaxHp*100);
+  var aiPct = Math.max(0,s.aiHp/s.aiMaxHp*100);
+  var isPlayer = s.phase==='player';
+  var isPlace = s.phase==='place';
 
-  container.innerHTML = '<div class="battle-arena">'
-    // Turn indicator
-    + '<div style="text-align:center;padding:8px;background:'+(s.phase==='player'?'rgba(34,170,68,0.15)':'rgba(204,34,51,0.15)')+';border-bottom:2px solid '+(s.phase==='player'?'#22aa44':'#cc2233')+';font-family:Cinzel,serif;font-size:0.75rem;font-weight:700;color:'+(s.phase==='player'?'#44dd66':'#ff4455')+';letter-spacing:0.1em;">'
-    + (s.phase==='player' ? '⚔️ TON TOUR — Tour '+s.turn : '🤖 TOUR DE L\'IA...')
-    + '</div>'
-    // HP bars
-    + '<div class="battle-hp-bar"><span class="battle-hp-label">Toi</span><div class="battle-hp-track"><div class="battle-hp-fill player" style="width:'+Math.max(0,s.playerHp/s.playerMaxHp*100)+'%"></div></div><span class="battle-hp-val">'+s.playerHp+'</span></div>'
-    + '<div class="battle-hp-bar"><span class="battle-hp-label">IA</span><div class="battle-hp-track"><div class="battle-hp-fill enemy" style="width:'+Math.max(0,s.aiHp/s.aiMaxHp*100)+'%"></div></div><span class="battle-hp-val">'+s.aiHp+'</span></div>'
-    // Fields
-    + '<div class="battle-field">'
-    + '<div class="battle-zone"><div class="battle-zone-title">🤺 Terrain IA</div><div class="battle-zone-cards" id="ai-field"></div></div>'
-    + '<div class="battle-zone"><div class="battle-zone-title">⚔️ Ton Terrain</div><div class="battle-zone-cards" id="player-field"></div></div>'
-    + '</div>'
-    // Hand
-    + '<div style="font-family:Cinzel,serif;font-size:0.5rem;letter-spacing:0.15em;color:var(--text-dim);padding:4px 14px;">MA MAIN ('+s.playerHand.length+' cartes)</div>'
-    + '<div class="battle-hand" id="player-hand"></div>'
-    // Log
-    + '<div class="battle-log" id="battle-log"></div>'
-    // Actions
-    + '<div class="battle-actions">'
-    + '<button class="battle-btn secondary" id="btn-toggle-mode">🛡 Mode Défense</button>'
-    + '<button class="battle-btn" id="btn-attack" '+(s.phase==='player'?'':'disabled')+'>⚔️ Attaquer</button>'
-    + '<button class="battle-btn" id="btn-end-turn" '+(s.phase==='player'?'':'disabled')+'>⏭ Fin de tour</button>'
-    + '</div>'
-    + '<div style="padding:4px 14px 10px;"><button class="battle-btn secondary" id="btn-flee" style="width:100%;font-size:0.55rem;">🏳 Abandonner</button></div>'
-    + '</div>';
+  content.innerHTML =
+    '<div class="combat-topbar">'
+    +'<div class="combat-topbar-title">⚔️ OLYMPIA</div>'
+    +'<div class="combat-turn-badge '+(s.phase==='ai'?'enemy':'player')+'">'
+    +(isPlace?'🃏 POSE TES CARTES — Tour '+s.turn : isPlayer?'⚔️ TON TOUR '+s.turn : '🤖 IA EN JEU...')
+    +'</div>'
+    +'<button class="combat-btn sec" id="cb-flee" style="flex:none;padding:4px 10px;font-size:0.5rem;">🏳</button>'
+    +'</div>'
+    +'<div class="combat-hp-row">'
+    +'<div class="combat-hp-block"><div class="combat-hp-name">IA</div><div class="combat-hp-track"><div class="combat-hp-fill enemy" style="width:'+aiPct+'%"></div></div><div class="combat-hp-val">'+s.aiHp+'</div></div>'
+    +'<div class="combat-hp-block"><div class="combat-hp-name">TOI</div><div class="combat-hp-track"><div class="combat-hp-fill player" style="width:'+playerPct+'%"></div></div><div class="combat-hp-val">'+s.playerHp+'</div></div>'
+    +'</div>'
+    +'<div class="combat-battlefield">'
+    +'<div class="combat-carpet">'
+    +'<div class="combat-zone enemy"><span class="combat-zone-label">TERRAIN IA</span><div id="cf-ai" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;"></div></div>'
+    +'<div class="combat-carpet-divider"></div>'
+    +'<div class="combat-zone player"><span class="combat-zone-label">TON TERRAIN</span><div id="cf-player" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;"></div></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="combat-log" id="cf-log"></div>'
+    +(isPlace||isPlayer?
+      '<div class="combat-hand-area">'
+      +'<div class="combat-hand-label" id="cf-hand-label">'+(isPlace?'POSE 1-2 CARTES PUIS CLIQUE PRÊT':'MA MAIN ('+s.playerHand.length+')')+'</div>'
+      +'<div class="combat-hand-fan" id="cf-hand"></div>'
+      +'</div>'
+    :'')
+    +'<div class="combat-actions">'
+    +(isPlace?
+      '<button class="combat-btn sec" id="cb-mode">🛡 Défense</button>'
+      +'<button class="combat-btn" id="cb-ready" '+(s.playerField.length===0?'disabled':'')+' style="background:linear-gradient(135deg,#22aa44,#44dd66);">⚔️ PRÊT !</button>'
+      +(s.secretCard && !s.secretUsed ? '<button class="combat-btn sec" id="cb-secret" style="border-color:var(--gold);color:var(--gold);" title="'+s.secretCard.desc+'">'+s.secretCard.icon+' Carte cachée</button>' : '')
+    : isPlayer?
+      '<button class="combat-btn sec" id="cb-mode">🛡 Défense</button>'
+      +'<button class="combat-btn" id="cb-attack">⚔️ Attaquer</button>'
+      +'<button class="combat-btn" id="cb-end">⏭ Fin Tour</button>'
+      +(s.secretCard && !s.secretUsed ? '<button class="combat-btn sec" id="cb-secret" style="border-color:var(--gold);color:var(--gold);" title="'+s.secretCard.desc+'">'+s.secretCard.icon+'</button>' : '')
+    :
+      '<div style="flex:1;text-align:center;font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,255,255,0.4);">L\'IA réfléchit...</div>'
+    )
+    +'</div>';
 
-  // Render AI field
-  var aiFieldEl = document.getElementById('ai-field');
-  s.aiField.forEach(function(bc, idx) {
+  // Appliquer tapis monument si défini
+  if(user.carpetImg) {
+    var carpetEl = content.querySelector('.combat-carpet');
+    if(carpetEl) {
+      carpetEl.style.backgroundImage = 'linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),url('+user.carpetImg+')';
+      carpetEl.style.backgroundSize = 'cover';
+      carpetEl.style.backgroundPosition = 'center';
+    }
+  }
+
+  // Terrain IA
+  var cfAi = document.getElementById('cf-ai');
+  s.aiField.forEach(function(bc,idx) {
     var d = document.createElement('div');
-    d.className = 'battle-card enemy-card' + (bc.mode==='defense'?' defending':'');
-    d.innerHTML = (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="text-align:center;font-size:1.2rem;">'+bc.card.icon+'</div>')
-      + '<div class="bc-stats">ATK '+bc.combatAtk+'<br>DEF '+bc.combatDef+'<br>♥ '+bc.hp+'</div>';
-    aiFieldEl.appendChild(d);
+    d.className = 'tapis-card enemy-card'+(bc.mode==='defense'?' defending':'');
+    d.id = 'ai-card-'+idx;
+    d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
+      +'<div class="tc-hp">♥'+bc.hp+'</div>'
+      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+    cfAi.appendChild(d);
   });
 
-  // Render player field
-  var playerFieldEl = document.getElementById('player-field');
-  s.playerField.forEach(function(bc, idx) {
+  // Terrain joueur
+  var cfPlayer = document.getElementById('cf-player');
+  s.playerField.forEach(function(bc,idx) {
     var d = document.createElement('div');
-    d.className = 'battle-card'
-      + (bc.mode==='defense'?' defending':'')
-      + (!bc.hasAttacked && s.phase==='player'?' can-attack':'')
-      + (s.selectedFieldCard===idx?' selected':'');
-    d.innerHTML = (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="text-align:center;font-size:1.2rem;">'+bc.card.icon+'</div>')
-      + '<div class="bc-stats">ATK '+bc.combatAtk+'<br>DEF '+bc.combatDef+'<br>♥ '+bc.hp+'</div>';
-    (function(i){ d.onclick = function() {
-      battleState.selectedFieldCard = (battleState.selectedFieldCard===i) ? null : i;
-      renderBattle();
-    }; })(idx);
-    playerFieldEl.appendChild(d);
-  });
-
-  // Render hand
-  var handEl = document.getElementById('player-hand');
-  s.playerHand.forEach(function(bc, idx) {
-    var d = document.createElement('div');
-    d.className = 'hand-card';
-    d.innerHTML = (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="text-align:center;font-size:1.2rem;padding:4px;">'+bc.card.icon+'</div>')
-      + '<div class="hc-name">'+bc.card.name+'</div>'
-      + '<div style="font-size:0.36rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding-bottom:2px;">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
-    (function(i){ d.onclick = function() {
-      if(s.phase !== 'player') return;
-      if(s.cardsPlayed >= 2) { addBattleLog('Tu ne peux poser que 2 cartes par tour.', ''); renderBattle(); return; }
-      var card = s.playerHand.splice(i, 1)[0];
-      card.hasAttacked = false;
-      // Monuments forcés en défense
-      if(card._pack === 'monuments') card.mode = 'defense';
-      // Apply armes bonus
-      if(s.bonuses.includes('armes')) card._armesBonus = true;
-      s.playerField.push(card);
-      s.cardsPlayed++;
-      addBattleLog('Tu poses '+card.card.name+' (ATK '+card.combatAtk+' / DEF '+card.combatDef+')', 'info');
-      renderBattle();
-    }; })(idx);
-    handEl.appendChild(d);
+    d.className = 'tapis-card'
+      +(bc.mode==='defense'?' defending':'')
+      +(!bc.hasAttacked&&isPlayer?' can-attack':'')
+      +(s.selectedFieldCard===idx?' selected':'');
+    d.id = 'player-card-'+idx;
+    d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
+      +'<div class="tc-hp">♥'+bc.hp+'</div>'
+      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+    (function(i){d.onclick=function(){battleState.selectedFieldCard=(battleState.selectedFieldCard===i)?null:i;renderBattle();};})(idx);
+    cfPlayer.appendChild(d);
   });
 
   // Log
-  var logEl = document.getElementById('battle-log');
-  s.log.forEach(function(entry) {
-    var d = document.createElement('div');
-    d.className = 'battle-log-entry ' + entry.type;
-    d.textContent = entry.msg;
+  var logEl = document.getElementById('cf-log');
+  s.log.slice(0,4).forEach(function(e){
+    var d=document.createElement('div');
+    d.className='combat-log-entry '+e.type;
+    d.textContent=e.msg;
     logEl.appendChild(d);
   });
 
-  // Buttons
-  document.getElementById('btn-toggle-mode').onclick = function() {
-    if(s.selectedFieldCard === null) { addBattleLog('Sélectionne une de tes cartes sur le terrain.', ''); renderBattle(); return; }
-    var bc = s.playerField[s.selectedFieldCard];
-    bc.mode = bc.mode === 'attack' ? 'defense' : 'attack';
-    addBattleLog(bc.card.name+' passe en mode '+(bc.mode==='defense'?'défense':'attaque')+'.', 'info');
+  // Main en éventail
+  var handEl = document.getElementById('cf-hand');
+  var handLabel = document.getElementById('cf-hand-label');
+  if(handLabel && s.turn===1 && s.cardsPlayed===0) {
+    handLabel.innerHTML = '👆 <strong style="color:var(--gold)">1er tap</strong> = sélectionner · <strong style="color:#44dd66">2e tap</strong> = poser';
+  }
+  var n = s.playerHand.length;
+  var maxSpread = Math.min(16, 90/Math.max(n,1));
+  s.playerHand.forEach(function(bc,idx){
+    var d = document.createElement('div');
+    var angle = n>1 ? (idx-(n-1)/2)*maxSpread : 0;
+    var ox = n>1 ? (idx-(n-1)/2)*24 : 0;
+    var oy = Math.abs(angle)*0.35;
+    var baseTransform = 'translateX('+ox+'px) rotate('+angle+'deg) translateY('+oy+'px)';
+    d.className='fan-card'+(s.selectedHandCard===idx?' selected-hand':'');
+    d.style.setProperty('--fan-base', baseTransform);
+    d.style.transform = baseTransform;
+    d.style.zIndex = idx;
+    d.innerHTML=(bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
+      +(s.selectedHandCard===idx?'<div style="position:absolute;top:2px;left:0;right:0;text-align:center;font-family:Cinzel,serif;font-size:0.28rem;background:rgba(255,229,102,0.9);color:#000;font-weight:700;padding:1px;">POSER ?</div>':'')
+      +'<div class="fan-name">'+bc.card.name+'</div>'
+      +'<div class="fan-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+    (function(i){d.onclick=function(){
+      if(s.phase!=='place' && s.phase!=='player') return;
+      showHandPreview(i);
+    };})(idx);
+    handEl.appendChild(d);
+  });
+
+  // Boutons
+  // Carte cachée
+  var cbSecret = document.getElementById('cb-secret');
+  if(cbSecret) {
+    cbSecret.onclick = function() {
+      if(!s.secretCard || s.secretUsed) return;
+      s.secretUsed = true;
+      // Déduire du stock
+      if(user.specialCards && user.specialCards[s.secretCard.id] > 0) {
+        user.specialCards[s.secretCard.id]--;
+        saveUser();
+      }
+      addBattleLog('🃏 Carte cachée : '+s.secretCard.name+' !', 'info');
+      s.secretCard.effect(s);
+      if(!s._pendingEffect) renderBattle();
+    };
+  }
+
+  document.getElementById('cb-mode').onclick=function(){
+    if(s.selectedFieldCard===null){addBattleLog('Sélectionne une carte sur ton terrain.','');renderBattle();return;}
+    var bc=s.playerField[s.selectedFieldCard];
+    bc.mode=bc.mode==='attack'?'defense':'attack';
+    addBattleLog(bc.card.name+' → '+(bc.mode==='defense'?'défense':'attaque'),'info');
     renderBattle();
   };
 
-  document.getElementById('btn-attack').onclick = function() {
-    if(s.phase !== 'player') return;
-    if(s.selectedFieldCard === null) { addBattleLog('Sélectionne une de tes cartes pour attaquer.', ''); renderBattle(); return; }
-    var attacker = s.playerField[s.selectedFieldCard];
-    if(attacker.hasAttacked) { addBattleLog(attacker.card.name+' a déjà attaqué ce tour.', ''); renderBattle(); return; }
-    if(attacker.mode === 'defense') { addBattleLog('Une carte en défense ne peut pas attaquer.', ''); renderBattle(); return; }
-    playerAttack(attacker);
-  };
+  if(isPlace) {
+    document.getElementById('cb-ready').onclick=function(){
+      // L'IA pose ses cartes puis on passe en phase player
+      s.phase = 'player';
+      aiPlaceCards();
+      addBattleLog('— ⚔️ Combat ! Tour '+s.turn+' —','info');
+      renderBattle();
+    };
+  }
 
-  document.getElementById('btn-end-turn').onclick = function() {
-    if(s.phase !== 'player') return;
-    endPlayerTurn();
-  };
+  if(isPlayer) {
+    document.getElementById('cb-attack').onclick=function(){
+      if(s.selectedFieldCard===null){addBattleLog('Sélectionne une de tes cartes pour attaquer.','');renderBattle();return;}
+      var a=s.playerField[s.selectedFieldCard];
+      if(a.hasAttacked){addBattleLog(a.card.name+' a déjà attaqué.','');renderBattle();return;}
+      if(a.mode==='defense'){addBattleLog('Mode défense : ne peut pas attaquer.','');renderBattle();return;}
+      // Si l'IA a plusieurs cartes, choisir la cible
+      if(s.aiField.length > 1) {
+        showTargetPicker(a);
+      } else {
+        playerAttack(a, s.aiField.length > 0 ? s.aiField[0] : null);
+      }
+    };
+    document.getElementById('cb-end').onclick=function(){ endPlayerTurn(); };
+  }
 
-  document.getElementById('btn-flee').onclick = function() {
-    if(confirm('Abandonner le combat ?')) {
-      battleState = null;
-      renderCombat();
-    }
-  };
+  document.getElementById('cb-flee').onclick=function(){if(confirm('Abandonner ?')) closeCombatScreen();};
 }
 
-function playerAttack(attacker) {
+function showHandPreview(idx) {
+  var s = battleState;
+  var bc = s.playerHand[idx];
+  if(!bc) return;
+
+  var battlefield = document.querySelector('.combat-battlefield');
+  if(!battlefield) return;
+
+  // Supprimer aperçu existant
+  var existing = document.getElementById('hand-preview');
+  if(existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.className = 'hand-preview-overlay';
+  overlay.id = 'hand-preview';
+
+  var canPlace = s.cardsPlayed < 2;
+  var isSpecial = bc.isSpecial;
+
+  overlay.innerHTML = '<div class="hand-preview-card">'
+    + (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg-dark);">'+bc.card.icon+'</div>')
+    + '<div class="hand-preview-info">'
+    + '<div class="hand-preview-name">'+bc.card.name+(bc.isShiny?' ✦':'')+'</div>'
+    + (isSpecial
+      ? '<div style="font-size:0.45rem;color:rgba(255,255,255,0.6);text-align:center;">'+bc.specialDesc+'</div>'
+      : '<div class="hand-preview-stats"><div class="hand-preview-stat">⚔ <span>'+bc.combatAtk+'</span></div><div class="hand-preview-stat">🛡 <span>'+bc.combatDef+'</span></div><div class="hand-preview-stat">♥ <span>'+bc.hp+'</span></div></div>')
+    + '</div>'
+    + '</div>'
+    + '<div class="hand-preview-btns">'
+    + (isSpecial
+      ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:140px;padding:10px 16px;background:linear-gradient(135deg,#7722cc,#aa44ff);">✨ Utiliser</button>'
+      : (canPlace ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:120px;padding:10px 16px;">▶ Poser</button>' : '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,100,100,0.8);">Max 2 cartes posées</div>'))
+    + '<button class="combat-btn sec" id="hp-cancel" style="flex:none;min-width:80px;padding:10px 16px;">✕</button>'
+    + '</div>';
+
+  battlefield.style.position = 'relative';
+  battlefield.appendChild(overlay);
+
+  document.getElementById('hp-cancel').onclick = function() { overlay.remove(); };
+  overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+
+  if(canPlace || isSpecial) {
+    document.getElementById('hp-place').onclick = function() {
+      overlay.remove();
+      if(isSpecial) {
+        // Utiliser la carte spéciale
+        var card = s.playerHand.splice(idx, 1)[0];
+        // Déduire du stock
+        if(user.specialCards && user.specialCards[card._specialId] > 0) {
+          user.specialCards[card._specialId]--;
+          saveUser();
+        }
+        addBattleLog('✨ '+card.card.name+' utilisé !', 'info');
+        card.specialEffect(s);
+        if(!s._pendingEffect) renderBattle();
+      } else {
+        var card = s.playerHand.splice(idx, 1)[0];
+        card.hasAttacked = false;
+        if(card._pack === 'monuments') card.mode = 'defense';
+        if(s.bonuses && s.bonuses.includes('armes')) card._armesBonus = true;
+        s.playerField.push(card);
+        s.cardsPlayed++;
+        addBattleLog('Tu poses '+card.card.name+' (⚔'+card.combatAtk+' 🛡'+card.combatDef+')', 'info');
+        renderBattle();
+      }
+    };
+  }
+}
+
+function showTargetPicker(attacker) {
+  var s = battleState;
+  var battlefield = document.querySelector('.combat-battlefield');
+  if(!battlefield) return;
+  var existing = document.getElementById('target-picker');
+  if(existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.className = 'hand-preview-overlay';
+  overlay.id = 'target-picker';
+
+  var html = '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);margin-bottom:14px;">🎯 Choisis ta cible</div>'
+    +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">';
+
+  s.aiField.forEach(function(bc, idx) {
+    html += '<div class="secret-card-pick" data-tidx="'+idx+'" style="width:100px;">'
+      +(bc.card.img?'<img src="'+bc.card.img+'" style="width:100%;height:65px;object-fit:cover;object-position:top;display:block;">':'<div style="height:65px;display:flex;align-items:center;justify-content:center;font-size:2rem;">'+bc.card.icon+'</div>')
+      +'<div style="padding:4px;font-family:Cinzel,serif;font-size:0.38rem;color:var(--gold);text-align:center;">'+bc.card.name+'</div>'
+      +'<div style="font-size:0.35rem;color:var(--text-dim);text-align:center;padding-bottom:4px;">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>'
+      +'</div>';
+  });
+
+  html += '</div><button class="combat-btn sec" style="margin-top:14px;min-width:100px;" id="cancel-target">Annuler</button>';
+  overlay.innerHTML = html;
+  battlefield.style.position = 'relative';
+  battlefield.appendChild(overlay);
+
+  overlay.querySelectorAll('[data-tidx]').forEach(function(el) {
+    el.onclick = function() {
+      var tidx = parseInt(el.getAttribute('data-tidx'));
+      overlay.remove();
+      playerAttack(attacker, s.aiField[tidx]);
+    };
+  });
+  document.getElementById('cancel-target').onclick = function() { overlay.remove(); };
+}
+
+function playerAttack(attacker, target) {
   var s = battleState;
   attacker.hasAttacked = true;
   var atkVal = attacker.combatAtk;
   if(attacker._armesBonus) atkVal = Math.floor(atkVal * 1.1);
 
-  if(s.aiField.length === 0) {
-    // Attaque directe
+  if(s.aiField.length === 0 || !target) {
     var dmg = atkVal;
     s.aiHp = Math.max(0, s.aiHp - dmg);
     addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
   } else {
-    // Attaque la carte la plus faible de l'IA
-    var target = s.aiField.reduce(function(a,b){ return (a.mode==='defense'?a.combatDef:a.combatAtk) < (b.mode==='defense'?b.combatDef:b.combatAtk) ? a : b; });
     var targetVal = target.mode === 'defense' ? target.combatDef : target.combatAtk;
     if(atkVal > targetVal) {
       addBattleLog('⚡ '+attacker.card.name+' détruit '+target.card.name+' !', 'hit');
       if(target.mode === 'attack') {
         var excess = atkVal - targetVal;
         s.aiHp = Math.max(0, s.aiHp - excess);
-        if(excess > 0) addBattleLog('   → '+excess+' dégâts excédentaires à l\'IA.', 'hit');
+        if(excess > 0) addBattleLog('   → '+excess+' dégâts excédentaires.', 'hit');
       }
+      s._lastDestroyed = null;
       s.aiField.splice(s.aiField.indexOf(target), 1);
     } else if(atkVal < targetVal) {
       var diff = targetVal - atkVal;
       if(target.mode === 'defense') {
-        addBattleLog('💥 '+attacker.card.name+' n\'a pas percé la défense ! Tu perds '+diff+' PV.', 'dmg');
+        addBattleLog('💥 Défense trop solide ! Tu perds '+diff+' PV.', 'dmg');
         s.playerHp = Math.max(0, s.playerHp - diff);
       } else {
-        addBattleLog('💥 '+attacker.card.name+' est détruit par '+target.card.name+' ! Tu perds '+diff+' PV.', 'dmg');
+        addBattleLog('💥 '+target.card.name+' détruit '+attacker.card.name+' ! Tu perds '+diff+' PV.', 'dmg');
+        s._lastDestroyed = attacker;
         s.playerField.splice(s.playerField.indexOf(attacker), 1);
         s.playerHp = Math.max(0, s.playerHp - diff);
         battleState.selectedFieldCard = null;
@@ -3261,6 +3872,7 @@ function playerAttack(attacker) {
     } else {
       addBattleLog('⚖️ Égalité ! Les deux cartes sont détruites.', 'info');
       s.aiField.splice(s.aiField.indexOf(target), 1);
+      s._lastDestroyed = attacker;
       s.playerField.splice(s.playerField.indexOf(attacker), 1);
       battleState.selectedFieldCard = null;
     }
@@ -3270,36 +3882,12 @@ function playerAttack(attacker) {
   if(battleState) renderBattle();
 }
 
-function endPlayerTurn() {
-  var s = battleState;
-  s.phase = 'ai';
-  s.cardsPlayed = 0;
-  s.selectedFieldCard = null;
-  s.playerField.forEach(function(c){ c.hasAttacked = false; });
-  addBattleLog('— Tour IA —', 'info');
-
-  // Pioche joueur
-  if(s.playerDeck.length > 0) {
-    var drawn = s.playerDeck.pop();
-    s.playerHand.push(drawn);
-    addBattleLog('Tu pioches une carte.', '');
-  }
-
-  renderBattle();
-  setTimeout(function(){ aiTurn(); }, 600);
-}
-
-function aiTurn() {
+function aiPlaceCards() {
   var s = battleState;
   if(!s) return;
-
   // IA pioche
-  if(s.aiDeck.length > 0) {
-    var drawn = s.aiDeck.pop();
-    s.aiHand.push(drawn);
-  }
-
-  // IA pose jusqu'à 2 cartes (les plus fortes)
+  if(s.aiDeck.length > 0) s.aiHand.push(s.aiDeck.pop());
+  // IA pose jusqu'à 2 cartes les plus fortes
   var sorted = s.aiHand.slice().sort(function(a,b){ return b.combatAtk - a.combatAtk; });
   var played = 0;
   sorted.forEach(function(bc) {
@@ -3314,8 +3902,16 @@ function aiTurn() {
       addBattleLog('🤖 IA pose '+bc.card.name+'.', 'info');
     }
   });
+}
 
-  // IA attaque avec chaque carte
+function endPlayerTurn() {
+  var s = battleState;
+  // IA attaque
+  s.phase = 'ai';
+  s.selectedFieldCard = null;
+  s.playerField.forEach(function(c){ c.hasAttacked = false; });
+  renderBattle();
+
   setTimeout(function() {
     if(!battleState) return;
     var attackers = s.aiField.filter(function(c){ return c.mode === 'attack'; });
@@ -3324,37 +3920,40 @@ function aiTurn() {
       var atkVal = attacker.combatAtk;
       if(s.playerField.length === 0) {
         s.playerHp = Math.max(0, s.playerHp - atkVal);
-        addBattleLog('💥 '+attacker.card.name+' t\'attaque directement ! Tu perds '+atkVal+' PV.', 'dmg');
+        addBattleLog('💥 '+attacker.card.name+' attaque directement ! -'+atkVal+' PV.', 'dmg');
       } else {
         var target = s.playerField.reduce(function(a,b){ return (a.mode==='defense'?a.combatDef:a.combatAtk) < (b.mode==='defense'?b.combatDef:b.combatAtk) ? a : b; });
         var targetVal = target.mode === 'defense' ? target.combatDef : target.combatAtk;
         if(atkVal > targetVal) {
           addBattleLog('💥 '+attacker.card.name+' détruit '+target.card.name+' !', 'dmg');
-          if(target.mode === 'attack') { s.playerHp = Math.max(0, s.playerHp - (atkVal-targetVal)); }
+          if(target.mode === 'attack') s.playerHp = Math.max(0, s.playerHp - (atkVal-targetVal));
           s.playerField.splice(s.playerField.indexOf(target), 1);
         } else if(atkVal < targetVal && target.mode === 'attack') {
-          addBattleLog('⚡ '+target.card.name+' résiste à '+attacker.card.name+' !', 'hit');
+          addBattleLog('⚡ '+target.card.name+' résiste !', 'hit');
           s.aiHp = Math.max(0, s.aiHp - (targetVal-atkVal));
         } else {
-          addBattleLog('⚖️ Égalité entre '+attacker.card.name+' et '+target.card.name+'.', 'info');
+          addBattleLog('⚖️ Égalité — '+attacker.card.name+' vs '+target.card.name+'.', 'info');
         }
       }
       checkBattleEnd();
     });
 
     if(battleState) {
-      s.phase = 'player';
       s.turn++;
-      addBattleLog('— Ton Tour '+s.turn+' —', 'info');
-      // Héros bonus : pioche extra au 1er tour
-      if(s.bonuses.includes('heros') && s.turn === 2 && s.playerDeck.length > 0) {
+      s.phase = 'place';
+      s.cardsPlayed = 0;
+      // Pioche joueur
+      if(s.playerDeck.length > 0) { s.playerHand.push(s.playerDeck.pop()); }
+      if(s.bonuses && s.bonuses.includes('heros') && s.turn === 2 && s.playerDeck.length > 0) {
         s.playerHand.push(s.playerDeck.pop());
-        addBattleLog('✨ Bonus Héros : tu pioches une carte supplémentaire !', 'info');
+        addBattleLog('✨ Bonus Héros : carte supplémentaire !', 'info');
       }
+      addBattleLog('— Tour '+s.turn+' : pose tes cartes —', 'info');
       renderBattle();
     }
-  }, 800);
+  }, 1000);
 }
+
 
 function checkBattleEnd() {
   if(!battleState) return;
@@ -3363,15 +3962,15 @@ function checkBattleEnd() {
     var won = s.aiHp <= 0;
     cancelAnimationFrame(0);
     setTimeout(function() {
-      var container = document.getElementById('combat-container');
-      if(!container) return;
-      container.innerHTML = '<div style="text-align:center;padding:40px 20px;">'
-        + '<div style="font-size:3.5rem;margin-bottom:16px;">'+(won?'🏆':'💀')+'</div>'
-        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Victoire !':'Défaite...')+'</div>'
-        + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:6px;">'+(won?'Tu as vaincu l\'IA ! +15 🪙 Drachmes':'L\'IA t\'a eu cette fois. Retente !')+'</div>'
-        + '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">'
-        + '<button class="battle-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
-        + '<button class="battle-btn secondary" onclick="battleState=null;renderCombat();">📋 Deck</button>'
+      var content = document.getElementById('combat-screen-content');
+      if(!content) return;
+      content.innerHTML = '<div style="text-align:center;padding:60px 20px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+        + '<div style="font-size:5rem;margin-bottom:20px;">'+(won?'🏆':'💀')+'</div>'
+        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);margin-bottom:10px;">'+(won?'Victoire !':'Défaite...')+'</div>'
+        + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:30px;">'+(won?'Tu as vaincu l\'IA ! +15 🪙 Drachmes':'L\'IA t\'a eu cette fois. Retente !')+'</div>'
+        + '<div style="display:flex;gap:12px;justify-content:center;">'
+        + '<button class="combat-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
+        + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>'
         + '</div></div>';
       battleState = null;
       if(won) addDrachmes(15, 'Victoire en combat !');
@@ -3446,7 +4045,6 @@ function renderAdmin() {
         } else if(action === 'pack') {
           var qty = parseInt(card.querySelector('.admin-input-packs').value) || 1;
           pUser.adminPackPending = (pUser.adminPackPending||0) + qty;
-          pUser.lastPackTime = null;
           localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
           btn.textContent = '✓ Envoyé !';
           setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
@@ -3617,16 +4215,12 @@ function claimBonusPack() {
 
 function backToMinigames() {
   if(_memTimer) clearInterval(_memTimer);
-  // Restore original packs content
-  var section = document.getElementById('section-packs');
+  var section = document.getElementById('section-minijeux');
   var original = section.getAttribute('data-original');
   if(original) {
     section.innerHTML = original;
     section.removeAttribute('data-original');
   }
-  // Re-render everything
-  renderPacks();
-  renderStreak();
   renderMinigamesList();
 }
 
