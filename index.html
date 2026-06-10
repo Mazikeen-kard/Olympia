@@ -1460,6 +1460,7 @@ function launch(p, data) {
   user = data;
   // Compte admin Mazikeen - toutes les cartes !
   if(p === 'Mazikeen') {
+    var savedPending = user.adminPackPending || 0;
     var allC = allCards();
     user.collection = [];
     allC.forEach(function(card) {
@@ -1470,8 +1471,8 @@ function launch(p, data) {
     user.drachmes = 9999;
     user.specialCards = {};
     SPECIAL_CARDS.forEach(function(sc){ user.specialCards[sc.id] = 10; });
+    user.adminPackPending = savedPending; // préserver les paquets en attente
     saveUser();
-    // Force tous les badges pour Mazikeen
     user.badges = COMBOS.map(function(c){ return c.id; });
     user.progressBadges = PROGRESS_BADGES.map(function(pb){ return pb.id; });
     user.combatWins = 999;
@@ -2027,10 +2028,11 @@ function openPackDrachmes(packId) {
   drawn.forEach(function(d) {
     user.collection.push(d.card.id + (d.isShiny?'|shiny':''));
   });
+  if(user.adminPackPending && user.adminPackPending > 0) user.adminPackPending--;
   saveUser();
   addXP(10, 'Paquet ouvert');
   addDrachmes(10, 'Paquet ouvert');
-  setTimeout(function(){ startSwipeReveal(drawn); }, 50);
+  setTimeout(function(){ startSwipeReveal(drawn); }, 300);
 }
 
 function openPack(packId) {
@@ -2101,8 +2103,8 @@ function startSwipeReveal(drawn) {
   _revealCards = drawn;
   _revealIndex = 0;
   _torn = false;
+  _tearring = false;
 
-  // Show pack tear screen
   var pr = document.getElementById('pack-reveal');
   document.getElementById('pr-title').textContent = '✨ Nouveau paquet !';
   document.getElementById('pr-hint').style.display = 'block';
@@ -2114,6 +2116,13 @@ function startSwipeReveal(drawn) {
   document.getElementById('pack-top-flap').style.opacity = '';
   document.getElementById('pack-tear-line').classList.remove('active');
   document.getElementById('pack-wrapper').style.display = 'block';
+
+  // Réinitialiser les handlers
+  var wrapper = document.getElementById('pack-wrapper');
+  wrapper.onclick = null;
+  wrapper.ontouchstart = null;
+  wrapper.ontouchmove = null;
+  wrapper.ontouchend = null;
 
   pr.classList.add('open');
   setupTearGesture();
@@ -2364,6 +2373,11 @@ document.getElementById('pr-done-btn').onclick = function() {
   document.getElementById('pack-reveal').classList.remove('open');
   renderCol();
   renderPacks();
+  if(user && user.adminPackPending && user.adminPackPending > 0) {
+    setTimeout(function() {
+      openPackDrachmes('mixed');
+    }, 800);
+  }
 };
 
 
@@ -2479,8 +2493,8 @@ function exchangeDoublons(packId) {
   });
   user.collection = newCollection;
   saveUser();
-  // Ouvrir le paquet
-  openPack(packId);
+  // Ouvrir le paquet — sans vérifier le cooldown
+  openPackDrachmes(packId);
   renderExchange();
   updateStats();
 }
@@ -4522,7 +4536,7 @@ function playerAttack(attacker, target) {
     var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
     dmg = Math.max(1, atkVal - defense);
     target.hp = Math.max(0, target.hp - dmg);
-    s.aiHp = Math.max(1, s.aiHp - dmg); // barre descend mais reste à 1 min tant que des cartes sont en jeu
+    s.aiHp = Math.max(0, s.aiHp - dmg);
     addBattleLog('⚡ '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'hit');
 
     if(target.hp <= 0) {
@@ -4576,6 +4590,12 @@ function endPlayerTurn() {
 
   setTimeout(function() {
     if(!battleState || s._ending) return;
+
+    // L'IA pioche et pose des cartes si son terrain est vide ou incomplet
+    if(s.aiField.length < 2) {
+      aiPlaceCards();
+    }
+
     var attackers = s.aiField.filter(function(c){ return c.mode === 'attack'; });
     addBattleLog('🤖 IA joue ('+attackers.length+' attaquants, '+s.aiField.length+' sur terrain)', 'info');
 
@@ -4591,7 +4611,7 @@ function endPlayerTurn() {
         var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
         var dmg = Math.max(1, atkVal - defense);
         target.hp = Math.max(0, target.hp - dmg);
-        s.playerHp = Math.max(1, s.playerHp - dmg); // barre descend mais reste à 1 min
+        s.playerHp = Math.max(0, s.playerHp - dmg);
         addBattleLog('💥 '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'dmg');
 
         if(target.hp <= 0) {
@@ -4604,7 +4624,8 @@ function endPlayerTurn() {
       checkBattleEnd();
     });
 
-    if(battleState) nextTurn();
+    if(battleState && !s._ending) nextTurn();
+    else if(battleState && s._ending) renderBattle();
   }, 600);
 }
 
