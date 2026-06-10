@@ -1864,12 +1864,13 @@ function renderPacks() {
     +'<div class="pack-name">'+packLabel+'</div>'
     +'<div class="pack-desc">'+packDesc+'</div>'
     +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
-    +(ready?'<button class="open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'🌅 Ouvrir mon paquet du jour':isAdmin?'🎁 Ouvrir mon paquet offert':'✨ Ouvrir mon paquet')+'</button>'
+    +(ready?'<button class="open-btn" id="main-open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'🌅 Ouvrir mon paquet du jour':isAdmin?'🎁 Ouvrir mon paquet offert':'✨ Ouvrir mon paquet')+'</button>'
     : showTimer ? '<div class="pack-timer">'+fmtTime(remaining)+'</div>' : '<div class="pack-timer">Bientôt disponible...</div>');
-  if(ready) {
-    div.querySelector('.open-btn').onclick = function(){ openPack('mixed'); };
-  }
   grid.appendChild(div);
+  if(ready) {
+    var openBtn = document.getElementById('main-open-btn');
+    if(openBtn) openBtn.onclick = function(){ openPack('mixed'); };
+  }
 
   // Paquets thématiques achetables
   var shopContainer = document.getElementById('shop-container');
@@ -4161,10 +4162,20 @@ function renderBattle() {
     d.id = 'player-card-'+idx;
     d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
       +'<div class="tc-hp">♥'+bc.hp+'</div>'
-      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>'
-      +(bc._weapon?'<div style="position:absolute;bottom:18px;right:2px;font-size:0.7rem;" title="'+bc._weapon.name+'">'+bc._weapon.icon+'</div>':'');
+      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
     (function(i){d.onclick=function(){battleState.selectedFieldCard=(battleState.selectedFieldCard===i)?null:i;renderBattle();};})(idx);
-    cfPlayer.appendChild(d);
+
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;';
+    wrapper.appendChild(d);
+    if(bc._weapon) {
+      var wd = document.createElement('div');
+      wd.style.cssText = 'width:100%;border-radius:5px;overflow:hidden;border:1px solid rgba(218,165,32,0.5);background:#0a0a14;display:flex;align-items:center;gap:3px;padding:2px 4px;';
+      wd.innerHTML = (bc._weapon.img?'<img src="'+bc._weapon.img+'" style="width:16px;height:22px;object-fit:cover;border-radius:2px;">':'<span style="font-size:0.7rem;">'+bc._weapon.icon+'</span>')
+        +'<span style="font-family:Cinzel,serif;font-size:0.26rem;color:var(--gold);">'+bc._weapon.name+'</span>';
+      wrapper.appendChild(wd);
+    }
+    cfPlayer.appendChild(wrapper);
   });
 
   // Log
@@ -4202,11 +4213,12 @@ function renderBattle() {
       if(s.phase!=='place' && s.phase!=='player') return;
       showHandPreview(i);
     };})(idx);
-    handEl.appendChild(d);
+    if(handEl) handEl.appendChild(d);
   });
 
   // Boutons
-  document.getElementById('cb-mode').onclick=function(){
+  var cbMode = document.getElementById('cb-mode');
+  if(cbMode) cbMode.onclick=function(){
     if(s.selectedFieldCard===null){addBattleLog('Sélectionne une carte sur ton terrain.','');renderBattle();return;}
     var bc=s.playerField[s.selectedFieldCard];
     bc.mode=bc.mode==='attack'?'defense':'attack';
@@ -4216,7 +4228,6 @@ function renderBattle() {
 
   if(isPlace) {
     document.getElementById('cb-ready').onclick=function(){
-      // L'IA pose ses cartes puis on passe en phase player
       s.phase = 'player';
       aiPlaceCards();
       addBattleLog('— ⚔️ Combat ! Tour '+s.turn+' —','info');
@@ -4225,22 +4236,21 @@ function renderBattle() {
   }
 
   if(isPlayer) {
-    document.getElementById('cb-attack').onclick=function(){
+    var cbAtk = document.getElementById('cb-attack');
+    var cbEnd = document.getElementById('cb-end');
+    if(cbAtk) cbAtk.onclick=function(){
       if(s.selectedFieldCard===null){addBattleLog('Sélectionne une de tes cartes pour attaquer.','');renderBattle();return;}
       var a=s.playerField[s.selectedFieldCard];
       if(a.hasAttacked){addBattleLog(a.card.name+' a déjà attaqué.','');renderBattle();return;}
       if(a.mode==='defense'){addBattleLog('Mode défense : ne peut pas attaquer.','');renderBattle();return;}
-      // Si l'IA a plusieurs cartes, choisir la cible
-      if(s.aiField.length > 1) {
-        showTargetPicker(a);
-      } else {
-        playerAttack(a, s.aiField.length > 0 ? s.aiField[0] : null);
-      }
+      if(s.aiField.length > 1) { showTargetPicker(a); }
+      else { playerAttack(a, s.aiField.length > 0 ? s.aiField[0] : null); }
     };
-    document.getElementById('cb-end').onclick=function(){ endPlayerTurn(); };
+    if(cbEnd) cbEnd.onclick=function(){ endPlayerTurn(); };
   }
 
-  document.getElementById('cb-flee').onclick=function(){if(confirm('Abandonner ?')) closeCombatScreen();};
+  var cbFlee = document.getElementById('cb-flee');
+  if(cbFlee) cbFlee.onclick=function(){if(confirm('Abandonner ?')) closeCombatScreen();};
 }
 
 function showDeckCardPreview(entry, inDeck, callback) {
@@ -4287,7 +4297,7 @@ function showHandPreview(idx) {
   overlay.className = 'hand-preview-overlay';
   overlay.id = 'hand-preview';
 
-  var canPlace = s.cardsPlayed < 2;
+  var canPlace = s.cardsPlayed < 2 && s.playerField.length < 2;
   var isSpecial = bc.isSpecial;
   var isWeapon = bc.card.id && bc.card.id.startsWith('ar');
 
@@ -4419,18 +4429,25 @@ function showTargetPicker(attacker) {
 }
 
 function animateAttack(attackerEl, targetEl, weaponIcon, onDone) {
-  if(!attackerEl || !targetEl) { if(onDone) onDone(); return; }
-  var battlefield = document.querySelector('.combat-carpet');
+  // Si pas d'éléments DOM, exécuter directement
+  if(!attackerEl && !targetEl) { if(onDone) onDone(); return; }
+
+  var done = false;
+  function finish() { if(!done) { done = true; if(onDone) onDone(); } }
+
+  // Timeout de sécurité — quoi qu'il arrive onDone est appelé
+  var safetyTimer = setTimeout(finish, 1200);
+
+  if(!attackerEl || !targetEl) { clearTimeout(safetyTimer); finish(); return; }
+
   var aRect = attackerEl.getBoundingClientRect();
   var tRect = targetEl.getBoundingClientRect();
 
-  // Clone attaquant qui vole vers la cible
   var clone = attackerEl.cloneNode(true);
   clone.style.cssText = 'position:fixed;width:'+aRect.width+'px;height:'+aRect.height+'px;'
     +'top:'+aRect.top+'px;left:'+aRect.left+'px;z-index:500;pointer-events:none;border-radius:8px;overflow:hidden;transition:none;';
   document.body.appendChild(clone);
 
-  // Weapon icon overlay
   if(weaponIcon) {
     var wi = document.createElement('div');
     wi.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(0,0,0,0.3);z-index:2;';
@@ -4438,39 +4455,34 @@ function animateAttack(attackerEl, targetEl, weaponIcon, onDone) {
     clone.appendChild(wi);
   }
 
-  // Calculer destination
   var dx = tRect.left - aRect.left;
   var dy = tRect.top - aRect.top;
 
-  // Animation fly
-  clone.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.1s';
+  clone.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){
       clone.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.15)';
-      clone.style.opacity = '0.9';
     });
   });
 
   setTimeout(function(){
-    // Impact sur la cible
-    targetEl.classList.add('anim-hit');
-    // Flash rouge
-    var flash = document.createElement('div');
-    flash.style.cssText = 'position:absolute;inset:0;background:rgba(255,50,50,0.6);z-index:10;border-radius:8px;animation:hpFlash 0.3s ease;pointer-events:none;';
-    targetEl.style.position = 'relative';
-    targetEl.appendChild(flash);
-    setTimeout(function(){ if(flash.parentNode) flash.remove(); }, 400);
-
-    // Retour attaquant
-    clone.style.transition = 'transform 0.25s ease, opacity 0.25s';
+    if(targetEl && targetEl.parentNode) {
+      targetEl.classList.add('anim-hit');
+      var flash = document.createElement('div');
+      flash.style.cssText = 'position:absolute;inset:0;background:rgba(255,50,50,0.6);z-index:10;border-radius:8px;pointer-events:none;';
+      targetEl.style.position = 'relative';
+      targetEl.appendChild(flash);
+      setTimeout(function(){ if(flash.parentNode) flash.remove(); targetEl.classList.remove('anim-hit'); }, 350);
+    }
+    clone.style.transition = 'transform 0.2s ease, opacity 0.2s';
     clone.style.transform = 'translate(0,0) scale(1)';
     clone.style.opacity = '0';
     setTimeout(function(){
-      clone.remove();
-      targetEl.classList.remove('anim-hit');
-      if(onDone) onDone();
-    }, 300);
-  }, 380);
+      if(clone.parentNode) clone.remove();
+      clearTimeout(safetyTimer);
+      finish();
+    }, 220);
+  }, 370);
 }
 
 function showDmgNumber(el, amount, isHeal) {
@@ -4510,6 +4522,7 @@ function playerAttack(attacker, target) {
     var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
     dmg = Math.max(1, atkVal - defense);
     target.hp = Math.max(0, target.hp - dmg);
+    s.aiHp = Math.max(1, s.aiHp - dmg); // barre descend mais reste à 1 min tant que des cartes sont en jeu
     addBattleLog('⚡ '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'hit');
 
     if(target.hp <= 0) {
@@ -4517,17 +4530,6 @@ function playerAttack(attacker, target) {
       addBattleLog('💀 '+target.card.name+' est détruit !', 'hit');
       var ti = s.aiField.indexOf(target);
       if(ti >= 0) s.aiField.splice(ti, 1);
-    } else if(target.mode === 'attack') {
-      caDmg = Math.max(1, target.combatAtk - Math.floor(attacker.combatDef * 0.3));
-      attacker.hp = Math.max(0, attacker.hp - caDmg);
-      addBattleLog('↩️ '+target.card.name+' contre-attaque ! -'+caDmg+' PV à '+attacker.card.name+' (reste '+attacker.hp+')', 'dmg');
-      if(attacker.hp <= 0) {
-        attackerDied = true;
-        addBattleLog('💀 '+attacker.card.name+' est détruit !', 'dmg');
-        var ai2 = s.playerField.indexOf(attacker);
-        if(ai2 >= 0) s.playerField.splice(ai2, 1);
-        battleState.selectedFieldCard = null;
-      }
     }
   }
 
@@ -4544,11 +4546,13 @@ function aiPlaceCards() {
   if(!s) return;
   // IA pioche
   if(s.aiDeck.length > 0) s.aiHand.push(s.aiDeck.pop());
-  // IA pose jusqu'à 2 cartes les plus fortes
-  var sorted = s.aiHand.slice().sort(function(a,b){ return b.combatAtk - a.combatAtk; });
+  // IA pose jusqu'à 2 cartes — pas d'armes sur le terrain
+  var sorted = s.aiHand.filter(function(bc){ return !bc.card.id.startsWith('ar'); })
+    .slice().sort(function(a,b){ return b.combatAtk - a.combatAtk; });
   var played = 0;
+  var maxToPlay = Math.max(0, 2 - s.aiField.length);
   sorted.forEach(function(bc) {
-    if(played >= 2) return;
+    if(played >= Math.min(2, maxToPlay)) return;
     var idx = s.aiHand.indexOf(bc);
     if(idx >= 0) {
       s.aiHand.splice(idx, 1);
@@ -4559,6 +4563,8 @@ function aiPlaceCards() {
       addBattleLog('🤖 IA pose '+bc.card.name+'.', 'info');
     }
   });
+  // IA défausse les armes qu'elle ne peut pas équiper
+  s.aiHand = s.aiHand.filter(function(bc){ return !bc.card.id.startsWith('ar'); });
 }
 
 function endPlayerTurn() {
@@ -4568,73 +4574,38 @@ function endPlayerTurn() {
   s.playerField.forEach(function(c){ c.hasAttacked = false; });
   renderBattle();
 
-  var delay = 800;
-  var attackers = s.aiField.filter(function(c){ return c.mode === 'attack'; });
+  setTimeout(function() {
+    if(!battleState || s._ending) return;
+    var attackers = s.aiField.filter(function(c){ return c.mode === 'attack'; });
+    addBattleLog('🤖 IA joue ('+attackers.length+' attaquants, '+s.aiField.length+' sur terrain)', 'info');
 
-  if(attackers.length === 0) {
-    // Pas d'attaquant IA — passer au tour suivant
-    setTimeout(function(){
+    attackers.forEach(function(attacker) {
       if(!battleState) return;
-      nextTurn();
-    }, delay);
-    return;
-  }
+      var atkVal = attacker.combatAtk;
 
-  // L'IA attaque séquentiellement avec délai
-  var idx = 0;
-  function aiNextAttack() {
-    if(!battleState || idx >= attackers.length) {
-      setTimeout(function(){ if(battleState) nextTurn(); }, 400);
-      return;
-    }
-    var attacker = attackers[idx++];
-    var atkVal = attacker.combatAtk;
-
-    if(s.playerField.length === 0) {
-      // Attaque directe
-      s.playerHp = Math.max(0, s.playerHp - atkVal);
-      addBattleLog('💥 '+attacker.card.name+' attaque directement ! -'+atkVal+' PV.', 'dmg');
-      checkBattleEnd();
-      renderBattle();
-      setTimeout(aiNextAttack, 700);
-    } else {
-      // Choisit la cible la plus faible
-      var target = s.playerField.reduce(function(a,b){ return a.hp < b.hp ? a : b; });
-      var targetIdx = s.playerField.indexOf(target);
-      var targetEl = document.getElementById('player-card-'+targetIdx);
-      var attackerIdxAI = s.aiField.indexOf(attacker);
-      var attackerEl = document.getElementById('ai-card-'+attackerIdxAI);
-
-      animateAttack(attackerEl, targetEl, null, function() {
-        if(!battleState) return;
+      if(s.playerField.length === 0) {
+        s.playerHp = Math.max(0, s.playerHp - atkVal);
+        addBattleLog('💥 '+attacker.card.name+' attaque directement ! -'+atkVal+' PV.', 'dmg');
+      } else {
+        var target = s.playerField.reduce(function(a,b){ return a.hp < b.hp ? a : b; });
         var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
         var dmg = Math.max(1, atkVal - defense);
         target.hp = Math.max(0, target.hp - dmg);
-        showDmgNumber(targetEl, dmg, false);
+        s.playerHp = Math.max(1, s.playerHp - dmg); // barre descend mais reste à 1 min
         addBattleLog('💥 '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'dmg');
 
         if(target.hp <= 0) {
-          if(targetEl) targetEl.classList.add('anim-destroy');
           addBattleLog('💀 '+target.card.name+' est détruit !', 'dmg');
-          setTimeout(function(){
-            if(battleState) {
-              var ti = s.playerField.indexOf(target);
-              if(ti >= 0) s.playerField.splice(ti, 1);
-              checkBattleEnd();
-              renderBattle();
-              setTimeout(aiNextAttack, 400);
-            }
-          }, 450);
-        } else {
-          checkBattleEnd();
-          renderBattle();
-          setTimeout(aiNextAttack, 700);
+          var ti = s.playerField.indexOf(target);
+          if(ti >= 0) s.playerField.splice(ti, 1);
+          battleState.selectedFieldCard = null;
         }
-      });
-    }
-  }
+      }
+      checkBattleEnd();
+    });
 
-  setTimeout(aiNextAttack, delay);
+    if(battleState) nextTurn();
+  }, 600);
 }
 
 function nextTurn() {
@@ -4656,9 +4627,10 @@ function nextTurn() {
 function checkBattleEnd() {
   if(!battleState) return;
   var s = battleState;
+  if(s._ending) return; // déjà en cours de fin
   if(s.playerHp <= 0 || s.aiHp <= 0) {
+    s._ending = true;
     var won = s.aiHp <= 0;
-    cancelAnimationFrame(0);
     setTimeout(function() {
       var content = document.getElementById('combat-screen-content');
       if(!content) return;
@@ -4680,7 +4652,7 @@ function checkBattleEnd() {
       } else {
         addXP(30, 'Combat terminé');
       }
-    }, 500);
+    }, 800);
   }
 }
 
