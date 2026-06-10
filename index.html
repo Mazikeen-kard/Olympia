@@ -90,11 +90,12 @@ header{background:var(--bg-dark);padding:22px 20px 16px;text-align:center;border
 .stat-v{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);}
 .stat-l{font-size:0.56rem;color:var(--text-dim);letter-spacing:0.18em;text-transform:uppercase;}
 
-nav{background:var(--bg-mid);border-bottom:1px solid var(--border);display:flex;justify-content:center;flex-wrap:wrap;}
-.nav-btn{background:transparent;border:none;border-right:1px solid var(--border);color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.12em;padding:12px 18px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
-.nav-btn:last-child{border-right:none;}
+nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:none;display:flex;justify-content:center;flex-wrap:nowrap;overflow-x:auto;position:fixed;bottom:0;left:0;right:0;z-index:99;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{background:transparent;border:none;color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.06em;padding:10px 10px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
 .nav-btn:hover,.nav-btn.active{background:var(--bg-card);color:var(--gold);}
-.nav-btn.active{border-bottom:2px solid var(--gold);}
+.nav-btn.active{border-top:2px solid var(--gold);}
+/* Padding bottom pour que le contenu ne se cache pas sous la nav */
+#app{padding-bottom:56px;}
 
 .section{display:none;padding:24px 20px 60px;max-width:1400px;margin:0 auto;}
 .section.active{display:block;}
@@ -1081,8 +1082,57 @@ var CARDS = {
     {id:'ar16',name:'Casque de Dédale',icon:'⛑️',type:'Invention Mortelle',rarity:'commune',atk:30,def:55,atkName:'Ailes de Cire',lore:'Casque créé par le génie Dédale pour son fils Icare. Symbole de l\'ingéniosité humaine et de ses limites.',at:'#e8e8e0',ab:'#d8d8c8',img:'https://i.imgur.com/47yZ38P.jpeg'},
     {id:'ar17',name:'Fil d\'Ariane',icon:'🧵',type:'Objet Magique',rarity:'commune',atk:10,def:45,atkName:'Guide Invisible',lore:'Fil donné par Ariane à Thésée pour qu\'il retrouve son chemin dans le labyrinthe après avoir tué le Minotaure.',at:'#f0e8f8',ab:'#e0c8f0',img:'https://i.imgur.com/lq90gSp.jpeg'},
     {id:'ar15',name:'Épée de Damoclès',icon:'⚔️',type:'Épée du Destin',rarity:'commune',atk:70,def:40,atkName:'Menace Suspendue',lore:'Suspendue par un fil, symbole du danger permanent qui pèse sur les puissants.',at:'#e8e0e0',ab:'#d8c8c8',img:'https://i.imgur.com/ijnHspq.jpeg'},
+    {id:'ar18',name:'Serpents de Méduse',icon:'🐍',type:'Arme Maudite',rarity:'épique',atk:85,def:70,atkName:'Regard Pétrifiant',lore:'Les serpents de Méduse peuvent pétrifier quiconque croise leur regard.',at:'#d8e0d0',ab:'#b8c8b0',img:'https://i.imgur.com/OIGIjSn.jpeg'},
+    {id:'ar19',name:'Chaînes de Cerbère',icon:'⛓️',type:'Lien Infernal',rarity:'épique',atk:60,def:95,atkName:'Emprisonnement',lore:'Les chaînes divines qui peuvent entraver même les créatures des Enfers.',at:'#d8d0c8',ab:'#c0b8b0',img:'https://i.imgur.com/7S27bUT.jpeg'},
+    {id:'ar20',name:'Caducée d\'Hermès',icon:'🪄',type:'Bâton Divin',rarity:'épique',atk:55,def:75,atkName:'Sommeil Divin',lore:'Le caducée d\'Hermès peut endormir ou réveiller les mortels d\'un simple toucher.',at:'#e8f0d8',ab:'#c8e0b0',img:'https://i.imgur.com/w8EvH3u.jpeg'},
+    {id:'ar21',name:'Thyrse de Dionysos',icon:'🌿',type:'Sceptre Mystique',rarity:'rare',atk:65,def:60,atkName:'Ivresse Divine',lore:'Le thyrse de Dionysos répand la folie divine et l\'extase mystique.',at:'#e8d8f0',ab:'#d0b8e0',img:'https://i.imgur.com/Bq305Jr.jpeg'},
+    {id:'ar22',name:'Ceinture d\'Aphrodite',icon:'💛',type:'Charme Divin',rarity:'rare',atk:40,def:65,atkName:'Séduction Absolue',lore:'La ceinture magique d\'Aphrodite rend irrésistible quiconque la porte.',at:'#f8d8e8',ab:'#f0b8d0',img:'https://i.imgur.com/0dkNW8G.jpeg'},
+    {id:'ar23',name:'Sceptre d\'Héra',icon:'👑',type:'Sceptre Royal',rarity:'rare',atk:50,def:80,atkName:'Autorité Divine',lore:'Le sceptre d\'Héra symbolise l\'autorité suprême des dieux de l\'Olympe.',at:'#f0e8d0',ab:'#e0d0a8',img:'https://i.imgur.com/T9VX72I.jpeg'},
+    {id:'ar24',name:'Marteau d\'Héphaistos',icon:'🔨',type:'Forge Divine',rarity:'rare',atk:90,def:50,atkName:'Coup de Forge',lore:'Le marteau divin d\'Héphaistos peut façonner n\'importe quel métal et briser n\'importe quelle armure.',at:'#e8d8c8',ab:'#d8c0a8',img:'https://i.imgur.com/pljod8v.jpeg'},
   ]
 };
+
+// ══════════════════════════════════════
+//  CORRESPONDANCES ARMES / PERSONNAGES
+// ══════════════════════════════════════
+var WEAPON_PAIRS = {
+  'ar1':  ['ol1','ol2'],        // Foudre de Zeus → Zeus
+  'ar2':  ['ol3'],              // Trident de Poséidon → Poséidon
+  'ar3':  ['ol10'],             // Casque d'Hadès → Hadès
+  'ar4':  ['ol5'],              // Égide → Athéna
+  'ar5':  ['hr1','hr2'],        // Épée d'Achille → Achille
+  'ar6':  ['ol6'],              // Arc d'Apollon → Apollon
+  'ar7':  ['ti1','ti2'],        // Faucille de Cronos → Cronos
+  'ar8':  ['hr8'],              // Lyre d'Orphée → Orphée
+  'ar9':  ['ol8'],              // Sandales Ailées → Hermès
+  'ar10': ['hr3'],              // Bouclier de Persée → Persée
+  'ar11': ['hr4'],              // Lance de Pélée → Pélée/Achille
+  'ar12': ['hr5'],              // Masse d'Héraclès → Héraclès
+  'ar13': ['ol7'],              // Flèche d'Artémis → Artémis
+  'ar14': ['hr3'],              // Harpé → Persée
+  'ar18': ['mn2','mo1'],        // Serpents de Méduse → Méduse
+  'ar19': ['mn1'],              // Chaînes → Cerbère
+  'ar20': ['ol8'],              // Caducée → Hermès
+  'ar21': ['ol11'],             // Thyrse → Dionysos
+  'ar22': ['ol4'],              // Ceinture → Aphrodite
+  'ar23': ['ol12'],             // Sceptre → Héra
+  'ar24': ['ol9'],              // Marteau → Héphaistos
+};
+
+// Retourne l'arme correspondante à un personnage (si dans la collection)
+function getWeaponForHero(heroId) {
+  var weaponId = null;
+  Object.keys(WEAPON_PAIRS).forEach(function(wid) {
+    if(WEAPON_PAIRS[wid].includes(heroId)) weaponId = wid;
+  });
+  if(!weaponId) return null;
+  // Vérifier si le joueur possède cette arme
+  var owned = user.collection.some(function(e){ return e.split('|')[0] === weaponId; });
+  if(!owned) return null;
+  // Trouver la carte
+  var weaponCard = CARDS.armes.find(function(c){ return c.id === weaponId; });
+  return weaponCard || null;
+}
 
 var RARITY = {
   commune:    {color:'#7a9eb5',rgb:'122,158,181'},
@@ -3319,7 +3369,7 @@ function renderDeckBuilder(container, savedDeck) {
       + '<button class="deck-filter-btn" data-f="épique">🟣</button>'
       + '<button class="deck-filter-btn" data-f="légendaire">🟡</button>'
       + '</div>'
-      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-height:260px;overflow-y:auto;"></div>'
+      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;max-height:240px;overflow-y:auto;"></div>'
       + '<div style="display:flex;gap:10px;margin-top:16px;">'
       + '<button class="battle-btn secondary" id="deck-reset-btn" style="flex:0 0 auto;padding:10px 14px;">🗑</button>'
       + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;" '+(deckIds.length<11?'disabled':'')+'>⚔️ Combattre !</button>'
@@ -3411,10 +3461,13 @@ function renderDeckBuilder(container, savedDeck) {
         +(inDeck?'<div style="position:absolute;top:3px;right:3px;background:var(--gold);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:white;font-weight:700;">✓</div>':'')
         +'<div style="padding:3px 4px;"><div style="font-family:Cinzel,serif;font-size:0.42rem;color:var(--text);line-height:1.2;margin-bottom:1px;">'+entry.card.name+'</div>'
         +'<div style="font-size:0.38rem;color:var(--gold-dim);">⚔'+stats.atk+' 🛡'+stats.def+'</div></div>';
-      (function(k,isIn){d.onclick=function(){
-        if(isIn){var idx=deckIds.indexOf(k);if(idx>=0){deckIds.splice(idx,1);refreshSlots();refreshPicks();updateFightBtn();}}
-        else{if(deckIds.length>=11)return;deckIds.push(k);refreshSlots();refreshPicks();updateFightBtn();}
-      };})(key,inDeck);
+      (function(k,isIn,ent){ d.onclick = function() {
+        showDeckCardPreview(ent, isIn, function() {
+          // Callback ajouter/retirer
+          if(isIn) { var idx=deckIds.indexOf(k); if(idx>=0){deckIds.splice(idx,1);refreshSlots();refreshPicks();updateFightBtn();} }
+          else { if(deckIds.length>=11) return; deckIds.push(k); refreshSlots();refreshPicks();updateFightBtn(); }
+        });
+      }; })(key, inDeck, entry);
       pickEl.appendChild(d);
     });
   }
@@ -3435,17 +3488,17 @@ function startBattle(deckIds, playerFirst, secretId) {
     var entry = unique.find(function(e){ return (e.card.id+(e.isShiny?'|shiny':'')) === key; });
     if(!entry) return null;
     var stats = getCombatStats(entry.card);
-    // Identifier le pack
     var pack = null;
     Object.keys(CARDS).forEach(function(pk){ if(CARDS[pk].find(function(c){return c.id===entry.card.id;})) pack=pk; });
     return {
       card: entry.card, isShiny: entry.isShiny,
       combatAtk: stats.atk, combatDef: stats.def,
       hp: stats.hp, maxHp: stats.hp,
-      mode: 'attack', // 'attack' ou 'defense'
+      mode: 'attack',
       canAttack: !isEnemy,
       hasAttacked: false,
       _pack: pack,
+      _weapon: null,
       key: key
     };
   }
@@ -3572,9 +3625,46 @@ function renderBattle() {
     +'</div>'
     +'<div class="combat-battlefield">'
     +'<div class="combat-carpet">'
-    +'<div class="combat-zone enemy"><span class="combat-zone-label">TERRAIN IA</span><div id="cf-ai" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;"></div></div>'
+    // Zone IA avec pioche IA à droite
+    +'<div class="combat-zone enemy" style="position:relative;">'
+    +'<span class="combat-zone-label">TERRAIN IA</span>'
+    +'<div id="cf-ai" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;"></div>'
+    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">'
+    +'<div style="position:relative;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;opacity:0.7;">'
+    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;">'
+    +'<div style="position:absolute;inset:0;background:rgba(0,0,0,0.2);"></div>'
+    +'</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.3rem;color:rgba(255,255,255,0.4);">'+s.aiDeck.length+'</div>'
+    +'</div>'
+    +'</div>'
     +'<div class="combat-carpet-divider"></div>'
-    +'<div class="combat-zone player"><span class="combat-zone-label">TON TERRAIN</span><div id="cf-player" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;"></div></div>'
+    // Zone joueur avec emplacement carte spéciale à gauche et pioche à droite
+    +'<div class="combat-zone player" style="position:relative;">'
+    +'<span class="combat-zone-label">TON TERRAIN</span>'
+    // Emplacement carte spéciale
+    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">'
+    +'<div style="width:36px;aspect-ratio:2/3;border-radius:4px;border:1px dashed rgba(218,165,32,0.4);background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">'
+    +(s.secretCard && !s.secretUsed
+      ? '<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"><div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;">'+s.secretCard.icon+'</div>'
+      : '<div style="font-size:0.7rem;opacity:0.3;">✨</div>')
+    +'</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.28rem;color:rgba(218,165,32,0.4);">SPÉCIALE</div>'
+    +'</div>'
+    +'<div id="cf-player" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;"></div>'
+    // Pioche joueur
+    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">'
+    +'<div style="position:relative;width:36px;aspect-ratio:2/3;">'
+    // Tas de cartes (effet empilé)
+    +'<div style="position:absolute;top:4px;left:2px;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;opacity:0.4;transform:rotate(-3deg);">'
+    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+    +'<div style="position:absolute;top:2px;left:1px;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;opacity:0.6;transform:rotate(-1deg);">'
+    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+    +'<div style="position:relative;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;">'
+    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+    +'</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.3rem;color:rgba(255,255,255,0.4);">'+s.playerDeck.length+'</div>'
+    +'</div>'
+    +'</div>'
     +'</div>'
     +'</div>'
     +'<div class="combat-log" id="cf-log"></div>'
@@ -3632,7 +3722,8 @@ function renderBattle() {
     d.id = 'player-card-'+idx;
     d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
       +'<div class="tc-hp">♥'+bc.hp+'</div>'
-      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>'
+      +(bc._weapon?'<div style="position:absolute;bottom:18px;right:2px;font-size:0.7rem;" title="'+bc._weapon.name+'">'+bc._weapon.icon+'</div>':'');
     (function(i){d.onclick=function(){battleState.selectedFieldCard=(battleState.selectedFieldCard===i)?null:i;renderBattle();};})(idx);
     cfPlayer.appendChild(d);
   });
@@ -3730,6 +3821,34 @@ function renderBattle() {
   document.getElementById('cb-flee').onclick=function(){if(confirm('Abandonner ?')) closeCombatScreen();};
 }
 
+function showDeckCardPreview(entry, inDeck, callback) {
+  var existing = document.getElementById('deck-card-preview');
+  if(existing) existing.remove();
+  var stats = getCombatStats(entry.card);
+  var overlay = document.createElement('div');
+  overlay.id = 'deck-card-preview';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
+  overlay.innerHTML = '<div style="position:relative;width:160px;aspect-ratio:2/3;border-radius:12px;border:2px solid var(--gold);overflow:hidden;box-shadow:0 0 30px rgba(218,165,32,0.4);">'
+    +(entry.card.img?'<img src="'+entry.card.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">':'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg-dark);">'+entry.card.icon+'</div>')
+    +'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.92));padding:20px 8px 8px;">'
+    +'<div style="font-family:Cinzel,serif;font-size:0.65rem;color:white;text-align:center;margin-bottom:4px;">'+entry.card.name+(entry.isShiny?' ✦':'')+'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center;">'
+    +'<span style="font-family:Cinzel,serif;font-size:0.52rem;color:var(--gold);">⚔ '+stats.atk+'</span>'
+    +'<span style="font-family:Cinzel,serif;font-size:0.52rem;color:var(--gold);">🛡 '+stats.def+'</span>'
+    +'<span style="font-family:Cinzel,serif;font-size:0.52rem;color:#e74c3c;">♥ '+stats.hp+'</span>'
+    +'</div></div></div>'
+    +'<div style="display:flex;gap:10px;">'
+    +(inDeck
+      ? '<button id="dcp-action" style="background:rgba(200,0,0,0.8);border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:10px 20px;border-radius:8px;cursor:pointer;">✕ Retirer du deck</button>'
+      : '<button id="dcp-action" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:10px 20px;border-radius:8px;cursor:pointer;">+ Ajouter au deck</button>')
+    +'<button id="dcp-cancel" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);font-family:Cinzel,serif;font-size:0.6rem;padding:10px 16px;border-radius:8px;cursor:pointer;">Fermer</button>'
+    +'</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('dcp-cancel').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  document.getElementById('dcp-action').onclick = function(){ overlay.remove(); callback(); };
+}
+
 function showHandPreview(idx) {
   var s = battleState;
   var bc = s.playerHand[idx];
@@ -3748,6 +3867,7 @@ function showHandPreview(idx) {
 
   var canPlace = s.cardsPlayed < 2;
   var isSpecial = bc.isSpecial;
+  var isWeapon = bc.card.id && bc.card.id.startsWith('ar');
 
   overlay.innerHTML = '<div class="hand-preview-card">'
     + (bc.card.img ? '<img src="'+bc.card.img+'">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg-dark);">'+bc.card.icon+'</div>')
@@ -3755,12 +3875,16 @@ function showHandPreview(idx) {
     + '<div class="hand-preview-name">'+bc.card.name+(bc.isShiny?' ✦':'')+'</div>'
     + (isSpecial
       ? '<div style="font-size:0.45rem;color:rgba(255,255,255,0.6);text-align:center;">'+bc.specialDesc+'</div>'
+      : isWeapon
+      ? '<div style="font-size:0.45rem;color:rgba(255,255,255,0.6);text-align:center;">⚔ +'+getCombatStats(bc.card).atk+' ATK au héros correspondant</div>'
       : '<div class="hand-preview-stats"><div class="hand-preview-stat">⚔ <span>'+bc.combatAtk+'</span></div><div class="hand-preview-stat">🛡 <span>'+bc.combatDef+'</span></div><div class="hand-preview-stat">♥ <span>'+bc.hp+'</span></div></div>')
     + '</div>'
     + '</div>'
     + '<div class="hand-preview-btns">'
     + (isSpecial
       ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:140px;padding:10px 16px;background:linear-gradient(135deg,#7722cc,#aa44ff);">✨ Utiliser</button>'
+      : isWeapon
+      ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:140px;padding:10px 16px;background:linear-gradient(135deg,#8b6914,#daa520);">⚔️ Équiper</button>'
       : (canPlace ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:120px;padding:10px 16px;">▶ Poser</button>' : '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,100,100,0.8);">Max 2 cartes posées</div>'))
     + '<button class="combat-btn sec" id="hp-cancel" style="flex:none;min-width:80px;padding:10px 16px;">✕</button>'
     + '</div>';
@@ -3771,13 +3895,32 @@ function showHandPreview(idx) {
   document.getElementById('hp-cancel').onclick = function() { overlay.remove(); };
   overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
 
-  if(canPlace || isSpecial) {
+  if(canPlace || isSpecial || isWeapon) {
     document.getElementById('hp-place').onclick = function() {
       overlay.remove();
-      if(isSpecial) {
-        // Utiliser la carte spéciale
+      if(isWeapon) {
+        // Chercher un héros compatible sur le terrain
+        var compatible = s.playerField.filter(function(fc) {
+          var pairs = WEAPON_PAIRS[bc.card.id] || [];
+          return pairs.includes(fc.card.id) && !fc._weapon;
+        });
+        if(compatible.length === 0) {
+          addBattleLog('⚔️ Aucun héros compatible sur ton terrain pour '+bc.card.name+'.', 'dmg');
+          renderBattle();
+          return;
+        }
+        // Équiper sur le premier compatible (ou le seul)
+        var target = compatible[0];
+        var weaponStats = getCombatStats(bc.card);
+        target._weapon = bc.card;
+        target.combatAtk += weaponStats.atk;
+        target.combatDef += weaponStats.def;
+        // Retirer l'arme de la main
+        s.playerHand.splice(idx, 1);
+        addBattleLog('⚔️ '+bc.card.name+' équipé sur '+target.card.name+' ! +'+weaponStats.atk+' ATK +'+weaponStats.def+' DEF', 'hit');
+        renderBattle();
+      } else if(isSpecial) {
         var card = s.playerHand.splice(idx, 1)[0];
-        // Déduire du stock
         if(user.specialCards && user.specialCards[card._specialId] > 0) {
           user.specialCards[card._specialId]--;
           saveUser();
