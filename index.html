@@ -90,8 +90,8 @@ header{background:var(--bg-dark);padding:22px 20px 16px;text-align:center;border
 .stat-v{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);}
 .stat-l{font-size:0.56rem;color:var(--text-dim);letter-spacing:0.18em;text-transform:uppercase;}
 
-nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:none;display:flex;justify-content:center;flex-wrap:nowrap;overflow-x:auto;position:fixed;bottom:0;left:0;right:0;z-index:99;padding-bottom:env(safe-area-inset-bottom);}
-.nav-btn{background:transparent;border:none;color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.06em;padding:10px 10px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:none;display:flex;justify-content:space-around;flex-wrap:nowrap;position:fixed;bottom:0;left:0;right:0;z-index:99;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{background:transparent;border:none;color:var(--text-dim);font-size:0.9rem;padding:6px 4px 8px;cursor:pointer;transition:all 0.2s;flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:Cinzel,serif;}
 .nav-btn:hover,.nav-btn.active{background:var(--bg-card);color:var(--gold);}
 .nav-btn.active{border-top:2px solid var(--gold);}
 /* Padding bottom pour que le contenu ne se cache pas sous la nav */
@@ -656,22 +656,21 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div class="logo-sub">Sanctuaire des Cartes Grecques</div>
   </header>
   <div class="ubar">
-    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelector('[data-sec=badges]').click()">👤</div>
+    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');}); document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-perso').classList.add('active'); initCharCreator(); initAvatarCreator();">👤</div>
     <div class="ubar-name">Bienvenue, <strong id="hdr-pseudo">—</strong></div>
     <div style="display:flex;align-items:center;gap:4px;font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold);background:rgba(184,134,11,0.08);border:1px solid var(--border);border-radius:20px;padding:3px 10px;flex-shrink:0;">🪙 <span id="s-drachmes">0</span></div>
     <button class="quit-btn" id="btn-dark" title="Mode sombre">🌙</button>
     <button class="quit-btn" id="btn-quit">✕</button>
   </div>
-  <nav style="display:flex;justify-content:center;flex-wrap:wrap;">
-    <button class="nav-btn active" data-sec="packs">📦 Paquets</button>
-    <button class="nav-btn" data-sec="minijeux">🎮 Mini-Jeux</button>
-    <button class="nav-btn" data-sec="collection">📚 Collection</button>
-    <button class="nav-btn" data-sec="badges">🏆 Badges</button>
-    <button class="nav-btn" data-sec="combat" id="nav-combat">⚔️ Combat</button>
-    <button class="nav-btn" data-sec="boutique">🏺 Boutique</button>
-    <button class="nav-btn" data-sec="perso">🎨 Perso</button>
-    <button class="nav-btn" id="info-btn">ℹ Infos</button>
-    <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;">🔧 Admin</button>
+  <nav style="display:flex;justify-content:space-around;flex-wrap:nowrap;overflow-x:auto;">
+    <button class="nav-btn active" data-sec="packs">📦<span style="font-size:0.38rem;letter-spacing:0.05em;">Paquets</span></button>
+    <button class="nav-btn" data-sec="minijeux">🎮<span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
+    <button class="nav-btn" data-sec="collection">📚<span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
+    <button class="nav-btn" data-sec="badges">🏆<span style="font-size:0.38rem;letter-spacing:0.05em;">Badges</span></button>
+    <button class="nav-btn" data-sec="combat" id="nav-combat">⚔️<span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
+    <button class="nav-btn" data-sec="boutique">🏺<span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
+    <button class="nav-btn" id="info-btn">ℹ️<span style="font-size:0.38rem;letter-spacing:0.05em;">Infos</span></button>
+    <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;">🔧<span style="font-size:0.38rem;letter-spacing:0.05em;">Admin</span></button>
   </nav>
 
   <div class="section active" id="section-collection">
@@ -856,7 +855,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⚔️ Combats</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      Débloque les combats à <strong style="color:var(--gold)">12 cartes uniques</strong>. Construis un deck de 12 cartes et affronte l'IA tour par tour. Victoire = +15 Drachmes.
+      Chaque joueur commence avec <strong style="color:var(--gold)">8000 PV</strong>. Construis un deck de <strong style="color:var(--gold)">11 cartes</strong> + 1 carte spéciale optionnelle. Un lancer de pièce détermine qui attaque en premier. À chaque tour : pose 1-2 cartes sur ton terrain, puis attaque les cartes adverses ou directement ses PV si son terrain est vide. Les armes s'équipent sur le héros correspondant pour booster ses stats. Le premier à réduire les PV de l'adversaire à zéro remporte le combat.
     </div>
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">🏆 Badges</div>
@@ -1316,15 +1315,17 @@ function launch(p, data) {
   user = data;
   // Compte admin Mazikeen - toutes les cartes !
   if(p === 'Mazikeen') {
-    if(user.collection.length === 0) {
-      var allC = allCards();
-      allC.forEach(function(card) {
-        user.collection.push(card.id);
-        user.collection.push(card.id + '|shiny');
-      });
-      user.packsOpened = allC.length;
-      saveUser();
-    }
+    var allC = allCards();
+    user.collection = [];
+    allC.forEach(function(card) {
+      user.collection.push(card.id);
+      user.collection.push(card.id + '|shiny');
+    });
+    user.packsOpened = allC.length;
+    user.drachmes = 9999;
+    user.specialCards = {};
+    SPECIAL_CARDS.forEach(function(sc){ user.specialCards[sc.id] = 10; });
+    saveUser();
     // Force check all combos for Mazikeen
     if(!user.badges) user.badges = [];
     user.badges = [];
@@ -3179,10 +3180,10 @@ function showCoinFlip(deckIds, specialId) {
     carpetHtml = '<div style="width:100%;max-width:440px;padding:0 16px;margin-bottom:16px;">'
       +'<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);text-align:center;margin-bottom:8px;">🗿 Tapis de combat</div>'
       +'<div style="display:flex;gap:6px;overflow-x:auto;">'
-      +'<div class="secret-card-pick '+((!user.lastCarpet)?'selected':'')+'" id="carpet-none" style="width:60px;flex-shrink:0;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:var(--text-dim);font-family:Cinzel,serif;">Défaut</div>';
+      +'<div class="secret-card-pick '+((!user.lastCarpet)?'selected':'')+'" id="carpet-none" style="width:80px;flex-shrink:0;height:55px;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:var(--text-dim);font-family:Cinzel,serif;border-radius:6px;">Défaut</div>';
     ownedMonuments.forEach(function(e) {
-      carpetHtml += '<div class="secret-card-pick '+(user.lastCarpet===e.card.id?'selected':'')+'" data-carpet="'+e.card.id+'" data-img="'+(e.card.img||'')+'" style="width:60px;flex-shrink:0;">'
-        +(e.card.img?'<img src="'+e.card.img+'" style="width:100%;height:40px;object-fit:cover;display:block;">':'')
+      carpetHtml += '<div class="secret-card-pick '+(user.lastCarpet===e.card.id?'selected':'')+'" data-carpet="'+e.card.id+'" data-img="'+(e.card.img||'')+'" style="width:80px;flex-shrink:0;overflow:hidden;border-radius:6px;">'
+        +(e.card.img?'<img src="'+e.card.img+'" style="width:100%;height:80px;object-fit:cover;display:block;">':'')
         +'<div style="font-size:0.3rem;color:var(--gold);text-align:center;padding:1px;font-family:Cinzel,serif;">'+e.card.name+'</div>'
         +'</div>';
     });
@@ -3192,8 +3193,7 @@ function showCoinFlip(deckIds, specialId) {
   screen.innerHTML = carpetHtml
     +'<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);text-align:center;">⚡ Qui commence ?</div>'
     +'<div class="coin" id="the-coin" style="cursor:pointer;">⚡</div>'
-    +'<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--text-dim);text-align:center;" id="coin-result">Tape la pièce !</div>'
-    +'<button class="combat-btn" id="coin-btn" style="flex:none;min-width:160px;max-width:200px;padding:12px 24px;font-size:0.65rem;">🪙 Lancer</button>';
+    +'<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--text-dim);text-align:center;" id="coin-result">Tape la pièce !</div>';
   document.body.appendChild(screen);
 
   // Handlers tapis
@@ -3216,11 +3216,11 @@ function showCoinFlip(deckIds, specialId) {
   }
 
   var flipped = false;
-  document.getElementById('coin-btn').onclick = function() {
+  document.getElementById('the-coin').onclick = function() {
     if(flipped) return;
     var coin = document.getElementById('the-coin');
     coin.classList.add('spin');
-    document.getElementById('coin-btn').disabled = true;
+    document.getElementById('coin-result').textContent = '...';
     setTimeout(function() {
       var playerFirst = Math.random() >= 0.5;
       flipped = true;
@@ -3358,7 +3358,7 @@ function renderDeckBuilder(container, savedDeck) {
   function buildHTML() {
     container.innerHTML = '<div class="sec-title">⚔️ Mon Deck</div>'
       + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:10px;">11 cartes de combat + 1 carte spéciale optionnelle</div>'
-      + '<div id="deck-slots-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px;"></div>'
+      + '<div id="deck-slots-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:10px;"></div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-align:center;margin-bottom:6px;">✨ CARTE SPÉCIALE</div>'
       + '<div id="special-slot-area" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;align-items:center;"></div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:8px;">Ma Collection</div>'
@@ -3369,7 +3369,7 @@ function renderDeckBuilder(container, savedDeck) {
       + '<button class="deck-filter-btn" data-f="épique">🟣</button>'
       + '<button class="deck-filter-btn" data-f="légendaire">🟡</button>'
       + '</div>'
-      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;max-height:240px;overflow-y:auto;"></div>'
+      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:5px;max-height:260px;overflow-y:auto;padding-top:4px;"></div>'
       + '<div style="display:flex;gap:10px;margin-top:16px;">'
       + '<button class="battle-btn secondary" id="deck-reset-btn" style="flex:0 0 auto;padding:10px 14px;">🗑</button>'
       + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;" '+(deckIds.length<11?'disabled':'')+'>⚔️ Combattre !</button>'
@@ -3396,7 +3396,7 @@ function renderDeckBuilder(container, savedDeck) {
     slotsEl.innerHTML = '';
     for(var i=0; i<11; i++) {
       var slot = document.createElement('div');
-      slot.style.cssText = 'aspect-ratio:2/3;max-height:68px;border-radius:6px;overflow:hidden;position:relative;border:1.5px dashed rgba(139,105,20,0.3);display:flex;align-items:center;justify-content:center;background:var(--bg-card);font-size:1rem;color:var(--text-dim);';
+      slot.style.cssText = 'aspect-ratio:2/3;max-height:60px;border-radius:6px;overflow:hidden;position:relative;border:1.5px dashed rgba(139,105,20,0.3);display:flex;align-items:center;justify-content:center;background:var(--bg-card);font-size:0.9rem;color:var(--text-dim);';
       if(deckIds[i]) {
         var entry = unique.find(function(e){ return (e.card.id+(e.isShiny?'|shiny':''))===deckIds[i]; });
         if(entry) {
@@ -3418,14 +3418,16 @@ function renderDeckBuilder(container, savedDeck) {
     area.innerHTML='';
     var inventory=user.specialCards||{};
     var emptySlot=document.createElement('div');
-    emptySlot.style.cssText='width:55px;flex-shrink:0;aspect-ratio:2/3;max-height:80px;border-radius:8px;border:1.5px dashed '+(specialSlot?'var(--gold)':'rgba(139,105,20,0.3)')+';display:flex;align-items:center;justify-content:center;background:var(--bg-card);flex-direction:column;gap:2px;';
+    emptySlot.style.cssText='width:50px;flex-shrink:0;aspect-ratio:2/3;border-radius:6px;border:1.5px dashed '+(specialSlot?'var(--gold)':'rgba(139,105,20,0.3)')+';display:flex;align-items:center;justify-content:center;background:var(--bg-card);flex-direction:column;gap:2px;overflow:hidden;';
     if(specialSlot) {
       var sc=getSpecialCard(specialSlot);
       emptySlot.style.cursor='pointer';
-      emptySlot.innerHTML='<img src="'+sc.img+'" style="width:100%;height:65%;object-fit:cover;display:block;border-radius:6px 6px 0 0;"><div style="font-family:Cinzel,serif;font-size:0.26rem;color:var(--gold);text-align:center;padding:1px;">'+sc.icon+' '+sc.name+'<br><span style="color:rgba(255,100,100,0.8)">× retirer</span></div>';
+      emptySlot.innerHTML='<img src="'+sc.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">'
+        +'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);font-family:Cinzel,serif;font-size:0.28rem;color:var(--gold);text-align:center;padding:2px;">× Retirer</div>';
+      emptySlot.style.position='relative';
       emptySlot.onclick=function(){specialSlot=null;user.deckSpecial=null;saveUser();refreshSpecialSlot();updateFightBtn();};
     } else {
-      emptySlot.innerHTML='<div style="font-size:1.2rem;">✨</div><div style="font-family:Cinzel,serif;font-size:0.28rem;color:var(--text-dim);text-align:center;">Spéciale</div>';
+      emptySlot.innerHTML='<div style="font-size:1rem;">✨</div>';
     }
     area.appendChild(emptySlot);
     var hasAny=false;
@@ -3433,8 +3435,9 @@ function renderDeckBuilder(container, savedDeck) {
       if((inventory[sc.id]||0)===0) return;
       hasAny=true;
       var d=document.createElement('div');
-      d.style.cssText='width:55px;flex-shrink:0;aspect-ratio:2/3;max-height:80px;border-radius:8px;border:1.5px solid '+(specialSlot===sc.id?'#ffe566':'var(--border)')+';overflow:hidden;cursor:pointer;background:var(--bg-card);';
-      d.innerHTML='<img src="'+sc.img+'" style="width:100%;height:65%;object-fit:cover;display:block;"><div style="font-family:Cinzel,serif;font-size:0.26rem;color:var(--gold);text-align:center;padding:2px;line-height:1.2;">'+sc.icon+'<br>'+sc.name+'</div>';
+      d.style.cssText='width:50px;flex-shrink:0;aspect-ratio:2/3;border-radius:6px;border:2px solid '+(specialSlot===sc.id?'#ffe566':'rgba(139,105,20,0.15)')+';overflow:hidden;cursor:pointer;background:var(--bg-card);position:relative;';
+      d.innerHTML='<img src="'+sc.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">'
+        +(specialSlot===sc.id?'<div style="position:absolute;top:2px;right:2px;background:var(--gold);width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:white;font-weight:700;">✓</div>':'');
       (function(sid){d.onclick=function(){specialSlot=(specialSlot===sid)?null:sid;user.deckSpecial=specialSlot;saveUser();refreshSpecialSlot();updateFightBtn();};})(sc.id);
       area.appendChild(d);
     });
@@ -3456,11 +3459,9 @@ function renderDeckBuilder(container, savedDeck) {
       var inDeck=deckIds.includes(key);
       var stats=getCombatStats(entry.card);
       var d=document.createElement('div');
-      d.style.cssText='border-radius:8px;border:2px solid '+(inDeck?'var(--gold-light)':'var(--border)')+';cursor:pointer;overflow:hidden;background:var(--bg-card);position:relative;';
-      d.innerHTML=(entry.card.img?'<img src="'+entry.card.img+'" style="width:100%;height:60%;object-fit:cover;object-position:top;display:block;">':'<div style="height:60%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">'+entry.card.icon+'</div>')
-        +(inDeck?'<div style="position:absolute;top:3px;right:3px;background:var(--gold);width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:white;font-weight:700;">✓</div>':'')
-        +'<div style="padding:3px 4px;"><div style="font-family:Cinzel,serif;font-size:0.42rem;color:var(--text);line-height:1.2;margin-bottom:1px;">'+entry.card.name+'</div>'
-        +'<div style="font-size:0.38rem;color:var(--gold-dim);">⚔'+stats.atk+' 🛡'+stats.def+'</div></div>';
+      d.style.cssText='border-radius:6px;border:2px solid '+(inDeck?'#ffe566':'rgba(139,105,20,0.15)')+';cursor:pointer;overflow:hidden;background:var(--bg-card);position:relative;aspect-ratio:2/3;';
+      d.innerHTML=(entry.card.img?'<img src="'+entry.card.img+'" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;">':'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">'+entry.card.icon+'</div>')
+        +(inDeck?'<div style="position:absolute;top:2px;right:2px;background:var(--gold);width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:white;font-weight:700;z-index:2;">✓</div>':'');
       (function(k,isIn,ent){ d.onclick = function() {
         showDeckCardPreview(ent, isIn, function() {
           // Callback ajouter/retirer
@@ -3625,46 +3626,46 @@ function renderBattle() {
     +'</div>'
     +'<div class="combat-battlefield">'
     +'<div class="combat-carpet">'
-    // Zone IA avec pioche IA à droite
-    +'<div class="combat-zone enemy" style="position:relative;">'
+    // Zone IA avec pioche à droite même taille que les cartes
+    +'<div class="combat-zone enemy" style="position:relative;padding-left:8px;padding-right:8px;">'
     +'<span class="combat-zone-label">TERRAIN IA</span>'
     +'<div id="cf-ai" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;"></div>'
-    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">'
-    +'<div style="position:relative;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;opacity:0.7;">'
-    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;">'
-    +'<div style="position:absolute;inset:0;background:rgba(0,0,0,0.2);"></div>'
-    +'</div>'
+    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;margin-right:4px;">'
+    +'<div style="position:relative;width:clamp(55px,16vw,80px);aspect-ratio:2/3;">'
+    +'<div style="position:absolute;top:3px;left:2px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.2);transform:rotate(-3deg);"></div>'
+    +'<div style="position:absolute;top:1px;left:1px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.25);transform:rotate(-1deg);"></div>'
+    +'<div style="position:relative;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
+    +'<div style="font-family:Cinzel Decorative,serif;font-size:0.3rem;color:rgba(218,165,32,0.7);letter-spacing:0.1em;">OLYMPIA</div>'
+    +'<div style="font-size:0.9rem;opacity:0.6;">⚡</div>'
     +'<div style="font-family:Cinzel,serif;font-size:0.3rem;color:rgba(255,255,255,0.4);">'+s.aiDeck.length+'</div>'
+    +'</div></div>'
     +'</div>'
     +'</div>'
     +'<div class="combat-carpet-divider"></div>'
-    // Zone joueur avec emplacement carte spéciale à gauche et pioche à droite
-    +'<div class="combat-zone player" style="position:relative;">'
+    // Zone joueur — slot spéciale intégré dans le terrain, pioche à droite
+    +'<div class="combat-zone player" style="position:relative;padding-left:8px;padding-right:8px;">'
     +'<span class="combat-zone-label">TON TERRAIN</span>'
-    // Emplacement carte spéciale
-    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">'
-    +'<div style="width:36px;aspect-ratio:2/3;border-radius:4px;border:1px dashed rgba(218,165,32,0.4);background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">'
+    +'<div id="cf-player" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;">'
+    // Slot spéciale DANS le terrain parmi les cartes
+    +'<div style="flex-shrink:0;width:clamp(55px,16vw,80px);aspect-ratio:2/3;border-radius:8px;border:1.5px dashed rgba(218,165,32,0.35);background:rgba(0,0,0,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
     +(s.secretCard && !s.secretUsed
-      ? '<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"><div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;">'+s.secretCard.icon+'</div>'
-      : '<div style="font-size:0.7rem;opacity:0.3;">✨</div>')
+      ? '<div style="width:100%;height:100%;border-radius:8px;background:#0a0a14;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
+        +'<div style="font-family:Cinzel Decorative,serif;font-size:0.3rem;color:rgba(218,165,32,0.7);">OLYMPIA</div>'
+        +'<div style="font-size:0.9rem;opacity:0.6;">⚡</div>'
+        +'</div>'
+      : '<div style="font-size:0.8rem;opacity:0.2;">✨</div><div style="font-family:Cinzel,serif;font-size:0.26rem;color:rgba(218,165,32,0.25);">SPÉCIALE</div>')
     +'</div>'
-    +'<div style="font-family:Cinzel,serif;font-size:0.28rem;color:rgba(218,165,32,0.4);">SPÉCIALE</div>'
     +'</div>'
-    +'<div id="cf-player" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;"></div>'
-    // Pioche joueur
-    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">'
-    +'<div style="position:relative;width:36px;aspect-ratio:2/3;">'
-    // Tas de cartes (effet empilé)
-    +'<div style="position:absolute;top:4px;left:2px;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;opacity:0.4;transform:rotate(-3deg);">'
-    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
-    +'<div style="position:absolute;top:2px;left:1px;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;opacity:0.6;transform:rotate(-1deg);">'
-    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
-    +'<div style="position:relative;width:36px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;">'
-    +'<img src="https://i.imgur.com/AGGWuAL.jpeg" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
-    +'</div>'
+    // Pioche joueur à droite
+    +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">'
+    +'<div style="position:relative;width:clamp(55px,16vw,80px);aspect-ratio:2/3;">'
+    +'<div style="position:absolute;top:3px;left:2px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.2);transform:rotate(-3deg);"></div>'
+    +'<div style="position:absolute;top:1px;left:1px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.25);transform:rotate(-1deg);"></div>'
+    +'<div style="position:relative;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
+    +'<div style="font-family:Cinzel Decorative,serif;font-size:0.3rem;color:rgba(218,165,32,0.7);letter-spacing:0.1em;">OLYMPIA</div>'
+    +'<div style="font-size:0.9rem;opacity:0.6;">⚡</div>'
     +'<div style="font-family:Cinzel,serif;font-size:0.3rem;color:rgba(255,255,255,0.4);">'+s.playerDeck.length+'</div>'
-    +'</div>'
-    +'</div>'
+    +'</div></div>'
     +'</div>'
     +'</div>'
     +'<div class="combat-log" id="cf-log"></div>'
@@ -3678,12 +3679,10 @@ function renderBattle() {
     +(isPlace?
       '<button class="combat-btn sec" id="cb-mode">🛡 Défense</button>'
       +'<button class="combat-btn" id="cb-ready" '+(s.playerField.length===0?'disabled':'')+' style="background:linear-gradient(135deg,#22aa44,#44dd66);">⚔️ PRÊT !</button>'
-      +(s.secretCard && !s.secretUsed ? '<button class="combat-btn sec" id="cb-secret" style="border-color:var(--gold);color:var(--gold);" title="'+s.secretCard.desc+'">'+s.secretCard.icon+' Carte cachée</button>' : '')
     : isPlayer?
       '<button class="combat-btn sec" id="cb-mode">🛡 Défense</button>'
       +'<button class="combat-btn" id="cb-attack">⚔️ Attaquer</button>'
       +'<button class="combat-btn" id="cb-end">⏭ Fin Tour</button>'
-      +(s.secretCard && !s.secretUsed ? '<button class="combat-btn sec" id="cb-secret" style="border-color:var(--gold);color:var(--gold);" title="'+s.secretCard.desc+'">'+s.secretCard.icon+'</button>' : '')
     :
       '<div style="flex:1;text-align:center;font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,255,255,0.4);">L\'IA réfléchit...</div>'
     )
@@ -3767,23 +3766,6 @@ function renderBattle() {
   });
 
   // Boutons
-  // Carte cachée
-  var cbSecret = document.getElementById('cb-secret');
-  if(cbSecret) {
-    cbSecret.onclick = function() {
-      if(!s.secretCard || s.secretUsed) return;
-      s.secretUsed = true;
-      // Déduire du stock
-      if(user.specialCards && user.specialCards[s.secretCard.id] > 0) {
-        user.specialCards[s.secretCard.id]--;
-        saveUser();
-      }
-      addBattleLog('🃏 Carte cachée : '+s.secretCard.name+' !', 'info');
-      s.secretCard.effect(s);
-      if(!s._pendingEffect) renderBattle();
-    };
-  }
-
   document.getElementById('cb-mode').onclick=function(){
     if(s.selectedFieldCard===null){addBattleLog('Sélectionne une carte sur ton terrain.','');renderBattle();return;}
     var bc=s.playerField[s.selectedFieldCard];
