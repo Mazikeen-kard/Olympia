@@ -137,7 +137,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 .card-badge{position:absolute;top:6px;right:6px;width:13px;height:13px;border-radius:50%;background:var(--rc,var(--common));box-shadow:0 0 5px var(--rc,var(--common));z-index:4;}
 
 /* PACKS */
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;}
+.pgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;}
 .pack{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:24px 18px;text-align:center;transition:all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);}
 .pack.avail{cursor:pointer;}
 .pack.avail:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 8px 30px rgba(184,134,11,0.12);}
@@ -1668,7 +1668,7 @@ function renderPacks() {
     else if(ready && isWelcome) info.textContent='🎁 Encore un paquet gratuit pour toi !';
     else if(isAdmin) info.textContent='🎁 Tu as reçu des paquets offerts !';
     else if(isDaily) info.textContent='';
-    else if(ready) info.textContent='✨ Un paquet surprise est disponible !';
+    else if(ready) info.textContent = '';
     else info.textContent='⏳ Prochain paquet dans '+fmtTime(remaining);
   }
 
@@ -2536,15 +2536,15 @@ function renderBadges() {
   function makeSection(title, items) {
     if(!items.length) return null;
     var sec = document.createElement('div');
-    sec.style.cssText = 'margin-bottom:24px;';
+    sec.style.cssText = 'margin-bottom:28px;width:100%;';
     var t = document.createElement('div');
-    t.style.cssText = 'font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(218,165,32,0.2);';
+    t.style.cssText = 'font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(218,165,32,0.2);';
     t.textContent = title;
     sec.appendChild(t);
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;flex-direction:row;gap:10px;overflow-x:auto;padding-bottom:4px;';
-    items.forEach(function(item){ if(item){ item.style.flexShrink='0'; row.appendChild(item); } });
-    sec.appendChild(row);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:12px;';
+    items.forEach(function(item){ if(item){ item.style.width='100%'; grid.appendChild(item); } });
+    sec.appendChild(grid);
     return sec;
   }
 
