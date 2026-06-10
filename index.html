@@ -463,10 +463,10 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   /* Cartes sur le tapis — plus grandes */
   .combat-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 10px;gap:8px;flex-wrap:wrap;position:relative;z-index:2;overflow:visible;min-height:120px;}
-  .tapis-card{width:clamp(55px,16vw,80px);aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;background:rgba(0,0,0,0.5);position:relative;flex-shrink:0;}
+  .tapis-card{width:clamp(80px,22vw,120px);aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;background:rgba(0,0,0,0.5);position:relative;flex-shrink:0;}
   .tapis-card img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
-  .tapis-card .tc-stats{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);font-size:0.3rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding:2px;line-height:1.3;}
-  .tapis-card .tc-hp{position:absolute;top:2px;left:2px;background:rgba(180,20,20,0.9);border-radius:3px;font-size:0.28rem;font-family:Cinzel,serif;color:white;padding:1px 3px;}
+  .tapis-card .tc-stats{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);font-size:0.42rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding:2px;line-height:1.3;}
+  .tapis-card .tc-hp{position:absolute;top:2px;left:2px;background:rgba(180,20,20,0.9);border-radius:3px;font-size:0.4rem;font-family:Cinzel,serif;color:white;padding:2px 5px;}
   .tapis-card.defending{border-color:#4488ff;transform:rotate(-8deg);box-shadow:0 0 12px rgba(68,136,255,0.4);}
   .tapis-card.can-attack{border-color:#44dd66;box-shadow:0 0 12px rgba(68,221,102,0.5);}
   .tapis-card.selected{border-color:#ffe566;box-shadow:0 0 18px rgba(255,229,102,0.7);transform:translateY(-10px);}
@@ -717,10 +717,22 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   </div>
 
   <div class="section" id="section-perso">
-    <div class="sec-title">Personnalisation</div>
+    <div class="sec-title">Évolution</div>
 
     <!-- PROGRESSION XP -->
-    <div id="rank-progress-block" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;"></div>
+    <div id="rank-progress-block" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;"></div>
+
+    <!-- RÈGLES XP -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:20px;">
+      <div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Comment gagner de l'XP</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;"><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--text-dim);">⚔️ Victoire</span><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--gold);">+100 XP</span></div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;"><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--text-dim);">😤 Défaite</span><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--gold);">+30 XP</span></div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;"><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--text-dim);">📦 Paquet ouvert</span><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--gold);">+10 XP</span></div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;"><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--text-dim);">🏆 Badge débloqué</span><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--gold);">+50 XP</span></div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;grid-column:1/-1;"><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--text-dim);">🔥 Connexion quotidienne</span><span style="font-family:Cinzel,serif;font-size:0.45rem;color:var(--gold);">+20 XP</span></div>
+      </div>
+    </div>
 
     <!-- CHARACTER CREATOR -->
     <div class="char-creator" id="char-creator-section">
@@ -4059,7 +4071,7 @@ function renderBattle() {
     +'<span class="combat-zone-label">TERRAIN IA</span>'
     +'<div id="cf-ai" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;"></div>'
     +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;margin-right:4px;">'
-    +'<div style="position:relative;width:clamp(55px,16vw,80px);aspect-ratio:2/3;">'
+    +'<div style="position:relative;width:clamp(80px,22vw,120px);aspect-ratio:2/3;">'
     +'<div style="position:absolute;top:3px;left:2px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.2);transform:rotate(-3deg);"></div>'
     +'<div style="position:absolute;top:1px;left:1px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.25);transform:rotate(-1deg);"></div>'
     +'<div style="position:relative;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
@@ -4075,7 +4087,7 @@ function renderBattle() {
     +'<span class="combat-zone-label">TON TERRAIN</span>'
     +'<div id="cf-player" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;flex:1;">'
     // Slot spéciale DANS le terrain parmi les cartes
-    +'<div style="flex-shrink:0;width:clamp(55px,16vw,80px);aspect-ratio:2/3;border-radius:8px;border:1.5px dashed rgba(218,165,32,0.35);background:rgba(0,0,0,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
+    +'<div style="flex-shrink:0;width:clamp(80px,22vw,120px);aspect-ratio:2/3;border-radius:8px;border:1.5px dashed rgba(218,165,32,0.35);background:rgba(0,0,0,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
     +(s.secretCard && !s.secretUsed
       ? '<div style="width:100%;height:100%;border-radius:8px;background:#0a0a14;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
         +'<div style="font-family:Cinzel Decorative,serif;font-size:0.3rem;color:rgba(218,165,32,0.7);">OLYMPIA</div>'
@@ -4086,7 +4098,7 @@ function renderBattle() {
     +'</div>'
     // Pioche joueur à droite
     +'<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;">'
-    +'<div style="position:relative;width:clamp(55px,16vw,80px);aspect-ratio:2/3;">'
+    +'<div style="position:relative;width:clamp(80px,22vw,120px);aspect-ratio:2/3;">'
     +'<div style="position:absolute;top:3px;left:2px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.2);transform:rotate(-3deg);"></div>'
     +'<div style="position:absolute;top:1px;left:1px;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.25);transform:rotate(-1deg);"></div>'
     +'<div style="position:relative;width:100%;height:100%;border-radius:8px;background:#0a0a14;border:1px solid rgba(218,165,32,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">'
@@ -4480,69 +4492,49 @@ function playerAttack(attacker, target) {
   var atkVal = attacker.combatAtk;
   if(attacker._armesBonus) atkVal = Math.floor(atkVal * 1.1);
 
-  // Éléments DOM pour animation
   var attackerIdx = s.playerField.indexOf(attacker);
-  var attackerEl = document.getElementById('player-card-'+attackerIdx);
   var targetIdx = target ? s.aiField.indexOf(target) : -1;
+  var attackerEl = document.getElementById('player-card-'+attackerIdx);
   var targetEl = target ? document.getElementById('ai-card-'+targetIdx) : null;
   var weaponIcon = attacker._weapon ? attacker._weapon.icon : null;
 
-  animateAttack(attackerEl, targetEl, weaponIcon, function() {
-    if(!battleState) return;
+  // ── 1. Calculer les dégâts ──
+  var dmg = 0, caDmg = 0;
+  var targetDied = false, attackerDied = false;
 
-    if(s.aiField.length === 0 || !target) {
-      // Attaque directe aux PV de l'IA
-      var dmg = Math.max(1, atkVal);
-      s.aiHp = Math.max(0, s.aiHp - dmg);
-      showDmgNumber(document.querySelector('.combat-hp-fill.enemy'), dmg, false);
-      addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
-    } else {
-      // Dégâts = ATK attaquant - DEF cible (min 1)
-      var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
-      var dmg = Math.max(1, atkVal - defense);
-      target.hp = Math.max(0, target.hp - dmg);
-      showDmgNumber(targetEl, dmg, false);
-      addBattleLog('⚡ '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'hit');
+  if(!target || s.aiField.length === 0) {
+    dmg = Math.max(1, atkVal);
+    s.aiHp = Math.max(0, s.aiHp - dmg);
+    addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
+  } else {
+    var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
+    dmg = Math.max(1, atkVal - defense);
+    target.hp = Math.max(0, target.hp - dmg);
+    addBattleLog('⚡ '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'hit');
 
-      if(target.hp <= 0) {
-        // Carte détruite
-        if(targetEl) targetEl.classList.add('anim-destroy');
-        addBattleLog('💀 '+target.card.name+' est détruit !', 'hit');
-        setTimeout(function(){
-          if(battleState) {
-            var ti = s.aiField.indexOf(target);
-            if(ti >= 0) s.aiField.splice(ti, 1);
-            checkBattleEnd();
-            if(battleState) renderBattle();
-          }
-        }, 450);
-        return;
-      } else if(target.mode === 'attack') {
-        // Contre-attaque si pas en défense
-        var caDmg = Math.max(1, target.combatAtk - Math.floor(attacker.combatDef * 0.3));
-        attacker.hp = Math.max(0, attacker.hp - caDmg);
-        showDmgNumber(attackerEl, caDmg, false);
-        addBattleLog('↩️ '+target.card.name+' contre-attaque ! -'+caDmg+' PV à '+attacker.card.name+' (reste '+attacker.hp+')', 'dmg');
-
-        if(attacker.hp <= 0) {
-          if(attackerEl) attackerEl.classList.add('anim-destroy');
-          addBattleLog('💀 '+attacker.card.name+' est détruit !', 'dmg');
-          setTimeout(function(){
-            if(battleState) {
-              var ai = s.playerField.indexOf(attacker);
-              if(ai >= 0) s.playerField.splice(ai, 1);
-              s.playerHp = Math.max(0, s.playerHp - Math.floor(caDmg * 0.5));
-              battleState.selectedFieldCard = null;
-              checkBattleEnd();
-              if(battleState) renderBattle();
-            }
-          }, 450);
-          return;
-        }
+    if(target.hp <= 0) {
+      targetDied = true;
+      addBattleLog('💀 '+target.card.name+' est détruit !', 'hit');
+      var ti = s.aiField.indexOf(target);
+      if(ti >= 0) s.aiField.splice(ti, 1);
+    } else if(target.mode === 'attack') {
+      caDmg = Math.max(1, target.combatAtk - Math.floor(attacker.combatDef * 0.3));
+      attacker.hp = Math.max(0, attacker.hp - caDmg);
+      addBattleLog('↩️ '+target.card.name+' contre-attaque ! -'+caDmg+' PV à '+attacker.card.name+' (reste '+attacker.hp+')', 'dmg');
+      if(attacker.hp <= 0) {
+        attackerDied = true;
+        addBattleLog('💀 '+attacker.card.name+' est détruit !', 'dmg');
+        var ai2 = s.playerField.indexOf(attacker);
+        if(ai2 >= 0) s.playerField.splice(ai2, 1);
+        battleState.selectedFieldCard = null;
       }
     }
+  }
 
-    checkBattleEnd();
+  checkBattleEnd();
+
+  // ── 2. Animation puis renderBattle ──
+  animateAttack(attackerEl, targetEl, weaponIcon, function() {
     if(battleState) renderBattle();
   });
 }
