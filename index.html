@@ -710,7 +710,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
 
     <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin:20px 0 12px;line-height:1.6;">
-      🏆 Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
+      Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
     </div>
     <div id="badges-container" style="display:flex;flex-direction:column;gap:0;"></div>
     
@@ -1567,9 +1567,11 @@ function updateFilterCounts() {
     }
   });
 
-  // Shiny count
+  // Shiny count — seulement les cartes avec une vraie illustration shiny
   var shinyOwned = u.filter(function(e){return e.isShiny;}).length;
-  var shinyTotal = Object.values(CARDS).reduce(function(acc,pack){return acc+pack.length;},0);
+  var shinyTotal = Object.values(CARDS).reduce(function(acc,pack){
+    return acc + pack.filter(function(c){ return c.imgShiny; }).length;
+  }, 0);
   document.getElementById('fb-shiny').textContent = '✦ Shiny ' + shinyOwned + '/' + shinyTotal;
 }
 
@@ -2563,8 +2565,8 @@ function renderBadges() {
     div.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 8px;gap:8px;">'
       +'<div style="width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid '+(isUnlocked?pb.color:'rgba(255,255,255,0.1)')+';box-shadow:'+(isUnlocked?'0 0 14px '+pb.color+'66':'none')+';position:relative;flex-shrink:0;">'
       +'<img src="'+pb.img+'" style="width:100%;height:100%;object-fit:cover;'+(isUnlocked?'':'filter:blur(3px) brightness(0.2);')+'">'
-      +(isUnlocked?'<div style="position:absolute;top:4px;right:4px;font-size:0.9rem;">'+pb.icon+'</div>'
-        :'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">'+pb.icon+'</div>')
+      +(isUnlocked?''
+        :'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🔒</div>')
       +'</div>'
       +'<div style="text-align:center;">'
       +'<div style="font-family:Cinzel,serif;font-size:0.48rem;color:'+(isUnlocked?'var(--gold)':'rgba(255,255,255,0.3)')+';line-height:1.3;">'+pb.name+'</div>'
@@ -2578,8 +2580,8 @@ function renderBadges() {
           +'<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="height:100%;background:'+pb.color+';border-radius:2px;width:'+pct+'%;"></div></div>')
       +'</div>'
       +'</div>';
+    div.style.cursor = 'pointer';
     if(isUnlocked) {
-      div.style.cursor = 'pointer';
       div.onclick = function(e) { if(e.target.tagName==='BUTTON') return; showStory({badge:{name:pb.name,img:pb.img,color:pb.color},name:pb.name,story:pb.story}); };
       setTimeout(function(){
         var pbe = document.getElementById('pbe-'+pb.id);
@@ -2589,6 +2591,25 @@ function renderBadges() {
           saveUser(); updateAvatar(); renderBadges();
         };
       }, 0);
+    } else {
+      div.onclick = function() {
+        var msg = pb.type==='login' ? 'Connecte-toi '+pb.threshold+' jours (actuellement : '+current+' jours)'
+          : pb.type==='wins' ? 'Remporte '+pb.threshold+' combats (actuellement : '+current+' victoires)'
+          : pb.type==='collection' ? 'Collectionne '+pb.threshold+' cartes (actuellement : '+current+' cartes)'
+          : pb.type==='drachmes' ? 'Accumule '+pb.threshold+' 🪙 Drachmes (actuellement : '+current+' 🪙)'
+          : '';
+        var ov = document.createElement('div');
+        ov.style.cssText='position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;';
+        ov.innerHTML='<div style="background:var(--bg-card);border:1px solid '+pb.color+';border-radius:14px;padding:24px;max-width:280px;text-align:center;">'
+          +'<div style="font-size:1.5rem;margin-bottom:10px;">🔒</div>'
+          +'<div style="font-family:Cinzel Decorative,serif;font-size:0.7rem;color:var(--gold);margin-bottom:8px;">'+pb.name+'</div>'
+          +'<div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6;">'+msg+'</div>'
+          +'<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:16px;"><div style="height:100%;background:'+pb.color+';border-radius:2px;width:'+pct+'%;"></div></div>'
+          +'<button onclick="this.parentElement.parentElement.remove()" style="background:'+pb.color+';border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;padding:8px 20px;border-radius:8px;cursor:pointer;">OK</button>'
+          +'</div>';
+        ov.onclick=function(e){if(e.target===ov)ov.remove();};
+        document.body.appendChild(ov);
+      };
     }
     return div;
   }
@@ -2632,7 +2653,7 @@ function renderBadges() {
           +'</div>')
       +'</div>'
       +'</div>';
-    div.style.cursor = isUnlocked ? 'pointer' : 'default';
+    div.style.cursor = 'pointer';
     if(isUnlocked) {
       div.onclick = function(e) {
         if(e.target.tagName === 'BUTTON') return;
@@ -2646,6 +2667,20 @@ function renderBadges() {
           saveUser(); updateAvatar(); renderBadges();
         };
       }, 0);
+    } else {
+      div.onclick = function() {
+        var ov = document.createElement('div');
+        ov.style.cssText='position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;';
+        ov.innerHTML='<div style="background:var(--bg-card);border:1px solid '+combo.badge.color+';border-radius:14px;padding:24px;max-width:280px;text-align:center;">'
+          +'<div style="font-size:1.5rem;margin-bottom:10px;">🔒</div>'
+          +'<div style="font-family:Cinzel Decorative,serif;font-size:0.7rem;color:var(--gold);margin-bottom:12px;">'+combo.badge.name+'</div>'
+          +'<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:8px;">Il te manque :</div>'
+          +'<div style="font-size:0.62rem;color:rgba(218,165,32,0.8);line-height:1.8;margin-bottom:16px;">'+(missingCards.length?missingCards.join('<br>'):'✨ Toutes les cartes obtenues !')+'</div>'
+          +'<button onclick="this.parentElement.parentElement.remove()" style="background:'+combo.badge.color+';border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;padding:8px 20px;border-radius:8px;cursor:pointer;">OK</button>'
+          +'</div>';
+        ov.onclick=function(e){if(e.target===ov)ov.remove();};
+        document.body.appendChild(ov);
+      };
     }
     return div;
   }
@@ -2660,7 +2695,7 @@ function renderBadges() {
 
   var hint = document.createElement('div');
   hint.style.cssText = 'text-align:center;font-family:Cinzel,serif;font-size:0.52rem;color:rgba(218,165,32,0.5);margin-bottom:20px;font-style:italic;';
-  hint.textContent = '📖 Clique sur un badge débloqué pour découvrir son histoire';
+  hint.textContent = 'Clique sur un badge débloqué pour découvrir son histoire';
   container.appendChild(hint);
 
   [
@@ -3582,8 +3617,9 @@ function renderDeckBuilder(container, savedDeck) {
       + '<button class="deck-filter-btn" data-f="rare">🔵</button>'
       + '<button class="deck-filter-btn" data-f="épique">🟣</button>'
       + '<button class="deck-filter-btn" data-f="légendaire">🟡</button>'
+      + '<button class="deck-filter-btn" data-f="armes">⚔️ Armes</button>'
       + '</div>'
-      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:5px;max-height:260px;overflow-y:auto;padding-top:4px;"></div>'
+      + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:320px;overflow-y:auto;padding:4px 2px;"></div>'
       + '<div style="display:flex;gap:10px;margin-top:16px;">'
       + '<button class="battle-btn secondary" id="deck-reset-btn" style="flex:0 0 auto;padding:10px 14px;">🗑</button>'
       + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;" '+(deckIds.length<11?'disabled':'')+'>⚔️ Combattre !</button>'
@@ -3652,7 +3688,35 @@ function renderDeckBuilder(container, savedDeck) {
       d.style.cssText='width:50px;flex-shrink:0;aspect-ratio:2/3;border-radius:6px;border:2px solid '+(specialSlot===sc.id?'#ffe566':'rgba(139,105,20,0.15)')+';overflow:hidden;cursor:pointer;background:var(--bg-card);position:relative;';
       d.innerHTML='<img src="'+sc.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">'
         +(specialSlot===sc.id?'<div style="position:absolute;top:2px;right:2px;background:var(--gold);width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:white;font-weight:700;">✓</div>':'');
-      (function(sid){d.onclick=function(){specialSlot=(specialSlot===sid)?null:sid;user.deckSpecial=specialSlot;saveUser();refreshSpecialSlot();updateFightBtn();};})(sc.id);
+      (function(sid, scard){ d.onclick=function(){
+        // Aperçu plein écran
+        var existing = document.getElementById('deck-card-preview');
+        if(existing) existing.remove();
+        var overlay = document.createElement('div');
+        overlay.id = 'deck-card-preview';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
+        var isSelected = specialSlot === sid;
+        overlay.innerHTML = '<div style="position:relative;width:160px;aspect-ratio:2/3;border-radius:12px;border:2px solid var(--gold);overflow:hidden;box-shadow:0 0 30px rgba(218,165,32,0.4);">'
+          +'<img src="'+scard.img+'" style="width:100%;height:100%;object-fit:cover;display:block;">'
+          +'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.92));padding:20px 8px 8px;">'
+          +'<div style="font-family:Cinzel,serif;font-size:0.65rem;color:white;text-align:center;margin-bottom:4px;">'+scard.icon+' '+scard.name+'</div>'
+          +'<div style="font-size:0.5rem;color:rgba(255,255,255,0.6);text-align:center;">'+scard.desc+'</div>'
+          +'</div></div>'
+          +'<div style="display:flex;gap:10px;">'
+          +(isSelected
+            ? '<button id="dcp-action" style="background:rgba(200,0,0,0.8);border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;padding:10px 20px;border-radius:8px;cursor:pointer;">✕ Retirer</button>'
+            : '<button id="dcp-action" style="background:linear-gradient(135deg,#7722cc,#aa44ff);border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;padding:10px 20px;border-radius:8px;cursor:pointer;">✨ Sélectionner</button>')
+          +'<button id="dcp-cancel" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);font-family:Cinzel,serif;font-size:0.6rem;padding:10px 16px;border-radius:8px;cursor:pointer;">Fermer</button>'
+          +'</div>';
+        document.body.appendChild(overlay);
+        overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+        document.getElementById('dcp-cancel').onclick = function(){ overlay.remove(); };
+        document.getElementById('dcp-action').onclick = function(){
+          overlay.remove();
+          specialSlot = isSelected ? null : sid;
+          user.deckSpecial = specialSlot; saveUser(); refreshSpecialSlot(); updateFightBtn();
+        };
+      };})(sc.id, sc);
       area.appendChild(d);
     });
     if(!hasAny) {
@@ -3666,14 +3730,20 @@ function renderDeckBuilder(container, savedDeck) {
   function refreshPicks() {
     var pickEl=document.getElementById('deck-pick-grid'); if(!pickEl) return;
     pickEl.innerHTML='';
-    var filtered=unique.filter(function(e){return !e.card.id.startsWith('mn');});
-    filtered=activeFilter==='all'?filtered:filtered.filter(function(e){return e.card.rarity===activeFilter;});
+    var filtered = unique.filter(function(e){ return !e.card.id.startsWith('mn'); });
+    if(activeFilter === 'armes') {
+      filtered = filtered.filter(function(e){ return e.card.id.startsWith('ar'); });
+    } else if(activeFilter !== 'all') {
+      filtered = filtered.filter(function(e){ return e.card.rarity === activeFilter && !e.card.id.startsWith('ar'); });
+    } else {
+      filtered = filtered.filter(function(e){ return !e.card.id.startsWith('ar'); });
+    }
     filtered.forEach(function(entry){
       var key=entry.card.id+(entry.isShiny?'|shiny':'');
       var inDeck=deckIds.includes(key);
       var stats=getCombatStats(entry.card);
       var d=document.createElement('div');
-      d.style.cssText='border-radius:6px;border:2px solid '+(inDeck?'#ffe566':'rgba(139,105,20,0.15)')+';cursor:pointer;overflow:hidden;background:var(--bg-card);position:relative;aspect-ratio:2/3;';
+      d.style.cssText='border-radius:6px;border:2px solid '+(inDeck?'#ffe566':'rgba(139,105,20,0.15)')+';cursor:pointer;overflow:hidden;background:var(--bg-card);position:relative;aspect-ratio:2/3;width:100%;';
       d.innerHTML=(entry.card.img?'<img src="'+entry.card.img+'" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;">':'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">'+entry.card.icon+'</div>')
         +(inDeck?'<div style="position:absolute;top:2px;right:2px;background:var(--gold);width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:white;font-weight:700;z-index:2;">✓</div>':'');
       (function(k,isIn,ent){ d.onclick = function() {
@@ -4095,7 +4165,6 @@ function showHandPreview(idx) {
     document.getElementById('hp-place').onclick = function() {
       overlay.remove();
       if(isWeapon) {
-        // Chercher un héros compatible sur le terrain
         var compatible = s.playerField.filter(function(fc) {
           var pairs = WEAPON_PAIRS[bc.card.id] || [];
           return pairs.includes(fc.card.id) && !fc._weapon;
@@ -4105,16 +4174,34 @@ function showHandPreview(idx) {
           renderBattle();
           return;
         }
-        // Équiper sur le premier compatible (ou le seul)
-        var target = compatible[0];
-        var weaponStats = getCombatStats(bc.card);
-        target._weapon = bc.card;
-        target.combatAtk += weaponStats.atk;
-        target.combatDef += weaponStats.def;
-        // Retirer l'arme de la main
-        s.playerHand.splice(idx, 1);
-        addBattleLog('⚔️ '+bc.card.name+' équipé sur '+target.card.name+' ! +'+weaponStats.atk+' ATK +'+weaponStats.def+' DEF', 'hit');
-        renderBattle();
+        var doEquip = function(target) {
+          var weaponStats = getCombatStats(bc.card);
+          target._weapon = bc.card;
+          target.combatAtk += weaponStats.atk;
+          target.combatDef += weaponStats.def;
+          s.playerHand.splice(idx, 1);
+          addBattleLog('⚔️ '+bc.card.name+' équipé sur '+target.card.name+' ! +'+weaponStats.atk+' ATK +'+weaponStats.def+' DEF', 'hit');
+          renderBattle();
+        };
+        if(compatible.length === 1) {
+          doEquip(compatible[0]);
+        } else {
+          // Plusieurs héros compatibles — laisser choisir
+          var pickOverlay = document.createElement('div');
+          pickOverlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
+          pickOverlay.innerHTML = '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">Sur quel héros équiper ?</div>'
+            +'<div id="equip-pick" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>';
+          document.body.appendChild(pickOverlay);
+          compatible.forEach(function(target) {
+            var btn = document.createElement('div');
+            btn.style.cssText = 'width:80px;aspect-ratio:2/3;border-radius:8px;border:2px solid var(--gold);overflow:hidden;cursor:pointer;';
+            btn.innerHTML = (target.card.img?'<img src="'+target.card.img+'" style="width:100%;height:70%;object-fit:cover;display:block;">':'')
+              +'<div style="font-family:Cinzel,serif;font-size:0.35rem;color:var(--gold);text-align:center;padding:4px;">'+target.card.name+'</div>';
+            btn.onclick = function(){ pickOverlay.remove(); doEquip(target); };
+            document.getElementById('equip-pick').appendChild(btn);
+          });
+          pickOverlay.onclick = function(e){ if(e.target===pickOverlay) pickOverlay.remove(); };
+        }
       } else if(isSpecial) {
         var card = s.playerHand.splice(idx, 1)[0];
         if(user.specialCards && user.specialCards[card._specialId] > 0) {
@@ -4365,11 +4452,15 @@ function renderAdmin() {
       + '<input type="number" min="1" max="10" value="1" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-packs">'
       + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="pack" data-player="'+playerName+'">Envoyer</button>'
       + '</div>'
-      // Cartes
-      + '<div style="display:flex;gap:8px;align-items:center;">'
-      + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">🎴 Cartes</span>'
-      + '<input type="number" min="1" max="20" value="4" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-cards">'
-      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="cards" data-player="'+playerName+'">Envoyer</button>'
+      // Cartes spécifiques
+      + '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">'
+      + '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);margin-bottom:6px;">🎴 Envoyer une carte spécifique</div>'
+      + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
+      + '<input type="text" placeholder="Nom de la carte..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.6rem;" class="admin-input-cardname">'
+      + '<label style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;"><input type="checkbox" class="admin-input-shiny"> Shiny</label>'
+      + '<button class="battle-btn" style="font-size:0.55rem;padding:7px 10px;" data-action="specific" data-player="'+playerName+'">Envoyer</button>'
+      + '</div>'
+      + '<div class="admin-card-result" style="font-size:0.55rem;color:var(--gold);margin-top:4px;"></div>'
       + '</div>';
 
     card.querySelectorAll('[data-action]').forEach(function(btn) {
@@ -4393,14 +4484,26 @@ function renderAdmin() {
           btn.textContent = '✓ Envoyé !';
           setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
 
-        } else if(action === 'cards') {
-          var nb = parseInt(card.querySelector('.admin-input-cards').value) || 4;
-          var pool = allCards().filter(function(c){ return c.rarity==='commune'||c.rarity==='rare'; });
-          for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
-          pool.slice(0, nb).forEach(function(c){ pUser.collection.push(c.id); });
+        } else if(action === 'specific') {
+          var cardName = card.querySelector('.admin-input-cardname').value.trim().toLowerCase();
+          var isShinyGift = card.querySelector('.admin-input-shiny').checked;
+          var resultEl = card.querySelector('.admin-card-result');
+          if(!cardName) { resultEl.textContent = '⚠ Entre un nom de carte'; return; }
+          // Chercher la carte
+          var found = null;
+          Object.values(CARDS).forEach(function(pack) {
+            pack.forEach(function(c) {
+              if(c.name.toLowerCase().includes(cardName)) found = c;
+            });
+          });
+          if(!found) { resultEl.textContent = '❌ Carte "'+cardName+'" introuvable'; return; }
+          var cardKey = isShinyGift ? found.id+'|shiny' : found.id;
+          if(!pUser.collection) pUser.collection = [];
+          pUser.collection.push(cardKey);
           localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          btn.textContent = '✓ Envoyé !';
-          setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+          resultEl.textContent = '✓ '+found.name+(isShinyGift?' ✦ Shiny':'')+' envoyée !';
+          card.querySelector('.admin-input-cardname').value = '';
+          card.querySelector('.admin-input-shiny').checked = false;
         }
       };
     });
