@@ -472,12 +472,12 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .tapis-card.selected{border-color:#ffe566;box-shadow:0 0 18px rgba(255,229,102,0.7);transform:translateY(-10px);}
   .tapis-card.enemy-card{pointer-events:none;border-color:rgba(204,34,51,0.5);}
   @keyframes badgePop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}0%{transform:translateX(0)}40%{transform:translateX(55px) scale(1.1)}70%{transform:translateX(0)}100%{transform:translateX(0)}}
-  @keyframes cardHit{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-  @keyframes cardDestroy{0%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.15) rotate(8deg)}100%{opacity:0;transform:scale(0) rotate(20deg)}}
-  .anim-attack{animation:cardAttack 0.5s ease;}
-  .anim-hit{animation:cardHit 0.4s ease;}
-  .anim-destroy{animation:cardDestroy 0.4s ease forwards;}
+  @keyframes cardAttack{0%{transform:translateX(0) scale(1)}40%{transform:translateX(110px) scale(1.2)}60%{transform:translateX(110px) scale(1.2)}100%{transform:translateX(0) scale(1)}}
+  @keyframes cardHit{0%,100%{transform:translateX(0) scale(1)}20%{transform:translateX(-10px) scale(0.95)}40%{transform:translateX(10px) scale(1.05)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+  @keyframes cardDestroy{0%{opacity:1;transform:scale(1) rotate(0)}25%{opacity:0.9;transform:scale(1.25) rotate(5deg)}50%{opacity:0.5;transform:scale(0.9) rotate(-15deg) translateY(-15px)}100%{opacity:0;transform:scale(0) rotate(25deg) translateY(-50px)}}
+  @keyframes dmgNumber{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-50px) scale(1.5)}}
+  @keyframes hpFlash{0%,100%{background:transparent}50%{background:rgba(255,50,50,0.5)}}
+  @keyframes victoryPulse{0%,100%{box-shadow:0 0 10px rgba(218,165,32,0.3)}50%{box-shadow:0 0 30px rgba(218,165,32,0.9),0 0 60px rgba(218,165,32,0.5)}}
 
   /* Main en éventail */
   .combat-hand-area{flex-shrink:0;background:rgba(0,0,0,0.45);border-top:1px solid rgba(218,165,32,0.15);padding:5px 14px 4px;}
@@ -3543,12 +3543,12 @@ function renderBoutique() {
 function getCombatStats(card) {
   var seed = card.id.charCodeAt(0) * 31 + (card.id.charCodeAt(1)||7) * 17;
   var rng = function(min, max) { seed = (seed * 9301 + 49297) % 233280; return min + Math.floor((seed/233280) * (max-min)); };
-  var base = card.atk || 50; // utilise atk existant comme seed
+  var base = card.atk || 50;
   var stats = {
-    commune:    {atk:[500,800],  def:[400,700],  hp:1000},
-    rare:       {atk:[900,1300], def:[800,1100],  hp:1500},
-    épique:     {atk:[1400,1800],def:[1200,1600], hp:2000},
-    légendaire: {atk:[1900,2500],def:[1700,2200], hp:2500}
+    commune:    {atk:[500,800],  def:[200,350],  hp:1000},
+    rare:       {atk:[900,1300], def:[400,550],  hp:1500},
+    épique:     {atk:[1400,1800],def:[600,800],  hp:2000},
+    légendaire: {atk:[1900,2500],def:[850,1100], hp:2500}
   };
   var s = stats[card.rarity] || stats.commune;
   var atk = s.atk[0] + Math.floor((base/100) * (s.atk[1]-s.atk[0]));
@@ -4269,50 +4269,145 @@ function showTargetPicker(attacker) {
   document.getElementById('cancel-target').onclick = function() { overlay.remove(); };
 }
 
+function animateAttack(attackerEl, targetEl, weaponIcon, onDone) {
+  if(!attackerEl || !targetEl) { if(onDone) onDone(); return; }
+  var battlefield = document.querySelector('.combat-carpet');
+  var aRect = attackerEl.getBoundingClientRect();
+  var tRect = targetEl.getBoundingClientRect();
+
+  // Clone attaquant qui vole vers la cible
+  var clone = attackerEl.cloneNode(true);
+  clone.style.cssText = 'position:fixed;width:'+aRect.width+'px;height:'+aRect.height+'px;'
+    +'top:'+aRect.top+'px;left:'+aRect.left+'px;z-index:500;pointer-events:none;border-radius:8px;overflow:hidden;transition:none;';
+  document.body.appendChild(clone);
+
+  // Weapon icon overlay
+  if(weaponIcon) {
+    var wi = document.createElement('div');
+    wi.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(0,0,0,0.3);z-index:2;';
+    wi.textContent = weaponIcon;
+    clone.appendChild(wi);
+  }
+
+  // Calculer destination
+  var dx = tRect.left - aRect.left;
+  var dy = tRect.top - aRect.top;
+
+  // Animation fly
+  clone.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.1s';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      clone.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.15)';
+      clone.style.opacity = '0.9';
+    });
+  });
+
+  setTimeout(function(){
+    // Impact sur la cible
+    targetEl.classList.add('anim-hit');
+    // Flash rouge
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;inset:0;background:rgba(255,50,50,0.6);z-index:10;border-radius:8px;animation:hpFlash 0.3s ease;pointer-events:none;';
+    targetEl.style.position = 'relative';
+    targetEl.appendChild(flash);
+    setTimeout(function(){ if(flash.parentNode) flash.remove(); }, 400);
+
+    // Retour attaquant
+    clone.style.transition = 'transform 0.25s ease, opacity 0.25s';
+    clone.style.transform = 'translate(0,0) scale(1)';
+    clone.style.opacity = '0';
+    setTimeout(function(){
+      clone.remove();
+      targetEl.classList.remove('anim-hit');
+      if(onDone) onDone();
+    }, 300);
+  }, 380);
+}
+
+function showDmgNumber(el, amount, isHeal) {
+  if(!el) return;
+  var rect = el.getBoundingClientRect();
+  var num = document.createElement('div');
+  num.style.cssText = 'position:fixed;top:'+(rect.top-10)+'px;left:'+(rect.left+rect.width/2)+'px;'
+    +'transform:translateX(-50%);font-family:Cinzel Decorative,serif;font-size:1rem;font-weight:700;'
+    +'color:'+(isHeal?'#44dd66':'#ff4455')+';z-index:600;pointer-events:none;text-shadow:0 0 10px currentColor;'
+    +'animation:dmgNumber 0.8s ease forwards;';
+  num.textContent = (isHeal?'+':'-')+Math.abs(amount)+' PV';
+  document.body.appendChild(num);
+  setTimeout(function(){ num.remove(); }, 800);
+}
+
 function playerAttack(attacker, target) {
   var s = battleState;
   attacker.hasAttacked = true;
   var atkVal = attacker.combatAtk;
   if(attacker._armesBonus) atkVal = Math.floor(atkVal * 1.1);
 
-  if(s.aiField.length === 0 || !target) {
-    var dmg = atkVal;
-    s.aiHp = Math.max(0, s.aiHp - dmg);
-    addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
-  } else {
-    var targetVal = target.mode === 'defense' ? target.combatDef : target.combatAtk;
-    if(atkVal > targetVal) {
-      addBattleLog('⚡ '+attacker.card.name+' détruit '+target.card.name+' !', 'hit');
-      if(target.mode === 'attack') {
-        var excess = atkVal - targetVal;
-        s.aiHp = Math.max(0, s.aiHp - excess);
-        if(excess > 0) addBattleLog('   → '+excess+' dégâts excédentaires.', 'hit');
-      }
-      s._lastDestroyed = null;
-      s.aiField.splice(s.aiField.indexOf(target), 1);
-    } else if(atkVal < targetVal) {
-      var diff = targetVal - atkVal;
-      if(target.mode === 'defense') {
-        addBattleLog('💥 Défense trop solide ! Tu perds '+diff+' PV.', 'dmg');
-        s.playerHp = Math.max(0, s.playerHp - diff);
-      } else {
-        addBattleLog('💥 '+target.card.name+' détruit '+attacker.card.name+' ! Tu perds '+diff+' PV.', 'dmg');
-        s._lastDestroyed = attacker;
-        s.playerField.splice(s.playerField.indexOf(attacker), 1);
-        s.playerHp = Math.max(0, s.playerHp - diff);
-        battleState.selectedFieldCard = null;
-      }
-    } else {
-      addBattleLog('⚖️ Égalité ! Les deux cartes sont détruites.', 'info');
-      s.aiField.splice(s.aiField.indexOf(target), 1);
-      s._lastDestroyed = attacker;
-      s.playerField.splice(s.playerField.indexOf(attacker), 1);
-      battleState.selectedFieldCard = null;
-    }
-  }
+  // Éléments DOM pour animation
+  var attackerIdx = s.playerField.indexOf(attacker);
+  var attackerEl = document.getElementById('player-card-'+attackerIdx);
+  var targetIdx = target ? s.aiField.indexOf(target) : -1;
+  var targetEl = target ? document.getElementById('ai-card-'+targetIdx) : null;
+  var weaponIcon = attacker._weapon ? attacker._weapon.icon : null;
 
-  checkBattleEnd();
-  if(battleState) renderBattle();
+  animateAttack(attackerEl, targetEl, weaponIcon, function() {
+    if(!battleState) return;
+
+    if(s.aiField.length === 0 || !target) {
+      // Attaque directe aux PV de l'IA
+      var dmg = Math.max(1, atkVal);
+      s.aiHp = Math.max(0, s.aiHp - dmg);
+      showDmgNumber(document.querySelector('.combat-hp-fill.enemy'), dmg, false);
+      addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
+    } else {
+      // Dégâts = ATK attaquant - DEF cible (min 1)
+      var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
+      var dmg = Math.max(1, atkVal - defense);
+      target.hp = Math.max(0, target.hp - dmg);
+      showDmgNumber(targetEl, dmg, false);
+      addBattleLog('⚡ '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'hit');
+
+      if(target.hp <= 0) {
+        // Carte détruite
+        if(targetEl) targetEl.classList.add('anim-destroy');
+        addBattleLog('💀 '+target.card.name+' est détruit !', 'hit');
+        setTimeout(function(){
+          if(battleState) {
+            var ti = s.aiField.indexOf(target);
+            if(ti >= 0) s.aiField.splice(ti, 1);
+            checkBattleEnd();
+            if(battleState) renderBattle();
+          }
+        }, 450);
+        return;
+      } else if(target.mode === 'attack') {
+        // Contre-attaque si pas en défense
+        var caDmg = Math.max(1, target.combatAtk - Math.floor(attacker.combatDef * 0.3));
+        attacker.hp = Math.max(0, attacker.hp - caDmg);
+        showDmgNumber(attackerEl, caDmg, false);
+        addBattleLog('↩️ '+target.card.name+' contre-attaque ! -'+caDmg+' PV à '+attacker.card.name+' (reste '+attacker.hp+')', 'dmg');
+
+        if(attacker.hp <= 0) {
+          if(attackerEl) attackerEl.classList.add('anim-destroy');
+          addBattleLog('💀 '+attacker.card.name+' est détruit !', 'dmg');
+          setTimeout(function(){
+            if(battleState) {
+              var ai = s.playerField.indexOf(attacker);
+              if(ai >= 0) s.playerField.splice(ai, 1);
+              s.playerHp = Math.max(0, s.playerHp - Math.floor(caDmg * 0.5));
+              battleState.selectedFieldCard = null;
+              checkBattleEnd();
+              if(battleState) renderBattle();
+            }
+          }, 450);
+          return;
+        }
+      }
+    }
+
+    checkBattleEnd();
+    if(battleState) renderBattle();
+  });
 }
 
 function aiPlaceCards() {
