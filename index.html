@@ -2396,16 +2396,16 @@ function renderStreak() {
 // ══════════════════════════════════════
 var COMBOS = [
   {id:"zeus_foudre",name:"Le Roi du Tonnerre",cards:["o1","ar1"],badge:{name:"Zeus",icon:"⚡",img:"https://i.imgur.com/Rut7kDy.jpeg",color:"#cc7700"},story:"Au commencement, quand les dieux renversèrent les Titans, Zeus prit le ciel pour royaume. Les Cyclopes lui forgèrent la foudre, une arme si puissante que sa simple vue faisait trembler les immortels. Sa foudre est le symbole de l'ordre divin, le serment de justice qui gouverne le cosmos entier."},
-  {id:"poseidon_trident",name:"Seigneur des Abysses",cards:["o4","ar2"],badge:{name:"Poseidon",icon:"🔱",img:"https://i.imgur.com/HJYadY6.jpeg",color:"#2255cc"},story:"Quand le monde fut partagé entre les trois frères, Poseidon reçut les océans. Son trident pouvait fendre la terre et déchaîner des tsunamis dévastateurs. Les marins lui offraient des sacrifices avant chaque voyage. Mais Poseidon pouvait aussi être clément, et sa bienveillance valait tous les phares du monde."},
-  {id:"hades_casque",name:"Le Maitre des Ombres",cards:["o5","ar3"],badge:{name:"Hades",icon:"💀",img:"https://i.imgur.com/I2Rx7yC.jpeg",color:"#7722cc"},story:"Hades ne choisit pas les Enfers, c'est le sort qui décida. Son casque forgé par les Cyclopes lui conférait une invisibilité totale. Roi des morts, Hades était juste. Chaque âme franchissant ses portes était jugée selon ses actes. Et aucune n'en ressortait jamais... ou presque."},
-  {id:"athena_egide",name:"La Sagesse Armee",cards:["o3","ar4"],badge:{name:"Athena",icon:"🦉",img:"https://i.imgur.com/qP3MFSS.jpeg",color:"#cc7700"},story:"Née du crâne de Zeus, Athena arriva dans le monde déjà en armure, déjà guerrière. Son bouclier orné de la tête de Méduse inspirait la terreur. Mais Athena n'était pas qu'une déesse de guerre. Elle inventa l'olivier, enseigna le tissage et inspira les plus grands philosophes. Sa sagesse était son arme la plus redoutable."},
-  {id:"heracles_masse",name:"Les Douze Travaux",cards:["h1","ar12"],badge:{name:"Heracles",icon:"🦁",img:"https://i.imgur.com/BU7Gfpp.jpeg",color:"#cc7700"},story:"Hera rendit Heracles fou un instant, et dans sa folie il commit l'irréparable. Pour expier, l'Oracle lui imposa douze travaux impossibles. Avec sa massue en bois d'olivier, il tua le Lion de Nemee, terrassa l'Hydre de Lerne et accomplit dix autres exploits légendaires. Douze épreuves, douze victoires, et l'immortalité comme récompense ultime."},
-  {id:"persee_harpe",name:"Le Tueur de Gorgone",cards:["h4","ar14"],badge:{name:"Persee",icon:"🛡️",img:"https://i.imgur.com/dPOYxoq.jpeg",color:"#7722cc"},story:"Persée reçut les sandales ailées d'Hermes, le casque d'Hades et le bouclier d'Athena. Mais c'est la Harpe, l'épée recourbée en adamant, qui accomplit l'exploit. En regardant le reflet de Meduse dans son bouclier miroir, Persée la décapita d'un seul coup. Du sang de Meduse naquit Pegase. De sa bravoure naquit une légende éternelle."},
-  {id:"achille_epee",name:"La Fureur des Dieux",cards:["h2","ar5"],badge:{name:"Achille",icon:"⚔️",img:"https://i.imgur.com/qP022hU.jpeg",color:"#cc7700"},story:"Invulnérable sauf au talon, Achille était le guerrier le plus redouté de Troie. Quand son ami Patrocle mourut en portant son armure, sa colère devint légendaire. Hephaistos forgea pour lui une épée divine qui ne rata jamais sa cible. Il tua Hector sachant que sa propre mort suivrait bientôt. Il choisit la gloire éternelle plutôt qu'une longue vie sans mémoire."},
-  {id:"ulysse_arc",name:"Le Retour du Roi",cards:["h3","ar6"],badge:{name:"Ulysse",icon:"🧠",img:"https://i.imgur.com/ezRMCh1.jpeg",color:"#cc7700"},story:"Dix ans de guerre, dix ans d'errance pour rentrer chez lui. Ulysse affronta Cyclopes, Sirènes et la magicienne Circe. Sa véritable arme n'était pas son arc mais son intelligence hors du commun. De retour à Ithaque déguisé en mendiant, il tendit l'arc que lui seul pouvait bander et reconquit son trône. Ulysse, le plus rusé des mortels."},
-  {id:"orphee_lyre",name:"La Melodie des Enfers",cards:["h8","ar8"],badge:{name:"Orphee",icon:"🎶",img:"https://i.imgur.com/kR049Ta.jpeg",color:"#7722cc"},story:"Quand Eurydice mourut, Orphee descendit aux Enfers, ce que nul vivant n'avait osé faire. Sa lyre charmait tout sur son passage. Hades, ému aux larmes pour la seule fois de son existence, accepta de rendre Eurydice à condition qu'Orphee ne se retourne pas. Un dernier doute, un regard en arrière... et il la perdit pour toujours."},
-  {id:"meduse_bouclier",name:"Le Regard qui Petrifiait",cards:["m1","ar10"],badge:{name:"Meduse",icon:"🐍",img:"https://i.imgur.com/HsoutPp.jpeg",color:"#ff44aa"},story:"Meduse n'a pas toujours été un monstre. Autrefois belle mortelle et prêtresse d'Athena, elle fut transformée en Gorgone suite à une injustice divine. Son regard pétrifiant devint sa malédiction et sa protection. Quand Persée la décapita, ce fut sa mort mais aussi sa libération. Du sang de Meduse naquit Pegase, la beauté issue de la douleur."},
-  {id:"leonidas_sparte",name:"Les 300 de Leonidas",cards:["h25","mn16"],badge:{name:"Leonidas",icon:"🛡️",img:"https://i.imgur.com/66zXmF5.jpeg",color:"#7722cc"},story:"En 480 avant notre ère, Xerxès marchait sur la Grèce avec une armée immense. Aux Thermopyles, Leonidas prit position avec seulement 300 Spartiates. Pendant trois jours, ils repoussèrent l'armée entière. Trahis par un Grec, ils combattirent jusqu'au dernier homme. Leur sacrifice permit à la Grèce de triompher. Molon labe — Viens les prendre."}
+  {id:"poseidon_trident",name:"Seigneur des Abysses",cards:["o4","ar2"],badge:{name:"Poseidon",icon:"🔱",img:"https://i.imgur.com/QfsU62k.jpeg",color:"#2255cc"},story:"Quand le monde fut partagé entre les trois frères, Poseidon reçut les océans. Son trident pouvait fendre la terre et déchaîner des tsunamis dévastateurs. Les marins lui offraient des sacrifices avant chaque voyage. Mais Poseidon pouvait aussi être clément, et sa bienveillance valait tous les phares du monde."},
+  {id:"hades_casque",name:"Le Maitre des Ombres",cards:["o5","ar3"],badge:{name:"Hades",icon:"💀",img:"https://i.imgur.com/udt9oSM.jpeg",color:"#7722cc"},story:"Hades ne choisit pas les Enfers, c'est le sort qui décida. Son casque forgé par les Cyclopes lui conférait une invisibilité totale. Roi des morts, Hades était juste. Chaque âme franchissant ses portes était jugée selon ses actes. Et aucune n'en ressortait jamais... ou presque."},
+  {id:"athena_egide",name:"La Sagesse Armee",cards:["o3","ar4"],badge:{name:"Athena",icon:"🦉",img:"https://i.imgur.com/LUgTUCy.jpeg",color:"#cc7700"},story:"Née du crâne de Zeus, Athena arriva dans le monde déjà en armure, déjà guerrière. Son bouclier orné de la tête de Méduse inspirait la terreur. Mais Athena n'était pas qu'une déesse de guerre. Elle inventa l'olivier, enseigna le tissage et inspira les plus grands philosophes. Sa sagesse était son arme la plus redoutable."},
+  {id:"heracles_masse",name:"Les Douze Travaux",cards:["h1","ar12"],badge:{name:"Heracles",icon:"🦁",img:"https://i.imgur.com/OYkELXd.jpeg",color:"#cc7700"},story:"Hera rendit Heracles fou un instant, et dans sa folie il commit l'irréparable. Pour expier, l'Oracle lui imposa douze travaux impossibles. Avec sa massue en bois d'olivier, il tua le Lion de Nemee, terrassa l'Hydre de Lerne et accomplit dix autres exploits légendaires. Douze épreuves, douze victoires, et l'immortalité comme récompense ultime."},
+  {id:"persee_harpe",name:"Le Tueur de Gorgone",cards:["h4","ar14"],badge:{name:"Persee",icon:"🛡️",img:"https://i.imgur.com/A9maeJB.jpeg",color:"#7722cc"},story:"Persée reçut les sandales ailées d'Hermes, le casque d'Hades et le bouclier d'Athena. Mais c'est la Harpe, l'épée recourbée en adamant, qui accomplit l'exploit. En regardant le reflet de Meduse dans son bouclier miroir, Persée la décapita d'un seul coup. Du sang de Meduse naquit Pegase. De sa bravoure naquit une légende éternelle."},
+  {id:"achille_epee",name:"La Fureur des Dieux",cards:["h2","ar5"],badge:{name:"Achille",icon:"⚔️",img:"https://i.imgur.com/qOkXLje.jpeg",color:"#cc7700"},story:"Invulnérable sauf au talon, Achille était le guerrier le plus redouté de Troie. Quand son ami Patrocle mourut en portant son armure, sa colère devint légendaire. Hephaistos forgea pour lui une épée divine qui ne rata jamais sa cible. Il tua Hector sachant que sa propre mort suivrait bientôt. Il choisit la gloire éternelle plutôt qu'une longue vie sans mémoire."},
+  {id:"ulysse_arc",name:"Le Retour du Roi",cards:["h3","ar6"],badge:{name:"Ulysse",icon:"🧠",img:"https://i.imgur.com/tkUympQ.jpeg",color:"#cc7700"},story:"Dix ans de guerre, dix ans d'errance pour rentrer chez lui. Ulysse affronta Cyclopes, Sirènes et la magicienne Circe. Sa véritable arme n'était pas son arc mais son intelligence hors du commun. De retour à Ithaque déguisé en mendiant, il tendit l'arc que lui seul pouvait bander et reconquit son trône. Ulysse, le plus rusé des mortels."},
+  {id:"orphee_lyre",name:"La Melodie des Enfers",cards:["h8","ar8"],badge:{name:"Orphee",icon:"🎶",img:"https://i.imgur.com/l4gfV1w.jpeg",color:"#7722cc"},story:"Quand Eurydice mourut, Orphee descendit aux Enfers, ce que nul vivant n'avait osé faire. Sa lyre charmait tout sur son passage. Hades, ému aux larmes pour la seule fois de son existence, accepta de rendre Eurydice à condition qu'Orphee ne se retourne pas. Un dernier doute, un regard en arrière... et il la perdit pour toujours."},
+  {id:"meduse_bouclier",name:"Le Regard qui Petrifiait",cards:["m1","ar10"],badge:{name:"Meduse",icon:"🐍",img:"https://i.imgur.com/p853y7U.jpeg",color:"#ff44aa"},story:"Meduse n'a pas toujours été un monstre. Autrefois belle mortelle et prêtresse d'Athena, elle fut transformée en Gorgone suite à une injustice divine. Son regard pétrifiant devint sa malédiction et sa protection. Quand Persée la décapita, ce fut sa mort mais aussi sa libération. Du sang de Meduse naquit Pegase, la beauté issue de la douleur."},
+  {id:"leonidas_sparte",name:"Les 300 de Leonidas",cards:["h25","mn16"],badge:{name:"Leonidas",icon:"🛡️",img:"https://i.imgur.com/1Uskqx3.jpeg",color:"#7722cc"},story:"En 480 avant notre ère, Xerxès marchait sur la Grèce avec une armée immense. Aux Thermopyles, Leonidas prit position avec seulement 300 Spartiates. Pendant trois jours, ils repoussèrent l'armée entière. Trahis par un Grec, ils combattirent jusqu'au dernier homme. Leur sacrifice permit à la Grèce de triompher. Molon labe — Viens les prendre."}
 ];
 
 // Badges de progression (connexion, victoires, collection)
@@ -2534,19 +2534,20 @@ function renderBadges() {
   container.innerHTML = '';
 
   function makeSection(title, items) {
-    if(!items.length) return;
+    if(!items.length) return null;
     var sec = document.createElement('div');
     sec.style.cssText = 'margin-bottom:24px;';
     var t = document.createElement('div');
-    t.style.cssText = 'font-family:Cinzel,serif;font-size:0.58rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(218,165,32,0.2);';
+    t.style.cssText = 'font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(218,165,32,0.2);';
     t.textContent = title;
     sec.appendChild(t);
-    var grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;';
-    items.forEach(function(item){ if(item) grid.appendChild(item); });
-    sec.appendChild(grid);
-    container.appendChild(sec);
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:row;gap:10px;overflow-x:auto;padding-bottom:4px;';
+    items.forEach(function(item){ if(item){ item.style.flexShrink='0'; row.appendChild(item); } });
+    sec.appendChild(row);
+    return sec;
   }
+
 
   function makeProgressCard(pb) {
     var isUnlocked = progressBadges.includes(pb.id);
@@ -2661,11 +2662,14 @@ function renderBadges() {
   hint.textContent = '📖 Clique sur un badge débloqué pour découvrir son histoire';
   container.appendChild(hint);
 
-  makeSection('🔥 Connexion', PROGRESS_BADGES.filter(function(pb){return pb.type==='login';}).map(makeProgressCard));
-  makeSection('⚔️ Victoires', PROGRESS_BADGES.filter(function(pb){return pb.type==='wins';}).map(makeProgressCard));
-  makeSection('📚 Collection', PROGRESS_BADGES.filter(function(pb){return pb.type==='collection';}).map(makeProgressCard));
-  makeSection('🪙 Drachmes', PROGRESS_BADGES.filter(function(pb){return pb.type==='drachmes';}).map(makeProgressCard));
-  makeSection('⚡ Combos Mythologiques', COMBOS.map(makeComboCard));
+  [
+    makeSection('🔥 Connexion', PROGRESS_BADGES.filter(function(pb){return pb.type==='login';}).map(makeProgressCard)),
+    makeSection('⚔️ Victoires', PROGRESS_BADGES.filter(function(pb){return pb.type==='wins';}).map(makeProgressCard)),
+    makeSection('📚 Collection', PROGRESS_BADGES.filter(function(pb){return pb.type==='collection';}).map(makeProgressCard)),
+    makeSection('🪙 Drachmes', PROGRESS_BADGES.filter(function(pb){return pb.type==='drachmes';}).map(makeProgressCard)),
+    makeSection('⚡ Combos', COMBOS.map(makeComboCard)),
+  ].forEach(function(sec){ if(sec) container.appendChild(sec); });
+
 }
 
 function showBadgeUnlockAnimation(combo) {
