@@ -2256,7 +2256,14 @@ function countDuplicatesByPack() {
 }
 
 function renderExchange() {
-  var grid = document.getElementById('exchange-grid');
+  // Prendre le exchange-grid visible (dans section-packs)
+  var grids = document.querySelectorAll('#exchange-grid');
+  var grid = null;
+  grids.forEach(function(g) {
+    var section = g.closest('.section');
+    if(section && section.classList.contains('active')) grid = g;
+  });
+  if(!grid) grid = grids[grids.length - 1]; // fallback au dernier
   if(!grid) return;
   grid.innerHTML = '';
   var dupCounts = countDuplicatesByPack();
