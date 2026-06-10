@@ -610,7 +610,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
 
   .grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px;}
-  .pgrid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));}
+  .pgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;align-items:start;}
   .rev-card{width:88px;}
   .lbox{padding:34px 20px;}
   .stat{padding:10px 14px;}
@@ -712,7 +712,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin:20px 0 12px;line-height:1.6;">
       🏆 Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
     </div>
-    <div id="badges-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;"></div>
+    <div id="badges-container" style="display:flex;flex-direction:column;gap:0;"></div>
     
   </div>
 
@@ -1690,6 +1690,7 @@ function renderPacks() {
   grid.innerHTML = '';
   var div = document.createElement('div');
   div.className = ready ? 'pack avail' : 'pack locked';
+  div.style.cssText = 'max-width:280px;margin:0 auto;';
   div.style.cssText = 'max-width:340px;margin:0 auto;';
 
   var titleEl = document.getElementById('pack-section-title');
@@ -1697,7 +1698,7 @@ function renderPacks() {
     if(isWelcome) titleEl.textContent = '🎁 Tes paquets de bienvenue';
     else if(isAdmin) titleEl.textContent = '🎁 Paquet offert';
     else if(ready && !isDaily) titleEl.textContent = '✨ Un paquet t\'attend !';
-    else if(!ready) titleEl.textContent = '⏳ Prochain paquet';
+    else if(!ready) titleEl.textContent = '';
     else titleEl.textContent = '';
   }
 
@@ -2663,11 +2664,11 @@ function renderBadges() {
   container.appendChild(hint);
 
   [
-    makeSection('🔥 Connexion', PROGRESS_BADGES.filter(function(pb){return pb.type==='login';}).map(makeProgressCard)),
-    makeSection('⚔️ Victoires', PROGRESS_BADGES.filter(function(pb){return pb.type==='wins';}).map(makeProgressCard)),
-    makeSection('📚 Collection', PROGRESS_BADGES.filter(function(pb){return pb.type==='collection';}).map(makeProgressCard)),
-    makeSection('🪙 Drachmes', PROGRESS_BADGES.filter(function(pb){return pb.type==='drachmes';}).map(makeProgressCard)),
-    makeSection('⚡ Combos', COMBOS.map(makeComboCard)),
+    makeSection('Connexion', PROGRESS_BADGES.filter(function(pb){return pb.type==='login';}).map(makeProgressCard)),
+    makeSection('Victoires', PROGRESS_BADGES.filter(function(pb){return pb.type==='wins';}).map(makeProgressCard)),
+    makeSection('Collection', PROGRESS_BADGES.filter(function(pb){return pb.type==='collection';}).map(makeProgressCard)),
+    makeSection('Drachmes', PROGRESS_BADGES.filter(function(pb){return pb.type==='drachmes';}).map(makeProgressCard)),
+    makeSection('Combos Mythologiques', COMBOS.map(makeComboCard)),
   ].forEach(function(sec){ if(sec) container.appendChild(sec); });
 
 }
