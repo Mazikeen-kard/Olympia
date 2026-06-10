@@ -657,8 +657,8 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div class="logo-sub">Sanctuaire des Cartes Grecques</div>
   </header>
   <div class="ubar">
-    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');}); document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-perso').classList.add('active'); initCharCreator(); initAvatarCreator();">👤</div>
-    <div class="ubar-name">Bienvenue, <strong id="hdr-pseudo">—</strong></div>
+    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');}); document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-perso').classList.add('active'); initCharCreator(); initAvatarCreator(); renderRankProgress();">👤</div>
+    <div class="ubar-name">Bienvenue, <strong id="hdr-pseudo">—</strong> <span id="hdr-rank" style="font-size:0.6rem;color:var(--text-dim);font-family:Cinzel,serif;"></span></div>
     <div style="display:flex;align-items:center;gap:4px;font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold);background:rgba(184,134,11,0.08);border:1px solid var(--border);border-radius:20px;padding:3px 10px;flex-shrink:0;">🪙 <span id="s-drachmes">0</span></div>
     <button class="quit-btn" id="btn-dark" title="Mode sombre">🌙</button>
     <button class="quit-btn" id="btn-quit">✕</button>
@@ -718,6 +718,10 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   <div class="section" id="section-perso">
     <div class="sec-title">Personnalisation</div>
+
+    <!-- PROGRESSION XP -->
+    <div id="rank-progress-block" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;"></div>
+
     <!-- CHARACTER CREATOR -->
     <div class="char-creator" id="char-creator-section">
       <div class="char-creator-title">⚔️ Mon Personnage</div>
@@ -1181,6 +1185,135 @@ function addDrachmes(amount, reason) {
   updateDrachmesDisplay();
   showDrachmesNotif(amount, reason);
 }
+var RANKS = [
+  {name:'Mortel',    icon:'🪨', xp:0,     reward:null},
+  {name:'Guerrier',  icon:'⚔️', xp:500,   reward:{drachmes:100}},
+  {name:'Champion',  icon:'🛡️', xp:1500,  reward:{drachmes:200, packs:1}},
+  {name:'Héros',     icon:'🌟', xp:3000,  reward:{drachmes:300, packs:1}},
+  {name:'Demi-Dieu', icon:'👑', xp:6000,  reward:{drachmes:500, packs:2}},
+  {name:'Olympien',  icon:'⚡', xp:10000, reward:{drachmes:1000, packs:3}},
+  {name:'Dieu',      icon:'🔱', xp:20000, reward:{drachmes:2000, packs:5}},
+];
+
+function getRank(xp) {
+  var rank = RANKS[0];
+  for(var i=0;i<RANKS.length;i++) {
+    if(xp >= RANKS[i].xp) rank = RANKS[i];
+    else break;
+  }
+  return rank;
+}
+
+function getNextRank(xp) {
+  for(var i=0;i<RANKS.length;i++) {
+    if(xp < RANKS[i].xp) return RANKS[i];
+  }
+  return null;
+}
+
+function addXP(amount, reason) {
+  if(!user) return;
+  if(!user.xp) user.xp = 0;
+  var oldRank = getRank(user.xp);
+  user.xp += amount;
+  saveUser();
+  var newRank = getRank(user.xp);
+  updateRankDisplay();
+  // Montée de rang
+  if(newRank.name !== oldRank.name) {
+    showRankUp(newRank, oldRank);
+    // Récompenses
+    if(newRank.reward) {
+      if(newRank.reward.drachmes) addDrachmes(newRank.reward.drachmes, 'Rang '+newRank.icon+' '+newRank.name+' !');
+      if(newRank.reward.packs) { user.adminPackPending = (user.adminPackPending||0) + newRank.reward.packs; saveUser(); }
+    }
+  }
+  // Notif XP discrète
+  var notif = document.createElement('div');
+  notif.style.cssText = 'position:fixed;bottom:80px;right:14px;background:rgba(0,0,0,0.7);border:1px solid rgba(218,165,32,0.3);color:rgba(218,165,32,0.8);font-family:Cinzel,serif;font-size:0.55rem;padding:5px 10px;border-radius:20px;z-index:999;pointer-events:none;animation:notifPop 0.3s ease;';
+  notif.textContent = '+'+amount+' XP — '+reason;
+  document.body.appendChild(notif);
+  setTimeout(function(){ notif.style.opacity='0'; notif.style.transition='opacity 0.4s'; setTimeout(function(){ notif.remove(); },400); }, 1800);
+}
+
+function renderRankProgress() {
+  var block = document.getElementById('rank-progress-block');
+  if(!block || !user) return;
+  var xp = user.xp || 0;
+  var rank = getRank(xp);
+  var next = getNextRank(xp);
+  var pct = next ? Math.floor((xp - rank.xp) / (next.xp - rank.xp) * 100) : 100;
+
+  var html = '<div style="text-align:center;margin-bottom:16px;">'
+    +'<div style="font-size:2.5rem;">'+rank.icon+'</div>'
+    +'<div style="font-family:Cinzel Decorative,serif;font-size:0.85rem;color:var(--gold);margin:4px 0;">'+rank.name+'</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);">'+xp.toLocaleString()+' XP</div>'
+    +(next
+      ? '<div style="margin:10px auto;max-width:240px;">'
+        +'<div style="display:flex;justify-content:space-between;font-family:Cinzel,serif;font-size:0.42rem;color:var(--text-dim);margin-bottom:4px;">'
+        +'<span>'+rank.xp.toLocaleString()+' XP</span><span>'+next.xp.toLocaleString()+' XP</span>'
+        +'</div>'
+        +'<div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">'
+        +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(to right,var(--gold-dim),var(--gold));border-radius:3px;"></div>'
+        +'</div>'
+        +'<div style="font-family:Cinzel,serif;font-size:0.42rem;color:rgba(218,165,32,0.5);margin-top:4px;">'+((next.xp-xp).toLocaleString())+' XP avant '+next.icon+' '+next.name+'</div>'
+        +'</div>'
+      : '<div style="font-family:Cinzel,serif;font-size:0.5rem;color:var(--gold);margin-top:8px;">🏆 Rang maximum atteint !</div>')
+    +'</div>'
+    // Tableau des rangs
+    +'<div style="display:flex;flex-direction:column;gap:8px;">';
+
+  RANKS.forEach(function(r) {
+    var unlocked = xp >= r.xp;
+    var isCurrent = r.name === rank.name;
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;'
+      +(isCurrent ? 'background:rgba(218,165,32,0.12);border:1px solid rgba(218,165,32,0.4);'
+        : unlocked ? 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);'
+        : 'background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.04);opacity:0.5;')
+      +'">'
+      +'<div style="font-size:1.6rem;flex-shrink:0;">'+r.icon+'</div>'
+      +'<div style="flex:1;">'
+      +'<div style="font-family:Cinzel Decorative,serif;font-size:0.6rem;color:'+(unlocked?'var(--gold)':'rgba(255,255,255,0.3)')+';margin-bottom:2px;">'+r.name+'</div>'
+      +'<div style="font-family:Cinzel,serif;font-size:0.42rem;color:var(--text-dim);">'+(r.xp===0?'Rang de départ':r.xp.toLocaleString()+' XP')+'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+      +(r.reward
+        ? '<div style="font-family:Cinzel,serif;font-size:0.42rem;color:'+(unlocked?'rgba(218,165,32,0.8)':'rgba(255,255,255,0.2)')+';line-height:1.6;">'
+          +(r.reward.drachmes?'+'+r.reward.drachmes+' 🪙<br>':'')
+          +(r.reward.packs?'+'+r.reward.packs+' paquet'+(r.reward.packs>1?'s':''):'')
+          +'</div>'
+        : '<div style="font-family:Cinzel,serif;font-size:0.4rem;color:rgba(255,255,255,0.2);">—</div>')
+      +(isCurrent?'<div style="font-family:Cinzel,serif;font-size:0.38rem;color:var(--gold);margin-top:2px;">← Tu es ici</div>':'')
+      +(unlocked&&!isCurrent?'<div style="font-size:0.8rem;">✅</div>':'')
+      +'</div>'
+      +'</div>';
+  });
+
+  html += '</div>';
+  block.innerHTML = html;
+}
+
+function updateRankDisplay() {
+  if(!user) return;
+  var xp = user.xp || 0;
+  var rank = getRank(xp);
+  var rankEl = document.getElementById('hdr-rank');
+  if(rankEl) rankEl.textContent = rank.icon+' '+rank.name;
+}
+
+function showRankUp(newRank, oldRank) {
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML = '<div style="text-align:center;animation:badgePop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);">'
+    +'<div style="font-family:Cinzel,serif;font-size:0.65rem;color:rgba(218,165,32,0.7);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:12px;">✨ Montée de rang !</div>'
+    +'<div style="font-size:4rem;margin-bottom:8px;">'+newRank.icon+'</div>'
+    +'<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);margin-bottom:6px;">'+newRank.name+'</div>'
+    +(newRank.reward?'<div style="font-family:Cinzel,serif;font-size:0.6rem;color:rgba(255,255,255,0.5);margin-bottom:20px;">'+(newRank.reward.drachmes?'+'+newRank.reward.drachmes+' 🪙':'')+' '+(newRank.reward.packs?'+'+newRank.reward.packs+' paquet(s)':'')+'</div>':'<div style="margin-bottom:20px;"></div>')
+    +'<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;color:white;font-family:Cinzel,serif;font-size:0.65rem;padding:10px 28px;border-radius:8px;cursor:pointer;">Continuer</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+}
+
 function updateDrachmesDisplay() {
   var el = document.getElementById('s-drachmes');
   if(el) el.textContent = (user.drachmes || 0);
@@ -1273,7 +1406,7 @@ document.getElementById('m-close').onclick = function(){document.getElementById(
 document.getElementById('card-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
 document.getElementById('rev-close').onclick = closeReveal;
 
-var ADMIN_PASSWORD = '260494';
+var ADMIN_PASSWORD = 'CHANGE_MOI_2024';
 
 function doLogin() {
   var v = document.getElementById('inp-login').value.trim();
@@ -1331,6 +1464,7 @@ function launch(p, data) {
     user.progressBadges = PROGRESS_BADGES.map(function(pb){ return pb.id; });
     user.combatWins = 999;
     user.totalDays = 999;
+    user.xp = 25000;
     saveUser();
   }
   addKnown(p);
@@ -1353,7 +1487,9 @@ function launch(p, data) {
   renderCombat();
   startTimer();
   checkStreak();
+  addXP(20, 'Connexion quotidienne');
   checkCombos(); checkProgressBadges();
+  updateRankDisplay();
   // Paquets offerts par l'admin
   if(user.adminPackPending && user.adminPackPending > 0) {
     setTimeout(function() {
@@ -1421,7 +1557,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     if(sec==='boutique') renderBoutique();
     if(sec==='admin') renderAdmin();
     if(sec==='badges') { renderBadges(); }
-    if(sec==='perso') { initCharCreator(); initAvatarCreator(); }
+    if(sec==='perso') { initCharCreator(); initAvatarCreator(); renderRankProgress(); }
   };
 });
 document.getElementById('rules-close').onclick = function(){document.getElementById('rules-modal').classList.remove('open');};
@@ -1878,8 +2014,8 @@ function openPackDrachmes(packId) {
   drawn.forEach(function(d) {
     user.collection.push(d.card.id + (d.isShiny?'|shiny':''));
   });
-  // Ne pas toucher à lastPackTime — le cooldown normal n'est pas affecté
   saveUser();
+  addXP(10, 'Paquet ouvert');
   addDrachmes(10, 'Paquet ouvert');
   setTimeout(function(){ startSwipeReveal(drawn); }, 50);
 }
@@ -2514,6 +2650,7 @@ function checkCombos() {
     if(allOwned) {
       user.badges.push(combo.id);
       saveUser();
+      addXP(50, 'Badge débloqué !');
       showBadgeUnlockAnimation(combo);
     }
   });
@@ -4505,7 +4642,10 @@ function checkBattleEnd() {
         user.combatWins = (user.combatWins || 0) + 1;
         saveUser();
         addDrachmes(15, 'Victoire en combat !');
+        addXP(100, 'Victoire !');
         checkProgressBadges();
+      } else {
+        addXP(30, 'Combat terminé');
       }
     }, 500);
   }
