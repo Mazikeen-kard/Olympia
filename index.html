@@ -471,7 +471,8 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .tapis-card.can-attack{border-color:#44dd66;box-shadow:0 0 12px rgba(68,221,102,0.5);}
   .tapis-card.selected{border-color:#ffe566;box-shadow:0 0 18px rgba(255,229,102,0.7);transform:translateY(-10px);}
   .tapis-card.enemy-card{pointer-events:none;border-color:rgba(204,34,51,0.5);}
-  @keyframes cardAttack{0%{transform:translateX(0)}40%{transform:translateX(55px) scale(1.1)}70%{transform:translateX(0)}100%{transform:translateX(0)}}
+  @keyframes badgePop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}0%{transform:translateX(0)}40%{transform:translateX(55px) scale(1.1)}70%{transform:translateX(0)}100%{transform:translateX(0)}}
   @keyframes cardHit{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
   @keyframes cardDestroy{0%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.15) rotate(8deg)}100%{opacity:0;transform:scale(0) rotate(20deg)}}
   .anim-attack{animation:cardAttack 0.5s ease;}
@@ -712,8 +713,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       🏆 Réunis une carte et son arme pour débloquer un badge et découvrir son histoire !
     </div>
     <div id="badges-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;"></div>
-    <div class="sec-title" style="margin-top:24px;">Combinaisons à débloquer</div>
-    <div id="combos-hint" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div>
+    
   </div>
 
   <div class="section" id="section-perso">
@@ -1326,9 +1326,11 @@ function launch(p, data) {
     user.specialCards = {};
     SPECIAL_CARDS.forEach(function(sc){ user.specialCards[sc.id] = 10; });
     saveUser();
-    // Force check all combos for Mazikeen
-    if(!user.badges) user.badges = [];
-    user.badges = [];
+    // Force tous les badges pour Mazikeen
+    user.badges = COMBOS.map(function(c){ return c.id; });
+    user.progressBadges = PROGRESS_BADGES.map(function(pb){ return pb.id; });
+    user.combatWins = 999;
+    user.totalDays = 999;
     saveUser();
   }
   addKnown(p);
@@ -1351,7 +1353,7 @@ function launch(p, data) {
   renderCombat();
   startTimer();
   checkStreak();
-  checkCombos();
+  checkCombos(); checkProgressBadges();
   // Paquets offerts par l'admin
   if(user.adminPackPending && user.adminPackPending > 0) {
     setTimeout(function() {
@@ -1418,7 +1420,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     if(sec==='combat') renderCombat();
     if(sec==='boutique') renderBoutique();
     if(sec==='admin') renderAdmin();
-    if(sec==='badges') { renderBadges(); renderCombosHint(); }
+    if(sec==='badges') { renderBadges(); }
     if(sec==='perso') { initCharCreator(); initAvatarCreator(); }
   };
 });
@@ -2393,7 +2395,7 @@ function renderStreak() {
 //  COMBOS & BADGES
 // ══════════════════════════════════════
 var COMBOS = [
-  {id:"zeus_foudre",name:"Le Roi du Tonnerre",cards:["o1","ar1"],badge:{name:"Zeus",icon:"⚡",img:"https://i.imgur.com/EIktzH0.jpeg",color:"#cc7700"},story:"Au commencement, quand les dieux renversèrent les Titans, Zeus prit le ciel pour royaume. Les Cyclopes lui forgèrent la foudre, une arme si puissante que sa simple vue faisait trembler les immortels. Sa foudre est le symbole de l'ordre divin, le serment de justice qui gouverne le cosmos entier."},
+  {id:"zeus_foudre",name:"Le Roi du Tonnerre",cards:["o1","ar1"],badge:{name:"Zeus",icon:"⚡",img:"https://i.imgur.com/Rut7kDy.jpeg",color:"#cc7700"},story:"Au commencement, quand les dieux renversèrent les Titans, Zeus prit le ciel pour royaume. Les Cyclopes lui forgèrent la foudre, une arme si puissante que sa simple vue faisait trembler les immortels. Sa foudre est le symbole de l'ordre divin, le serment de justice qui gouverne le cosmos entier."},
   {id:"poseidon_trident",name:"Seigneur des Abysses",cards:["o4","ar2"],badge:{name:"Poseidon",icon:"🔱",img:"https://i.imgur.com/HJYadY6.jpeg",color:"#2255cc"},story:"Quand le monde fut partagé entre les trois frères, Poseidon reçut les océans. Son trident pouvait fendre la terre et déchaîner des tsunamis dévastateurs. Les marins lui offraient des sacrifices avant chaque voyage. Mais Poseidon pouvait aussi être clément, et sa bienveillance valait tous les phares du monde."},
   {id:"hades_casque",name:"Le Maitre des Ombres",cards:["o5","ar3"],badge:{name:"Hades",icon:"💀",img:"https://i.imgur.com/I2Rx7yC.jpeg",color:"#7722cc"},story:"Hades ne choisit pas les Enfers, c'est le sort qui décida. Son casque forgé par les Cyclopes lui conférait une invisibilité totale. Roi des morts, Hades était juste. Chaque âme franchissant ses portes était jugée selon ses actes. Et aucune n'en ressortait jamais... ou presque."},
   {id:"athena_egide",name:"La Sagesse Armee",cards:["o3","ar4"],badge:{name:"Athena",icon:"🦉",img:"https://i.imgur.com/qP3MFSS.jpeg",color:"#cc7700"},story:"Née du crâne de Zeus, Athena arriva dans le monde déjà en armure, déjà guerrière. Son bouclier orné de la tête de Méduse inspirait la terreur. Mais Athena n'était pas qu'une déesse de guerre. Elle inventa l'olivier, enseigna le tissage et inspira les plus grands philosophes. Sa sagesse était son arme la plus redoutable."},
@@ -2406,9 +2408,89 @@ var COMBOS = [
   {id:"leonidas_sparte",name:"Les 300 de Leonidas",cards:["h25","mn16"],badge:{name:"Leonidas",icon:"🛡️",img:"https://i.imgur.com/66zXmF5.jpeg",color:"#7722cc"},story:"En 480 avant notre ère, Xerxès marchait sur la Grèce avec une armée immense. Aux Thermopyles, Leonidas prit position avec seulement 300 Spartiates. Pendant trois jours, ils repoussèrent l'armée entière. Trahis par un Grec, ils combattirent jusqu'au dernier homme. Leur sacrifice permit à la Grèce de triompher. Molon labe — Viens les prendre."}
 ];
 
+// Badges de progression (connexion, victoires, collection)
+var PROGRESS_BADGES = [
+  // Connexion
+  {id:"login_7",    type:"login",    threshold:7,   name:"Les 7 Jours de la Création",  icon:"🌟", color:"#cc7700",
+   img:"https://i.imgur.com/7PIKtVs.jpeg",
+   story:"Selon la cosmogonie grecque, le monde fut ordonné en 7 phases par les dieux primordiaux. Chaos, Gaïa, Tartare, Éros, Érèbe, Nuit... chaque jour une nouvelle force émergea pour façonner l'univers. Ta constance honore ces 7 jours fondateurs."},
+  {id:"login_12",   type:"login",    threshold:12,  name:"Les 12 Travaux",               icon:"🦁", color:"#cc7700",
+   img:"https://i.imgur.com/xbkLBfd.jpeg",
+   story:"Pour expier sa folie, Héraclès accomplit 12 travaux impossibles imposés par l'Oracle de Delphes. Le Lion de Némée, l'Hydre de Lerne, les Écuries d'Augias... 12 épreuves, 12 victoires. Comme lui, tu as persévéré jour après jour."},
+  {id:"login_30",   type:"login",    threshold:30,  name:"Les 30 Titans Vaincus",        icon:"⚡", color:"#ff44aa",
+   img:"https://i.imgur.com/biXjEtk.jpeg",
+   story:"La Titanomachie dura 10 longues années. Zeus et ses frères affrontèrent les 30 Titans primordiaux dans une guerre cosmique qui ébranla l'univers entier. Après 30 jours de connexion, tu as montré la même endurance que les dieux olympiens."},
+
+  // Victoires en combat
+  {id:"win_1",   type:"wins", threshold:1,  name:"Premier Sang",        icon:"⚔️", color:"#cc2233",
+   img:"https://i.imgur.com/R37DzjU.jpeg",
+   story:"Ta première victoire au combat. Le sang de l'ennemi a coulé pour la première fois."},
+  {id:"win_5",   type:"wins", threshold:5,  name:"Guerrier de l'Agora", icon:"🗡️", color:"#cc2233",
+   img:"https://i.imgur.com/S6xtkH4.jpeg",
+   story:"Cinq victoires. Tu n'es plus un apprenti — tu es un guerrier reconnu."},
+  {id:"win_10",  type:"wins", threshold:10, name:"Champion des Dieux",   icon:"🏆", color:"#cc7700",
+   img:"https://i.imgur.com/0sxXKAe.jpeg",
+   story:"Dix victoires. Les dieux te regardent combattre avec admiration."},
+  {id:"win_20",  type:"wins", threshold:20, name:"Héros de l'Olympe",    icon:"🌟", color:"#cc7700",
+   img:"https://i.imgur.com/YX2KAy3.jpeg",
+   story:"Vingt victoires. Ton nom est gravé dans les annales de l'Olympe."},
+  {id:"win_30",  type:"wins", threshold:30, name:"Légende Immortelle",   icon:"👑", color:"#ff44aa",
+   img:"https://i.imgur.com/DSotdlg.jpeg",
+   story:"Trente victoires. Tu transcendes la condition mortelle. Les dieux eux-mêmes s'inclinent."},
+  {id:"win_50",  type:"wins", threshold:50, name:"Dieu de la Guerre",    icon:"⚡", color:"#ff44aa",
+   img:"https://i.imgur.com/cialVeT.jpeg",
+   story:"Cinquante victoires. Tu es devenu une légende absolue. Aucun mortel ne t'égale."},
+
+  // Collection
+  {id:"col_50",  type:"collection", threshold:50,  name:"L'Éveil du Collectionneur",  icon:"📚", color:"#2255cc",
+   img:"https://i.imgur.com/XXa1re2.jpeg",
+   story:"Les premiers scribes grecs consignaient les mythes sur des rouleaux de papyrus. 50 cartes dans ta collection — tu commences à tisser ta propre épopée mythologique."},
+  {id:"col_100", type:"collection", threshold:100, name:"La Bibliothèque d'Alexandrie", icon:"📜", color:"#7722cc",
+   img:"https://i.imgur.com/AdIz0L4.jpeg",
+   story:"La grande Bibliothèque d'Alexandrie renfermait le savoir du monde antique — 700 000 rouleaux. Avec 100 cartes, tu portes en toi une fraction de ce trésor mythologique inestimable."},
+  {id:"col_150", type:"collection", threshold:150, name:"La Sagesse d'Athéna", icon:"🦉", color:"#ff44aa",
+   img:"https://i.imgur.com/Vod2B3F.jpeg",
+   story:"La chouette d'Athéna, symbole de sagesse et de connaissance, veillait sur la cité d'Athènes. 150 cartes collectées — tu as atteint une maîtrise de la mythologie grecque digne de la déesse elle-même."},
+  // Drachmes
+  {id:"drachmes_500",  type:"drachmes", threshold:500,  name:"Le Marchand d'Athènes",  icon:"🪙", color:"#aaaaaa",
+   img:"https://i.imgur.com/IEMizQD.jpeg",
+   story:"Dans l'Athènes antique, les marchands du port du Pirée échangeaient des drachmes d'argent gravées du profil d'Athéna et de sa chouette. 500 Drachmes accumulées — tu as le sens du commerce des dieux."},
+  {id:"drachmes_1000", type:"drachmes", threshold:1000, name:"Le Trésor de Delphes",   icon:"💰", color:"#cc9900",
+   img:"https://i.imgur.com/uUxqbOa.jpeg",
+   story:"L'Oracle de Delphes recevait des offrandes d'or et d'argent de toute la Grèce. Les rois venaient y déposer leurs trésors avant chaque guerre. 1000 Drachmes — ta richesse rivalise avec les temples sacrés."},
+  {id:"drachmes_2500", type:"drachmes", threshold:2500, name:"Le Trésor de l'Olympe",  icon:"✨", color:"#cc7700",
+   img:"https://i.imgur.com/muDY9lN.jpeg",
+   story:"Les dieux de l'Olympe possédaient des richesses incalculables forgées par Héphaistos lui-même. 2500 Drachmes — tu accumules une fortune digne des immortels."},
+  {id:"drachmes_5000", type:"drachmes", threshold:5000, name:"Le Roi Midas",           icon:"👑", color:"#ff44aa",
+   img:"https://i.imgur.com/9pmRCNL.jpeg",
+   story:"Le roi Midas reçut des dieux le pouvoir de transformer en or tout ce qu'il touchait. Une bénédiction qui devint malédiction quand même sa nourriture se changea en métal précieux. 5000 Drachmes — tu as le toucher d'or de Midas lui-même."},
+];
 
 
 
+
+
+function checkProgressBadges() {
+  if(!user) return;
+  if(!user.badges) user.badges = [];
+  if(!user.progressBadges) user.progressBadges = [];
+
+  PROGRESS_BADGES.forEach(function(pb) {
+    if(user.progressBadges.includes(pb.id)) return;
+    var val = 0;
+    if(pb.type === 'login') val = user.totalDays || 0;
+    if(pb.type === 'wins') val = user.combatWins || 0;
+    if(pb.type === 'collection') val = Math.floor((user.collection||[]).filter(function(e){ return !e.includes('|shiny'); }).length);
+    if(pb.type === 'drachmes') val = user.drachmes || 0;
+    if(val >= pb.threshold) {
+      user.progressBadges.push(pb.id);
+      saveUser();
+      // Convertir en format combo pour l'animation
+      var fakeCombo = {badge:{name:pb.name, img:pb.img, color:pb.color, icon:pb.icon}, name:pb.name, story:pb.story};
+      showBadgeUnlockAnimation(fakeCombo);
+    }
+  });
+}
 
 function checkCombos() {
   if(!user) return;
@@ -2417,12 +2499,12 @@ function checkCombos() {
   user.collection.forEach(function(e){ owned[e.split('|')[0]] = true; });
   
   COMBOS.forEach(function(combo) {
-    if(user.badges.indexOf(combo.id) >= 0) return; // Already unlocked
+    if(user.badges.indexOf(combo.id) >= 0) return;
     var allOwned = combo.cards.every(function(cid){ return owned[cid]; });
     if(allOwned) {
       user.badges.push(combo.id);
       saveUser();
-      showBadgeUnlock(combo);
+      showBadgeUnlockAnimation(combo);
     }
   });
 }
@@ -2446,36 +2528,163 @@ function renderBadges() {
   var container = document.getElementById('badges-container');
   if(!container || !user) return;
   var badges = user.badges || [];
-  if(!badges.length) {
-    container.innerHTML = '';
-    return;
-  }
+  var progressBadges = user.progressBadges || [];
+  var owned = {};
+  user.collection.forEach(function(e){ owned[e.split('|')[0]] = true; });
   container.innerHTML = '';
-  badges.forEach(function(bid) {
-    var combo = COMBOS.find(function(c){ return c.id === bid; });
-    if(!combo) return;
-    var isEquipped = user.avatar === bid;
+
+  function makeSection(title, items) {
+    if(!items.length) return;
+    var sec = document.createElement('div');
+    sec.style.cssText = 'margin-bottom:24px;';
+    var t = document.createElement('div');
+    t.style.cssText = 'font-family:Cinzel,serif;font-size:0.58rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(218,165,32,0.2);';
+    t.textContent = title;
+    sec.appendChild(t);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;';
+    items.forEach(function(item){ if(item) grid.appendChild(item); });
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  }
+
+  function makeProgressCard(pb) {
+    var isUnlocked = progressBadges.includes(pb.id);
+    var current = 0;
+    if(pb.type==='login') current = user.totalDays||0;
+    if(pb.type==='wins') current = user.combatWins||0;
+    if(pb.type==='collection') current = (user.collection||[]).filter(function(e){return !e.includes('|shiny');}).length;
+    if(pb.type==='drachmes') current = user.drachmes||0;
+    var pct = Math.min(100, Math.floor(current/pb.threshold*100));
     var div = document.createElement('div');
-    div.style.cssText = 'background:var(--bg-card);border:1px solid '+(isEquipped?combo.badge.color:'var(--border)')+';border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;';
-    div.innerHTML = 
-      '<div style="width:70px;height:70px;border-radius:14px;border:2px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 10px;box-shadow:'+(isEquipped?'0 0 15px '+combo.badge.color:'none')+'">'
-      + (combo.badge.img ? '<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;">' : '<div style="font-size:2rem;display:flex;align-items:center;justify-content:height:100%;">'+combo.badge.icon+'</div>')
-      + '</div>'
-      + '<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:4px;">'+combo.badge.name+'</div>'
-      + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:8px;">'+combo.name+'</div>'
-      + '<button style="font-size:0.58rem;font-family:Cinzel,serif;padding:4px 10px;border-radius:4px;border:1px solid '+combo.badge.color+';background:'+(isEquipped?combo.badge.color:'transparent')+';color:'+(isEquipped?'white':combo.badge.color)+';cursor:pointer;">'+(isEquipped?'✓ Equipe':'Equiper')+'</button>';
-    div.querySelector('button').onclick = function(e) {
-      e.stopPropagation();
-      user.avatar = isEquipped ? null : bid;
-      saveUser();
-      updateAvatar();
-      renderBadges();
-    };
-    // Show story on click
-    div.onclick = function() { showStory(combo); };
-    container.appendChild(div);
-  });
+    div.style.cssText = 'border-radius:10px;overflow:hidden;'+(isUnlocked?'border:1.5px solid '+pb.color+';box-shadow:0 0 10px '+pb.color+'33;':'border:1px solid rgba(255,255,255,0.08);');
+    div.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 8px;gap:8px;">'
+      +'<div style="width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid '+(isUnlocked?pb.color:'rgba(255,255,255,0.1)')+';box-shadow:'+(isUnlocked?'0 0 14px '+pb.color+'66':'none')+';position:relative;flex-shrink:0;">'
+      +'<img src="'+pb.img+'" style="width:100%;height:100%;object-fit:cover;'+(isUnlocked?'':'filter:blur(3px) brightness(0.2);')+'">'
+      +(isUnlocked?'<div style="position:absolute;top:4px;right:4px;font-size:0.9rem;">'+pb.icon+'</div>'
+        :'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">'+pb.icon+'</div>')
+      +'</div>'
+      +'<div style="text-align:center;">'
+      +'<div style="font-family:Cinzel,serif;font-size:0.48rem;color:'+(isUnlocked?'var(--gold)':'rgba(255,255,255,0.3)')+';line-height:1.3;">'+pb.name+'</div>'
+      +'</div>'
+      +'<div style="width:100%;">'
+      +(isUnlocked
+        ? '<div style="text-align:center;">'
+          +'<button id="pbe-'+pb.id+'" style="font-size:0.4rem;font-family:Cinzel,serif;padding:4px 14px;border-radius:5px;border:1px solid '+pb.color+';background:'+(user.avatar===pb.id?pb.color:'transparent')+';color:'+(user.avatar===pb.id?'white':pb.color)+';cursor:pointer;">'+(user.avatar===pb.id?'✓ Équipé':'Équiper')+'</button>'
+          +'</div>'
+        : '<div style="display:flex;justify-content:space-between;font-family:Cinzel,serif;font-size:0.38rem;color:var(--text-dim);margin-bottom:3px;"><span>'+current+'</span><span>'+pb.threshold+'</span></div>'
+          +'<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="height:100%;background:'+pb.color+';border-radius:2px;width:'+pct+'%;"></div></div>')
+      +'</div>'
+      +'</div>';
+    if(isUnlocked) {
+      div.style.cursor = 'pointer';
+      div.onclick = function(e) { if(e.target.tagName==='BUTTON') return; showStory({badge:{name:pb.name,img:pb.img,color:pb.color},name:pb.name,story:pb.story}); };
+      setTimeout(function(){
+        var pbe = document.getElementById('pbe-'+pb.id);
+        if(pbe) pbe.onclick = function(e){
+          e.stopPropagation();
+          user.avatar=(user.avatar===pb.id)?null:pb.id;
+          saveUser(); updateAvatar(); renderBadges();
+        };
+      }, 0);
+    }
+    return div;
+  }
+
+  function makeComboCard(combo) {
+    var isUnlocked = badges.includes(combo.id);
+    var isEquipped = user.avatar === combo.id;
+    var missingCards = [];
+    if(!isUnlocked) {
+      combo.cards.forEach(function(cid) {
+        if(!owned[cid]) {
+          Object.keys(CARDS).forEach(function(pk) {
+            var c = CARDS[pk].find(function(c){ return c.id===cid; });
+            if(c && !missingCards.includes(c.name)) missingCards.push(c.name);
+          });
+        }
+      });
+    }
+    var div = document.createElement('div');
+    div.style.cssText = 'border-radius:10px;overflow:hidden;'+(isUnlocked?'border:1.5px solid '+combo.badge.color+';box-shadow:0 0 10px '+combo.badge.color+'33;':'border:1px solid rgba(255,255,255,0.08);');
+    div.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 8px;gap:8px;">'
+      // Médaillon rond
+      +'<div style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid '+(isUnlocked?combo.badge.color:'rgba(255,255,255,0.1)')+';box-shadow:'+(isUnlocked?'0 0 16px '+combo.badge.color+'66':'none')+';position:relative;flex-shrink:0;">'
+      +'<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;'+(isUnlocked?'':'filter:blur(3px) brightness(0.2);')+'">'
+      +(isUnlocked
+        ?''
+        :'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">🔒</div>')
+      +(isEquipped?'<div style="position:absolute;bottom:2px;right:2px;background:'+combo.badge.color+';border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:0.45rem;color:white;border:1px solid white;">✓</div>':'')
+      +'</div>'
+      // Nom
+      +'<div style="text-align:center;">'
+      +'<div style="font-family:Cinzel Decorative,serif;font-size:0.52rem;color:'+(isUnlocked?'var(--gold)':'rgba(255,255,255,0.3)')+';line-height:1.3;">'+combo.badge.name+'</div>'
+      +'<div style="font-size:0.38rem;color:'+(isUnlocked?combo.badge.color:'rgba(255,255,255,0.2)')+';font-family:Cinzel,serif;margin-top:2px;">'+combo.name+'</div>'
+      +'</div>'
+      // Bas
+      +'<div style="width:100%;text-align:center;">'
+      +(isUnlocked
+        ? '<button id="be-'+combo.id+'" style="font-size:0.4rem;font-family:Cinzel,serif;padding:4px 14px;border-radius:5px;border:1px solid '+combo.badge.color+';background:'+(isEquipped?combo.badge.color:'transparent')+';color:'+(isEquipped?'white':combo.badge.color)+';cursor:pointer;">'+(isEquipped?'✓ Équipé':'Équiper')+'</button>'
+        : '<div style="font-family:Cinzel,serif;font-size:0.36rem;color:var(--text-dim);text-align:center;line-height:1.5;">'
+          +(missingCards.length?'🗝 '+missingCards.join(', '):'✨ Prêt !')
+          +'</div>')
+      +'</div>'
+      +'</div>';
+    div.style.cursor = isUnlocked ? 'pointer' : 'default';
+    if(isUnlocked) {
+      div.onclick = function(e) {
+        if(e.target.tagName === 'BUTTON') return;
+        showStory(combo);
+      };
+      setTimeout(function() {
+        var be = document.getElementById('be-'+combo.id);
+        if(be) be.onclick = function(e){
+          e.stopPropagation();
+          user.avatar=(user.avatar===combo.id)?null:combo.id;
+          saveUser(); updateAvatar(); renderBadges();
+        };
+      }, 0);
+    }
+    return div;
+  }
+
+  var totalUnlocked = badges.length + progressBadges.length;
+  var totalAll = COMBOS.length + PROGRESS_BADGES.length;
+  var globalBar = document.createElement('div');
+  globalBar.style.cssText = 'text-align:center;margin-bottom:20px;';
+  globalBar.innerHTML = '<div style="font-family:Cinzel,serif;font-size:0.58rem;color:var(--text-dim);margin-bottom:6px;">'+totalUnlocked+' / '+totalAll+' badges débloqués</div>'
+    +'<div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;max-width:250px;margin:0 auto;"><div style="height:100%;background:linear-gradient(to right,var(--gold-dim),var(--gold));border-radius:2px;width:'+(totalAll?totalUnlocked/totalAll*100:0)+'%;"></div></div>';
+  container.appendChild(globalBar);
+
+  var hint = document.createElement('div');
+  hint.style.cssText = 'text-align:center;font-family:Cinzel,serif;font-size:0.52rem;color:rgba(218,165,32,0.5);margin-bottom:20px;font-style:italic;';
+  hint.textContent = '📖 Clique sur un badge débloqué pour découvrir son histoire';
+  container.appendChild(hint);
+
+  makeSection('🔥 Connexion', PROGRESS_BADGES.filter(function(pb){return pb.type==='login';}).map(makeProgressCard));
+  makeSection('⚔️ Victoires', PROGRESS_BADGES.filter(function(pb){return pb.type==='wins';}).map(makeProgressCard));
+  makeSection('📚 Collection', PROGRESS_BADGES.filter(function(pb){return pb.type==='collection';}).map(makeProgressCard));
+  makeSection('🪙 Drachmes', PROGRESS_BADGES.filter(function(pb){return pb.type==='drachmes';}).map(makeProgressCard));
+  makeSection('⚡ Combos Mythologiques', COMBOS.map(makeComboCard));
 }
+
+function showBadgeUnlockAnimation(combo) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s ease;';
+  overlay.innerHTML =
+    '<div style="text-align:center;animation:badgePop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);">'
+    +'<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:16px;">✨ Badge débloqué !</div>'
+    +'<div style="width:120px;height:120px;border-radius:20px;border:3px solid '+combo.badge.color+';overflow:hidden;margin:0 auto 16px;box-shadow:0 0 40px '+combo.badge.color+';">'
+    +'<img src="'+combo.badge.img+'" style="width:100%;height:100%;object-fit:cover;">'
+    +'</div>'
+    +'<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:6px;">'+combo.badge.name+'</div>'
+    +'<div style="font-family:Cinzel,serif;font-size:0.65rem;color:'+combo.badge.color+';margin-bottom:20px;">'+combo.name+'</div>'
+    +'<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;color:white;font-family:Cinzel,serif;font-size:0.65rem;padding:10px 28px;border-radius:8px;cursor:pointer;letter-spacing:0.1em;">Voir mon badge</button>'
+    +'</div>';
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+
 
 function showStory(combo) {
   var overlay = document.createElement('div');
@@ -4098,7 +4307,12 @@ function checkBattleEnd() {
         + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>'
         + '</div></div>';
       battleState = null;
-      if(won) addDrachmes(15, 'Victoire en combat !');
+      if(won) {
+        user.combatWins = (user.combatWins || 0) + 1;
+        saveUser();
+        addDrachmes(15, 'Victoire en combat !');
+        checkProgressBadges();
+      }
     }, 500);
   }
 }
