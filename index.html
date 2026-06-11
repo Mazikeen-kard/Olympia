@@ -1147,27 +1147,27 @@ var CARDS = {
 //  CORRESPONDANCES ARMES / PERSONNAGES
 // ══════════════════════════════════════
 var WEAPON_PAIRS = {
-  'ar1':  ['ol1','ol2'],        // Foudre de Zeus → Zeus
-  'ar2':  ['ol3'],              // Trident de Poséidon → Poséidon
-  'ar3':  ['ol10'],             // Casque d'Hadès → Hadès
-  'ar4':  ['ol5'],              // Égide → Athéna
-  'ar5':  ['hr1','hr2'],        // Épée d'Achille → Achille
-  'ar6':  ['ol6'],              // Arc d'Apollon → Apollon
-  'ar7':  ['ti1','ti2'],        // Faucille de Cronos → Cronos
-  'ar8':  ['hr8'],              // Lyre d'Orphée → Orphée
-  'ar9':  ['ol8'],              // Sandales Ailées → Hermès
-  'ar10': ['hr3'],              // Bouclier de Persée → Persée
-  'ar11': ['hr4'],              // Lance de Pélée → Pélée/Achille
-  'ar12': ['hr5'],              // Masse d'Héraclès → Héraclès
-  'ar13': ['ol7'],              // Flèche d'Artémis → Artémis
-  'ar14': ['hr3'],              // Harpé → Persée
-  'ar18': ['mn2','mo1'],        // Serpents de Méduse → Méduse
-  'ar19': ['mn1'],              // Chaînes → Cerbère
-  'ar20': ['ol8'],              // Caducée → Hermès
-  'ar21': ['ol11'],             // Thyrse → Dionysos
-  'ar22': ['ol4'],              // Ceinture → Aphrodite
-  'ar23': ['ol12'],             // Sceptre → Héra
-  'ar24': ['ol9'],              // Marteau → Héphaistos
+  'ar1':  ['o1'],         // Foudre de Zeus → Zeus
+  'ar2':  ['o4'],         // Trident de Poséidon → Poséidon
+  'ar3':  ['o5'],         // Casque d'Hadès → Hadès
+  'ar4':  ['o3'],         // Égide → Athéna
+  'ar5':  ['h2'],         // Épée d'Achille → Achille
+  'ar6':  ['o8'],         // Arc d'Apollon → Apollon
+  'ar7':  ['t1'],         // Faucille de Cronos → Cronos
+  'ar8':  ['h8'],         // Lyre d'Orphée → Orphée
+  'ar9':  ['o13'],        // Sandales Ailées → Hermès
+  'ar10': ['h4'],         // Bouclier de Persée → Persée
+  'ar11': ['h2'],         // Lance d'Achille → Achille
+  'ar12': ['h1'],         // Masse d'Héraclès → Héraclès
+  'ar13': ['o9'],         // Flèche d'Artémis → Artémis
+  'ar14': ['h4'],         // Harpé → Persée
+  'ar18': ['m1'],         // Serpents → Méduse
+  'ar19': ['m5'],         // Chaînes → Cerbère
+  'ar20': ['o13'],        // Caducée → Hermès
+  'ar21': ['o15'],        // Thyrse → Dionysos
+  'ar22': ['o7'],         // Ceinture → Aphrodite
+  'ar23': ['o2'],         // Sceptre → Héra
+  'ar24': ['o10'],        // Marteau → Héphaïstos
 };
 
 // Retourne l'arme correspondante à un personnage (si dans la collection)
@@ -5520,14 +5520,18 @@ function checkBattleEnd() {
     setTimeout(function() {
       var content = document.getElementById('combat-screen-content');
       if(!content) return;
-      content.innerHTML = '<div style="text-align:center;padding:60px 20px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-        + '<div style="font-size:5rem;margin-bottom:20px;">'+(won?'🏆':'💀')+'</div>'
-        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.2rem;color:var(--gold);margin-bottom:10px;">'+(won?'Victoire !':'Défaite...')+'</div>'
-        + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:30px;">'+(won?'Tu as vaincu l\'IA ! +15 🪙 Drachmes':'L\'IA t\'a eu cette fois. Retente !')+'</div>'
+      content.innerHTML = '<div style="text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;">'
+        + (won
+          ? '<img src="https://i.imgur.com/fbk0KOi.jpeg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.4;pointer-events:none;">'
+          : '<div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(100,0,0,0.5) 0%,rgba(0,0,0,0.9) 100%);pointer-events:none;"></div>')
+        + '<div style="position:relative;z-index:2;padding:40px 20px;">'
+        + '<div style="font-size:'+(won?'4':'5')+'rem;margin-bottom:16px;">'+(won?'👑':'💀')+'</div>'
+        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.4rem;color:var(--gold);margin-bottom:10px;text-shadow:0 0 30px rgba(218,165,32,0.8);">'+(won?'Victoire !':'Défaite...')+'</div>'
+        + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:30px;">'+(won?'Tu as vaincu l\'IA ! +15 🪙 Drachmes':'L\'IA t\'a eu cette fois. Retente !')+'</div>'
         + '<div style="display:flex;gap:12px;justify-content:center;">'
         + '<button class="combat-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
         + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>'
-        + '</div></div>';
+        + '</div></div></div>';
       battleState = null;
       if(won) {
         user.combatWins = (user.combatWins || 0) + 1;
