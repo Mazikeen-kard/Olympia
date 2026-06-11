@@ -661,7 +661,10 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       <label class="l-lbl">Adresse e-mail</label>
       <input class="l-inp" id="inp-login-email" type="email" placeholder="ton@email.com" autocomplete="email">
       <label class="l-lbl" style="margin-top:10px;">Mot de passe</label>
-      <input class="l-inp" id="inp-login-pwd" type="password" placeholder="••••••••" autocomplete="current-password">
+      <div style="position:relative;">
+        <input class="l-inp" id="inp-login-pwd" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px;">
+        <span id="toggle-login-pwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1rem;user-select:none;">👁</span>
+      </div>
       <div class="l-err" id="err-login"></div>
       <button class="l-btn" id="btn-login">⚔️ Entrer dans l'Olympe</button>
       <div style="text-align:center;margin-top:8px;">
@@ -677,7 +680,10 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       <label class="l-lbl" style="margin-top:10px;">Adresse e-mail</label>
       <input class="l-inp" id="inp-reg-email" type="email" placeholder="ton@email.com" autocomplete="email">
       <label class="l-lbl" style="margin-top:10px;">Mot de passe</label>
-      <input class="l-inp" id="inp-reg-pwd" type="password" placeholder="8 caractères minimum" autocomplete="new-password">
+      <div style="position:relative;">
+        <input class="l-inp" id="inp-reg-pwd" type="password" placeholder="8 caractères minimum" autocomplete="new-password" style="padding-right:40px;">
+        <span id="toggle-reg-pwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1rem;user-select:none;">👁</span>
+      </div>
       <div class="l-err" id="err-reg"></div>
       <button class="l-btn" id="btn-reg">✨ Rejoindre l'Olympe</button>
       <div class="l-sw">Déjà un compte ? <span id="go-login">Se connecter</span></div>
@@ -1519,7 +1525,16 @@ document.getElementById('go-forgot').onclick = function() {
     document.getElementById('err-login').textContent = 'Email introuvable.';
   });
 };
-document.getElementById('inp-login-pwd').onkeydown = function(e){if(e.key==='Enter')doLogin();};
+document.getElementById('toggle-login-pwd').onclick = function() {
+  var inp = document.getElementById('inp-login-pwd');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  this.textContent = inp.type === 'password' ? '👁' : '🙈';
+};
+document.getElementById('toggle-reg-pwd').onclick = function() {
+  var inp = document.getElementById('inp-reg-pwd');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  this.textContent = inp.type === 'password' ? '👁' : '🙈';
+};
 document.getElementById('inp-reg-pwd').onkeydown = function(e){if(e.key==='Enter')doRegister();};
 
 document.getElementById('btn-login').onclick = doLogin;
@@ -1557,7 +1572,7 @@ document.getElementById('m-close').onclick = function(){document.getElementById(
 document.getElementById('card-modal').onclick = function(e){if(e.target===this)this.classList.remove('open');};
 document.getElementById('rev-close').onclick = closeReveal;
 
-var ADMIN_PASSWORD = '260494';
+var ADMIN_PASSWORD = 'CHANGE_MOI_2024';
 
 // ══════════════════════════════════════
 //  AUTH FIREBASE
@@ -5492,22 +5507,101 @@ function renderAdmin() {
   var container = document.getElementById('admin-container');
   if(!container) return;
 
-  var known = getKnown().filter(function(p){ return p !== 'Mazikeen'; });
+  container.innerHTML = '<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:20px;">Chargement des joueurs...</div>';
 
-  container.innerHTML = '<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:20px;">'+known.length+' joueur(s) enregistré(s)</div>'
-    + '<div id="admin-players-list"></div>';
+  // Lire tous les joueurs depuis Firestore
+  db.collection('users').get().then(function(snapshot) {
+    var players = [];
+    snapshot.forEach(function(doc) {
+      var data = doc.data();
+      if(data.pseudo && data.pseudo !== 'Mazikeen') {
+        players.push({uid: doc.id, data: data});
+      }
+    });
 
-  var list = document.getElementById('admin-players-list');
+    container.innerHTML = '<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:20px;">'+players.length+' joueur(s) enregistré(s)</div>'
+      + '<div id="admin-players-list"></div>';
 
-  if(known.length === 0) {
-    list.innerHTML = '<div style="color:var(--text-dim);font-size:0.75rem;text-align:center;padding:20px;">Aucun joueur enregistré pour l\'instant.</div>';
-    return;
-  }
+    var list = document.getElementById('admin-players-list');
 
-  known.forEach(function(playerName) {
-    var pData = loadUser(playerName);
-    if(!pData) return;
-    var unique = pData.collection ? [...new Set(pData.collection.map(function(e){return e.split('|')[0];}))] : [];
+    if(players.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-dim);font-size:0.75rem;text-align:center;padding:20px;">Aucun joueur enregistré pour l\'instant.</div>';
+      return;
+    }
+
+    players.forEach(function(player) {
+      var playerName = player.data.pseudo;
+      var pData = player.data;
+      var uid = player.uid;
+      var unique = pData.collection ? [...new Set(pData.collection.map(function(e){return e.split('|')[0];}))] : [];
+
+      var card = document.createElement('div');
+      card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;';
+      card.innerHTML = '<div style="margin-bottom:12px;">'
+        + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);">'+playerName+'</div>'
+        + '<div style="font-size:0.62rem;color:var(--text-dim);margin-top:2px;">'+unique.length+' cartes uniques · '+(pData.drachmes||0)+' 🪙 · '+(pData.packsOpened||0)+' paquets ouverts</div>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
+        + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">🪙 Drachmes</span>'
+        + '<input type="number" min="1" value="50" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-drachmes">'
+        + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="drachmes">Envoyer</button>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
+        + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">📦 Paquets</span>'
+        + '<input type="number" min="1" max="10" value="1" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-packs">'
+        + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="pack">Envoyer</button>'
+        + '</div>'
+        + '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">'
+        + '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);margin-bottom:6px;">🎴 Envoyer une carte spécifique</div>'
+        + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
+        + '<input type="text" placeholder="Nom de la carte..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.6rem;" class="admin-input-cardname">'
+        + '<label style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;"><input type="checkbox" class="admin-input-shiny"> Shiny</label>'
+        + '<button class="battle-btn" style="font-size:0.55rem;padding:7px 10px;" data-action="specific">Envoyer</button>'
+        + '</div>'
+        + '<div class="admin-card-result" style="font-size:0.55rem;color:var(--gold);margin-top:4px;"></div>'
+        + '</div>';
+
+      card.querySelectorAll('[data-action]').forEach(function(btn) {
+        btn.onclick = function() {
+          var action = btn.getAttribute('data-action');
+
+          if(action === 'drachmes') {
+            var amount = parseInt(card.querySelector('.admin-input-drachmes').value) || 50;
+            pData.drachmes = (pData.drachmes||0) + amount;
+            db.collection('users').doc(uid).update({drachmes: pData.drachmes});
+            btn.textContent = '✓ Envoyé !';
+            setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+
+          } else if(action === 'pack') {
+            var qty = parseInt(card.querySelector('.admin-input-packs').value) || 1;
+            pData.adminPackPending = (pData.adminPackPending||0) + qty;
+            db.collection('users').doc(uid).update({adminPackPending: pData.adminPackPending});
+            btn.textContent = '✓ Envoyé !';
+            setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+
+          } else if(action === 'specific') {
+            var cardName = card.querySelector('.admin-input-cardname').value.trim().toLowerCase();
+            var isShinyGift = card.querySelector('.admin-input-shiny').checked;
+            var resultEl = card.querySelector('.admin-card-result');
+            if(!cardName) { resultEl.textContent = '⚠ Entre un nom de carte'; return; }
+            var found = allCards().find(function(c){ return c.name.toLowerCase().includes(cardName); });
+            if(!found) { resultEl.textContent = '⚠ Carte introuvable'; return; }
+            var entry = found.id + (isShinyGift ? '|shiny' : '');
+            pData.collection = pData.collection || [];
+            pData.collection.push(entry);
+            db.collection('users').doc(uid).update({collection: pData.collection});
+            resultEl.textContent = '✓ '+found.name+(isShinyGift?' ✦':'')+' envoyée !';
+            setTimeout(function(){ resultEl.textContent=''; }, 3000);
+          }
+        };
+      });
+
+      list.appendChild(card);
+    });
+  }).catch(function(e) {
+    container.innerHTML = '<div style="color:#ff4455;font-size:0.75rem;">Erreur Firestore : '+e.message+'</div>';
+  });
+}
 
     var card = document.createElement('div');
     card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;';
@@ -5524,69 +5618,6 @@ function renderAdmin() {
       // Paquets
       + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
       + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">📦 Paquets</span>'
-      + '<input type="number" min="1" max="10" value="1" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-packs">'
-      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="pack" data-player="'+playerName+'">Envoyer</button>'
-      + '</div>'
-      // Cartes spécifiques
-      + '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">'
-      + '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);margin-bottom:6px;">🎴 Envoyer une carte spécifique</div>'
-      + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
-      + '<input type="text" placeholder="Nom de la carte..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.6rem;" class="admin-input-cardname">'
-      + '<label style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;"><input type="checkbox" class="admin-input-shiny"> Shiny</label>'
-      + '<button class="battle-btn" style="font-size:0.55rem;padding:7px 10px;" data-action="specific" data-player="'+playerName+'">Envoyer</button>'
-      + '</div>'
-      + '<div class="admin-card-result" style="font-size:0.55rem;color:var(--gold);margin-top:4px;"></div>'
-      + '</div>';
-
-    card.querySelectorAll('[data-action]').forEach(function(btn) {
-      btn.onclick = function() {
-        var action = btn.getAttribute('data-action');
-        var pName = btn.getAttribute('data-player');
-        var pUser = loadUser(pName);
-        if(!pUser) return;
-
-        if(action === 'drachmes') {
-          var amount = parseInt(card.querySelector('.admin-input-drachmes').value) || 50;
-          pUser.drachmes = (pUser.drachmes||0) + amount;
-          localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          btn.textContent = '✓ Envoyé !';
-          setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
-
-        } else if(action === 'pack') {
-          var qty = parseInt(card.querySelector('.admin-input-packs').value) || 1;
-          pUser.adminPackPending = (pUser.adminPackPending||0) + qty;
-          localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          btn.textContent = '✓ Envoyé !';
-          setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
-
-        } else if(action === 'specific') {
-          var cardName = card.querySelector('.admin-input-cardname').value.trim().toLowerCase();
-          var isShinyGift = card.querySelector('.admin-input-shiny').checked;
-          var resultEl = card.querySelector('.admin-card-result');
-          if(!cardName) { resultEl.textContent = '⚠ Entre un nom de carte'; return; }
-          // Chercher la carte
-          var found = null;
-          Object.values(CARDS).forEach(function(pack) {
-            pack.forEach(function(c) {
-              if(c.name.toLowerCase().includes(cardName)) found = c;
-            });
-          });
-          if(!found) { resultEl.textContent = '❌ Carte "'+cardName+'" introuvable'; return; }
-          var cardKey = isShinyGift ? found.id+'|shiny' : found.id;
-          if(!pUser.collection) pUser.collection = [];
-          pUser.collection.push(cardKey);
-          localStorage.setItem('olympia_u_'+pName, JSON.stringify(pUser));
-          resultEl.textContent = '✓ '+found.name+(isShinyGift?' ✦ Shiny':'')+' envoyée !';
-          card.querySelector('.admin-input-cardname').value = '';
-          card.querySelector('.admin-input-shiny').checked = false;
-        }
-      };
-    });
-
-    list.appendChild(card);
-  });
-}
-
 function stopArchery() {
   backToMinigames();
 }
