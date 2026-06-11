@@ -763,48 +763,16 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       </div>
     </div>
 
-    <!-- MON PERSONNAGE + AVATAR unifiés -->
+    <!-- MON PERSONNAGE -->
     <div class="char-creator" id="char-creator-section" style="margin-bottom:12px;">
       <div class="char-creator-title">⚔️ Mon Personnage</div>
 
-      <!-- Préview personnage + avatar côte à côte -->
-      <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:16px;">
-        <!-- SVG perso -->
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
-          <div class="char-name-display" id="char-name-display">—</div>
-          <div class="char-class-display" id="char-class-display">Choisissez une classe</div>
-          <svg id="char-svg" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg" style="width:90px;height:135px;"></svg>
-        </div>
-        <!-- Avatar -->
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px;">
-          <div style="font-family:Cinzel,serif;font-size:0.5rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;">Avatar</div>
-          <div class="avatar-preview" id="avatar-preview-box" style="background:#1a1510;width:64px;height:64px;font-size:1.6rem;">⚡</div>
-          <div class="avatar-colors" id="avatar-colors" style="max-width:100px;">
-            <div class="avatar-color selected" data-color="#1a1510" style="background:#1a1510;"></div>
-            <div class="avatar-color" data-color="#ff87b2" style="background:#ff87b2;"></div>
-            <div class="avatar-color" data-color="#ffffff" style="background:#ffffff;border:1px solid #ddd;"></div>
-            <div class="avatar-color" data-color="#ffe566" style="background:#ffe566;"></div>
-            <div class="avatar-color" data-color="#ff9a3c" style="background:#ff9a3c;"></div>
-            <div class="avatar-color" data-color="#87ceeb" style="background:#87ceeb;"></div>
-            <div class="avatar-color" data-color="#b8f0b8" style="background:#b8f0b8;"></div>
-            <div class="avatar-color" data-color="#c9b8f0" style="background:#c9b8f0;"></div>
-            <div class="avatar-color" data-color="#f0b8d8" style="background:#f0b8d8;"></div>
-            <div class="avatar-color" data-color="#daa520" style="background:#daa520;"></div>
-          </div>
-          <div class="avatar-symbols" id="avatar-symbols" style="max-width:100px;">
-            <div class="avatar-symbol selected" data-symbol="⚡">⚡</div>
-            <div class="avatar-symbol" data-symbol="🔱">🔱</div>
-            <div class="avatar-symbol" data-symbol="🏛️">🏛️</div>
-            <div class="avatar-symbol" data-symbol="⚔️">⚔️</div>
-            <div class="avatar-symbol" data-symbol="🦉">🦉</div>
-            <div class="avatar-symbol" data-symbol="🐍">🐍</div>
-            <div class="avatar-symbol" data-symbol="🌙">🌙</div>
-            <div class="avatar-symbol" data-symbol="☀️">☀️</div>
-            <div class="avatar-symbol" data-symbol="🔥">🔥</div>
-            <div class="avatar-symbol" data-symbol="🌊">🌊</div>
-            <div class="avatar-symbol" data-symbol="💀">💀</div>
-            <div class="avatar-symbol" data-symbol="🏆">🏆</div>
-          </div>
+      <!-- Préview personnage centré -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:16px;">
+        <div class="char-name-display" id="char-name-display">—</div>
+        <div class="char-class-display" id="char-class-display">Choisissez une classe</div>
+        <div id="char-bg-frame" style="border-radius:16px;padding:12px;border:1px solid var(--border);display:inline-block;background:transparent;">
+          <svg id="char-svg" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg" style="width:120px;height:180px;display:block;"></svg>
         </div>
       </div>
 
@@ -823,7 +791,6 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
         <div class="char-class-btn" data-class="cyclops"><span class="char-class-icon">👁️</span><span class="char-class-name">Cyclope</span></div>
       </div>
 
-      <!-- Sauvegarder les deux en un clic -->
       <button class="char-save-btn" id="char-save-btn" style="margin-top:12px;">✨ Sauvegarder</button>
       <button class="avatar-save-btn" id="avatar-save-btn" style="display:none;"></button>
     </div>
@@ -5706,8 +5673,8 @@ function initCharCreator() {
     saveUser();
     updateAvatarFromChar();
     var btn = document.getElementById('char-save-btn');
-    btn.textContent = '✓ Personnage sauvegardé !';
-    setTimeout(function(){ btn.textContent = '⚔️ Sauvegarder mon personnage'; }, 2000);
+    btn.textContent = '✓ Sauvegardé !';
+    setTimeout(function(){ btn.textContent = '✨ Sauvegarder'; }, 2000);
   };
 }
 
@@ -5739,6 +5706,7 @@ function updateAvatarFromChar() {
     avatarEl.style.borderColor = 'var(--gold)';
   } else {
     avatarEl.innerHTML = '⚔️';
+    avatarEl.style.background = '';
     avatarEl.style.borderColor = 'var(--gold)';
   }
 }
@@ -5755,39 +5723,7 @@ function initAvatarCreator() {
     _avatarColor = user.customAvatar.color || '#1a1510';
     _avatarSymbol = user.customAvatar.symbol || '⚡';
   }
-  updateAvatarPreview();
 
-  // Color picker
-  document.querySelectorAll('.avatar-color').forEach(function(el) {
-    el.onclick = function() {
-      document.querySelectorAll('.avatar-color').forEach(function(e){ e.classList.remove('selected'); });
-      el.classList.add('selected');
-      _avatarColor = el.getAttribute('data-color');
-      updateAvatarPreview();
-    };
-  });
-
-  // Symbol picker
-  document.querySelectorAll('.avatar-symbol').forEach(function(el) {
-    el.onclick = function() {
-      document.querySelectorAll('.avatar-symbol').forEach(function(e){ e.classList.remove('selected'); });
-      el.classList.add('selected');
-      _avatarSymbol = el.getAttribute('data-symbol');
-      updateAvatarPreview();
-    };
-  });
-
-  // Save button — sauvegarde personnage ET avatar en un clic
-  var saveBtn = document.getElementById('char-save-btn');
-  if(saveBtn) saveBtn.onclick = function() {
-    if(!user) return;
-    user.customAvatar = {color: _avatarColor, symbol: _avatarSymbol};
-    user.avatar = null;
-    saveUser();
-    updateAvatar();
-    saveBtn.textContent = '✓ Sauvegardé !';
-    setTimeout(function(){ saveBtn.textContent = '✨ Sauvegarder'; }, 2000);
-  };
   // Keep avatar-save-btn handler for safety (display:none but functional)
   var avatarBtn = document.getElementById('avatar-save-btn');
   if(avatarBtn) avatarBtn.onclick = function() {
