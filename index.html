@@ -5606,14 +5606,13 @@ function renderAdmin() {
     var card = document.createElement('div');
     card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;';
     card.innerHTML = '<div style="margin-bottom:12px;">'
-      + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);">'+playerName+'</div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);">'+player.data.pseudo+'</div>'
       + '<div style="font-size:0.62rem;color:var(--text-dim);margin-top:2px;">'+unique.length+' cartes uniques · '+(pData.drachmes||0)+' 🪙 · '+(pData.packsOpened||0)+' paquets ouverts</div>'
       + '</div>'
-      // Drachmes
       + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
       + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">🪙 Drachmes</span>'
       + '<input type="number" min="1" value="50" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.65rem;" class="admin-input-drachmes">'
-      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="drachmes" data-player="'+playerName+'">Envoyer</button>'
+      + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="drachmes">Envoyer</button>'
       + '</div>'
       // Paquets
       + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
