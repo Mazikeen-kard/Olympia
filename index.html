@@ -5265,19 +5265,56 @@ function playerAttack(attacker, target) {
       s.aiHp = Math.max(0, s.aiHp - dmg);
       addBattleLog('⚡ '+attacker.card.name+' attaque directement ! IA perd '+dmg+' PV.', 'hit');
     } else {
-      var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
-      dmg = Math.max(1, atkVal - defense);
-      target.hp = Math.max(0, target.hp - dmg);
-      if(target.hp <= 0) {
-        var excess = Math.abs(target.hp);
-        s.aiHp = Math.max(0, s.aiHp - excess);
-        s._destroyedCount = (s._destroyedCount||0) + 1;
-        addBattleLog('⚡ '+attacker.card.name+' détruit '+target.card.name+' ! Excès : -'+excess+' PV à l\'IA.', 'hit');
-        var ti = s.aiField.indexOf(target);
-        if(ti >= 0) s.aiField.splice(ti, 1);
-      } else {
-        addBattleLog('⚡ '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+target.hp+')', 'hit');
-      }
+      (function() {
+        var diff, loss, idx;
+        if(target.mode === 'defense') {
+          diff = atkVal - target.combatDef;
+          if(diff > 0) {
+            target.hp = 0;
+            s.aiHp = Math.max(0, s.aiHp - diff);
+            s._destroyedCount = (s._destroyedCount||0) + 1;
+            addBattleLog('⚡ '+attacker.card.name+' brise la défense de '+target.card.name+' ! -'+diff+' PV à l\'IA.', 'hit');
+            idx = s.aiField.indexOf(target); if(idx >= 0) s.aiField.splice(idx, 1);
+          } else if(diff < 0) {
+            loss = Math.abs(diff);
+            attacker.hp = Math.max(0, attacker.hp - loss);
+            addBattleLog('⚡ '+attacker.card.name+' échoue ! Perd '+loss+' PV.', 'dmg');
+            if(attacker.hp <= 0) {
+              addBattleLog('💀 '+attacker.card.name+' est détruit !', 'dmg');
+              idx = s.playerField.indexOf(attacker); if(idx >= 0) s.playerField.splice(idx, 1);
+              s.selectedFieldCard = null;
+            }
+          } else {
+            target.hp = 0; attacker.hp = 0;
+            addBattleLog('⚡ Égalité ! Les deux cartes sont détruites !', 'hit');
+            idx = s.aiField.indexOf(target); if(idx >= 0) s.aiField.splice(idx, 1);
+            idx = s.playerField.indexOf(attacker); if(idx >= 0) s.playerField.splice(idx, 1);
+            s.selectedFieldCard = null;
+          }
+        } else {
+          diff = atkVal - target.combatAtk;
+          if(diff > 0) {
+            target.hp = 0;
+            s.aiHp = Math.max(0, s.aiHp - diff);
+            s._destroyedCount = (s._destroyedCount||0) + 1;
+            addBattleLog('⚡ '+attacker.card.name+' détruit '+target.card.name+' ! -'+diff+' PV à l\'IA.', 'hit');
+            idx = s.aiField.indexOf(target); if(idx >= 0) s.aiField.splice(idx, 1);
+          } else if(diff < 0) {
+            attacker.hp = 0;
+            loss = Math.abs(diff);
+            s.playerHp = Math.max(0, s.playerHp - loss);
+            addBattleLog('💀 '+attacker.card.name+' détruit ! Tu perds '+loss+' PV.', 'dmg');
+            idx = s.playerField.indexOf(attacker); if(idx >= 0) s.playerField.splice(idx, 1);
+            s.selectedFieldCard = null;
+          } else {
+            target.hp = 0; attacker.hp = 0;
+            addBattleLog('⚡ Égalité ! Les deux cartes sont détruites !', 'hit');
+            idx = s.aiField.indexOf(target); if(idx >= 0) s.aiField.splice(idx, 1);
+            idx = s.playerField.indexOf(attacker); if(idx >= 0) s.playerField.splice(idx, 1);
+            s.selectedFieldCard = null;
+          }
+        }
+      })();
     }
   }
 
@@ -5399,42 +5436,56 @@ function endPlayerTurn() {
         var target = s.playerField.reduce(function(a,b){ return a.hp < b.hp ? a : b; });
         var targetIdx = s.playerField.indexOf(target);
         var targetEl = document.getElementById('player-card-'+targetIdx);
-        var defense = target.mode === 'defense' ? target.combatDef : Math.floor(target.combatDef * 0.3);
-        var dmg = Math.max(1, atkVal - defense);
-
-        addBattleLog('💥 '+attacker.card.name+' frappe '+target.card.name+' ! -'+dmg+' PV (reste '+(Math.max(0,target.hp-dmg))+')', 'dmg');
 
         animateAttack(attackerEl, targetEl, null, function() {
           if(!battleState) return;
-          var hpBefore = target.hp;
-          target.hp = Math.max(0, target.hp - dmg);
-          if(targetEl) showDmgNumber(targetEl, dmg, false);
-
-          if(target.mode === 'defense') {
-            // Mode défense : la carte absorbe, le joueur ne prend rien sauf overkill
-            if(target.hp <= 0) {
-              var overkill = dmg - hpBefore;
-              if(overkill > 0) {
-                s.playerHp = Math.max(0, s.playerHp - overkill);
-                addBattleLog('💀 '+target.card.name+' brisé ! -'+overkill+' PV directs.', 'dmg');
+          (function() {
+            var diff = (target.mode === 'defense') ? atkVal - target.combatDef : atkVal - target.combatAtk;
+            var idx;
+            if(target.mode === 'defense') {
+              if(diff > 0) {
+                target.hp = 0;
+                s.playerHp = Math.max(0, s.playerHp - diff);
+                if(targetEl) showDmgNumber(targetEl, diff, false);
+                addBattleLog('💥 '+attacker.card.name+' brise la défense ! Tu perds '+diff+' PV.', 'dmg');
+                idx = s.playerField.indexOf(target); if(idx >= 0) s.playerField.splice(idx, 1);
+                battleState.selectedFieldCard = null;
+              } else if(diff < 0) {
+                var lossD = Math.abs(diff);
+                attacker.hp = Math.max(0, attacker.hp - lossD);
+                addBattleLog('🛡 '+target.card.name+' résiste ! '+attacker.card.name+' perd '+lossD+' PV.', 'hit');
+                if(attacker.hp <= 0) {
+                  addBattleLog('💀 '+attacker.card.name+' est détruit !', 'hit');
+                  idx = s.aiField.indexOf(attacker); if(idx >= 0) s.aiField.splice(idx, 1);
+                }
               } else {
-                addBattleLog('💀 '+target.card.name+' est détruit !', 'dmg');
+                target.hp = 0; attacker.hp = 0;
+                addBattleLog('⚡ Égalité ! Les deux cartes sont détruites !', 'dmg');
+                idx = s.playerField.indexOf(target); if(idx >= 0) s.playerField.splice(idx, 1);
+                idx = s.aiField.indexOf(attacker); if(idx >= 0) s.aiField.splice(idx, 1);
+                battleState.selectedFieldCard = null;
               }
-              var ti = s.playerField.indexOf(target);
-              if(ti >= 0) s.playerField.splice(ti, 1);
-              battleState.selectedFieldCard = null;
+            } else {
+              if(diff > 0) {
+                target.hp = 0;
+                s.playerHp = Math.max(0, s.playerHp - diff);
+                if(targetEl) showDmgNumber(targetEl, diff, false);
+                addBattleLog('💥 '+attacker.card.name+' détruit '+target.card.name+' ! Tu perds '+diff+' PV.', 'dmg');
+                idx = s.playerField.indexOf(target); if(idx >= 0) s.playerField.splice(idx, 1);
+                battleState.selectedFieldCard = null;
+              } else if(diff < 0) {
+                attacker.hp = 0;
+                addBattleLog('⚔️ '+target.card.name+' contre-attaque ! '+attacker.card.name+' est détruit !', 'hit');
+                idx = s.aiField.indexOf(attacker); if(idx >= 0) s.aiField.splice(idx, 1);
+              } else {
+                target.hp = 0; attacker.hp = 0;
+                addBattleLog('⚡ Égalité ! Les deux cartes sont détruites !', 'dmg');
+                idx = s.playerField.indexOf(target); if(idx >= 0) s.playerField.splice(idx, 1);
+                idx = s.aiField.indexOf(attacker); if(idx >= 0) s.aiField.splice(idx, 1);
+                battleState.selectedFieldCard = null;
+              }
             }
-          } else {
-            // Mode attaque : le joueur prend les mêmes dégâts que sa carte
-            s.playerHp = Math.max(0, s.playerHp - dmg);
-            if(target.hp <= 0) {
-              addBattleLog('💀 '+target.card.name+' est détruit ! Tu perds '+dmg+' PV.', 'dmg');
-              var ti = s.playerField.indexOf(target);
-              if(ti >= 0) s.playerField.splice(ti, 1);
-              battleState.selectedFieldCard = null;
-            }
-          }
-
+          })();
           checkBattleEnd();
           renderBattle();
           setTimeout(function(){ runAiAttack(i+1); }, 400);
