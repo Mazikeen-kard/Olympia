@@ -4687,7 +4687,8 @@ function renderBattle() {
   s.aiField.forEach(function(bc,idx) {
     var d = document.createElement('div');
     var isTargeting = s._pickingTarget;
-    d.className = 'tapis-card enemy-card'+(bc.mode==='defense'?' defending':'')+(isTargeting?' targetable':'');
+    var isSouffle = s._pendingEffect === 'souffle';
+    d.className = 'tapis-card enemy-card'+(bc.mode==='defense'?' defending':'')+((isTargeting||isSouffle)?' targetable':'');
     d.id = 'ai-card-'+idx;
     d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
       +'<div class="tc-hp">♥'+bc.hp+'</div>'
@@ -4699,6 +4700,16 @@ function renderBattle() {
         s._pendingAttacker = null;
         playerAttack(attacker, target);
       }; })(bc);
+    } else if(isSouffle) {
+      (function(target, tidx){ d.onclick = function(){
+        s._pendingEffect = null;
+        target.hp = 0;
+        var ti = s.aiField.indexOf(target);
+        if(ti >= 0) s.aiField.splice(ti, 1);
+        addBattleLog('⚡ Souffle Divin détruit '+target.card.name+' !', 'hit');
+        checkBattleEnd();
+        renderBattle();
+      }; })(bc, idx);
     }
     cfAi.appendChild(d);
   });
@@ -5156,6 +5167,15 @@ function endPlayerTurn() {
     }
 
     var attackers = s.aiField.filter(function(c){ return c.mode === 'attack'; });
+
+    // Carte spéciale Méduse boutique — IA pétrifiée ce tour
+    if(s._petrified) {
+      s._petrified = false;
+      addBattleLog('🐍 L\'IA est pétrifiée ! Elle ne peut pas attaquer ce tour.', 'hit');
+      setTimeout(function(){ if(battleState && !s._ending) nextTurn(); }, 800);
+      return;
+    }
+
     addBattleLog('🤖 IA joue ('+attackers.length+' attaquants, '+s.aiField.length+' sur terrain)', 'info');
     renderBattle();
 
@@ -5266,6 +5286,11 @@ function nextTurn() {
   s.turn++;
   s.phase = 'place';
   s.cardsPlayed = 0;
+  // Réinitialiser les effets de tour des cartes joueur
+  s.playerField.forEach(function(c){
+    c._hermesUsed = 0;
+    c._cronosUsed = false;
+  });
   if(s.playerDeck.length > 0) s.playerHand.push(s.playerDeck.pop());
   if(s.bonuses && s.bonuses.includes('heros') && s.turn === 2 && s.playerDeck.length > 0) {
     s.playerHand.push(s.playerDeck.pop());
