@@ -481,7 +481,11 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   /* Cartes sur le tapis — plus grandes */
   .combat-zone{flex:1;display:flex;align-items:center;justify-content:center;padding:6px 10px;gap:8px;flex-wrap:wrap;position:relative;z-index:2;overflow:visible;min-height:120px;}
-  .tapis-card{width:clamp(80px,22vw,120px);aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;background:rgba(0,0,0,0.5);position:relative;flex-shrink:0;}
+  .tapis-card{width:clamp(70px,28vw,120px);aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:all 0.2s;background:rgba(0,0,0,0.5);position:relative;flex-shrink:1;}
+  #cf-player:has(> :nth-child(3)) .tapis-card,
+  #cf-ai:has(> :nth-child(3)) .tapis-card{width:clamp(55px,20vw,90px);}
+  #cf-player:has(> :nth-child(2)) .tapis-card,
+  #cf-ai:has(> :nth-child(2)) .tapis-card{width:clamp(65px,24vw,105px);}
   .tapis-card img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
   .tapis-card .tc-stats{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);font-size:0.42rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding:2px;line-height:1.3;}
   .tapis-card .tc-hp{position:absolute;top:2px;left:2px;background:rgba(180,20,20,0.9);border-radius:3px;font-size:0.4rem;font-family:Cinzel,serif;color:white;padding:2px 5px;}
@@ -878,7 +882,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⚔️ Combat</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:6px;">
-      Construis un deck de <strong style="color:var(--gold)">11 cartes</strong> + 1 carte spéciale optionnelle. Chaque carte a <strong style="color:var(--gold)">ATK · DEF · PV</strong>.
+      Construis un deck de <strong style="color:var(--gold)">20 cartes</strong> + 1 carte spéciale optionnelle. Chaque carte a <strong style="color:var(--gold)">ATK · DEF · PV</strong>.
     </div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:6px;">
       Chaque tour : pose 1-2 cartes → attaque → fin de tour.
@@ -1825,7 +1829,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     if(sec==='combat') {
       renderCombat();
       var uniqueCount = getUniqueOwned().length;
-      if(!user.combatTutoDone && uniqueCount >= 12) showCombatTutorial();
+      if(!user.combatTutoDone && uniqueCount >= 20) showCombatTutorial();
     }
     if(sec==='boutique') renderBoutique();
     if(sec==='admin') renderAdmin();
@@ -4011,7 +4015,7 @@ function showCombatTutorial() {
     },
     {
       title: 'Construis ton Deck 🃏',
-      desc: 'Sélectionne 11 cartes de ta collection. Tu peux aussi ajouter une carte spéciale achetée à la Boutique.',
+      desc: 'Sélectionne 20 cartes de ta collection. Tu peux aussi ajouter une carte spéciale achetée à la Boutique.',
       icon: '🃏'
     },
     {
@@ -4444,7 +4448,7 @@ function renderCombat() {
   if(!container) return;
   var unique = getUniqueOwned();
   var uniqueCount = unique.length;
-  var needed = 12;
+  var needed = 20;
 
   if(uniqueCount < needed) {
     container.innerHTML = '<div class="combat-locked">'
@@ -4464,13 +4468,13 @@ function renderCombat() {
 
 function renderDeckBuilder(container, savedDeck) {
   var unique = getUniqueOwned();
-  var deckIds = (savedDeck||[]).filter(function(id){ return !id.startsWith('mn'); }).slice(0, 11);
+  var deckIds = (savedDeck||[]).filter(function(id){ return !id.startsWith('mn'); }).slice(0, 20);
   var specialSlot = user.deckSpecial || null;
   var activeFilter = 'all';
 
   function buildHTML() {
     container.innerHTML = '<div class="sec-title">⚔️ Mon Deck</div>'
-      + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:10px;">11 cartes de combat + 1 carte spéciale optionnelle</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:10px;">20 cartes de combat + 1 carte spéciale optionnelle</div>'
       + '<div id="deck-slots-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:10px;"></div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-align:center;margin-bottom:6px;">✨ CARTE SPÉCIALE</div>'
       + '<div id="special-slot-area" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;align-items:center;"></div>'
@@ -4486,7 +4490,7 @@ function renderDeckBuilder(container, savedDeck) {
       + '<div id="deck-pick-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:320px;overflow-y:auto;padding:4px 2px;"></div>'
       + '<div style="display:flex;gap:10px;margin-top:16px;">'
       + '<button class="battle-btn secondary" id="deck-reset-btn" style="flex:0 0 auto;padding:10px 14px;">🗑</button>'
-      + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;" '+(deckIds.length<11?'disabled':'')+'>⚔️ Combattre !</button>'
+      + '<button class="battle-btn" id="deck-fight-btn" style="flex:1;" '+(deckIds.length<20?'disabled':'')+'>⚔️ Combattre !</button>'
       + '</div>';
 
     document.getElementById('deck-filters').querySelectorAll('.deck-filter-btn').forEach(function(btn) {
@@ -4614,14 +4618,14 @@ function renderDeckBuilder(container, savedDeck) {
         showDeckCardPreview(ent, isIn, function() {
           // Callback ajouter/retirer
           if(isIn) { var idx=deckIds.indexOf(k); if(idx>=0){deckIds.splice(idx,1);refreshSlots();refreshPicks();updateFightBtn();} }
-          else { if(deckIds.length>=11) return; deckIds.push(k); refreshSlots();refreshPicks();updateFightBtn(); }
+          else { if(deckIds.length>=20) return; deckIds.push(k); refreshSlots();refreshPicks();updateFightBtn(); }
         });
       }; })(key, inDeck, entry);
       pickEl.appendChild(d);
     });
   }
 
-  function updateFightBtn(){var btn=document.getElementById('deck-fight-btn');if(btn)btn.disabled=deckIds.length<11;}
+  function updateFightBtn(){var btn=document.getElementById('deck-fight-btn');if(btn)btn.disabled=deckIds.length<20;}
   buildHTML();
 }
 
@@ -5038,7 +5042,7 @@ function showHandPreview(idx) {
   overlay.className = 'hand-preview-overlay';
   overlay.id = 'hand-preview';
 
-  var canPlace = s.cardsPlayed < 2 && s.playerField.length < 2;
+  var canPlace = s.cardsPlayed < 1 && s.playerField.length < 3;
   var isSpecial = bc.isSpecial;
   var isWeapon = bc.card.id && bc.card.id.startsWith('ar');
 
@@ -5335,9 +5339,9 @@ function aiPlaceCards() {
   var sorted = s.aiHand.filter(function(bc){ return !bc.card.id.startsWith('ar'); })
     .slice().sort(function(a,b){ return b.combatAtk - a.combatAtk; });
   var played = 0;
-  var maxToPlay = Math.max(0, 2 - s.aiField.length);
+  var maxToPlay = Math.max(0, 3 - s.aiField.length);
   sorted.forEach(function(bc) {
-    if(played >= Math.min(2, maxToPlay)) return;
+    if(played >= Math.min(1, maxToPlay)) return;
     var idx = s.aiHand.indexOf(bc);
     if(idx >= 0) {
       s.aiHand.splice(idx, 1);
@@ -5365,7 +5369,7 @@ function endPlayerTurn() {
     if(!battleState || s._ending) return;
 
     // L'IA pioche et pose des cartes si son terrain est vide ou incomplet
-    if(s.aiField.length < 2) {
+    if(s.aiField.length < 3) {
       aiPlaceCards();
     }
 
