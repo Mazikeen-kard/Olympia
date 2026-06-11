@@ -637,6 +637,10 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .stat{padding:10px 14px;}
 }
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -651,24 +655,34 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <span class="l-orb">🏛️</span>
     <div class="l-name">Olympia</div>
     <div class="l-sub">Sanctuaire des Cartes Grecques</div>
+
+    <!-- FORMULAIRE CONNEXION -->
     <div id="frm-login">
-      <label class="l-lbl">Pseudo</label>
-      <input class="l-inp" id="inp-login" type="text" placeholder="Ton nom d'aventurier..." maxlength="20" autocomplete="off">
+      <label class="l-lbl">Adresse e-mail</label>
+      <input class="l-inp" id="inp-login-email" type="email" placeholder="ton@email.com" autocomplete="email">
+      <label class="l-lbl" style="margin-top:10px;">Mot de passe</label>
+      <input class="l-inp" id="inp-login-pwd" type="password" placeholder="••••••••" autocomplete="current-password">
       <div class="l-err" id="err-login"></div>
       <button class="l-btn" id="btn-login">⚔️ Entrer dans l'Olympe</button>
+      <div style="text-align:center;margin-top:8px;">
+        <span id="go-forgot" style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);cursor:pointer;text-decoration:underline;">Mot de passe oublié ?</span>
+      </div>
       <div class="l-sw">Première fois ? <span id="go-reg">Créer un compte</span></div>
     </div>
+
+    <!-- FORMULAIRE INSCRIPTION -->
     <div id="frm-reg" style="display:none">
-      <label class="l-lbl">Choisir un pseudo</label>
+      <label class="l-lbl">Pseudo</label>
       <input class="l-inp" id="inp-reg" type="text" placeholder="Ton nom d'aventurier..." maxlength="20" autocomplete="off">
+      <label class="l-lbl" style="margin-top:10px;">Adresse e-mail</label>
+      <input class="l-inp" id="inp-reg-email" type="email" placeholder="ton@email.com" autocomplete="email">
+      <label class="l-lbl" style="margin-top:10px;">Mot de passe</label>
+      <input class="l-inp" id="inp-reg-pwd" type="password" placeholder="8 caractères minimum" autocomplete="new-password">
       <div class="l-err" id="err-reg"></div>
       <button class="l-btn" id="btn-reg">✨ Rejoindre l'Olympe</button>
       <div class="l-sw">Déjà un compte ? <span id="go-login">Se connecter</span></div>
     </div>
-    <div id="known-users" style="display:none" class="l-chips">
-      <div class="l-chips-title">Aventuriers connus</div>
-      <div class="chips" id="chips"></div>
-    </div>
+
   </div>
 </div>
 
@@ -1189,14 +1203,49 @@ var timer = null;
 var currentFilter = 'all';
 
 // ══════════════════════════════════════
-//  STORAGE
+//  FIREBASE INIT
+// ══════════════════════════════════════
+var firebaseConfig = {
+  apiKey: "AIzaSyA0gFwXCCmG04WaCtBjCxWYH6lX048VZr4",
+  authDomain: "olympia-game.firebaseapp.com",
+  projectId: "olympia-game",
+  storageBucket: "olympia-game.firebasestorage.app",
+  messagingSenderId: "166854188582",
+  appId: "1:166854188582:web:44f978a486bff1b7e590e7"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+var auth = firebase.auth();
+
+// ══════════════════════════════════════
+//  STORAGE — Firebase Firestore
 // ══════════════════════════════════════
 function loadUser(p) {
   var d = localStorage.getItem('olympia_u_' + p);
   return d ? JSON.parse(d) : null;
 }
 function saveUser() {
+  if(!user || !pseudo) return;
+  // Sauvegarde locale immédiate
   localStorage.setItem('olympia_u_' + pseudo, JSON.stringify(user));
+  // Sauvegarde Firebase async
+  if(auth.currentUser) {
+    db.collection('users').doc(auth.currentUser.uid).set(user).catch(function(e){
+      console.warn('Firebase save error:', e);
+    });
+  }
+}
+function loadUserFromFirebase(uid, callback) {
+  db.collection('users').doc(uid).get().then(function(doc) {
+    if(doc.exists) {
+      callback(doc.data());
+    } else {
+      callback(null);
+    }
+  }).catch(function(e) {
+    console.warn('Firebase load error:', e);
+    callback(null);
+  });
 }
 function newUser(p) {
   return {
@@ -1453,17 +1502,25 @@ function showChips() {
 document.getElementById('go-reg').onclick = function() {
   document.getElementById('frm-login').style.display='none';
   document.getElementById('frm-reg').style.display='block';
-  document.getElementById('known-users').style.display='none';
   document.getElementById('inp-reg').focus();
 };
 document.getElementById('go-login').onclick = function() {
   document.getElementById('frm-reg').style.display='none';
   document.getElementById('frm-login').style.display='block';
-  showChips();
-  document.getElementById('inp-login').focus();
+  document.getElementById('inp-login-email').focus();
 };
-document.getElementById('inp-login').onkeydown = function(e){if(e.key==='Enter')doLogin();};
-document.getElementById('inp-reg').onkeydown = function(e){if(e.key==='Enter')doRegister();};
+document.getElementById('go-forgot').onclick = function() {
+  var email = document.getElementById('inp-login-email').value.trim();
+  if(!email) { document.getElementById('err-login').textContent = 'Entre ton email d\'abord.'; return; }
+  auth.sendPasswordResetEmail(email).then(function() {
+    document.getElementById('err-login').textContent = '';
+    showNotif('Email de réinitialisation envoyé !', '📧');
+  }).catch(function(e) {
+    document.getElementById('err-login').textContent = 'Email introuvable.';
+  });
+};
+document.getElementById('inp-login-pwd').onkeydown = function(e){if(e.key==='Enter')doLogin();};
+document.getElementById('inp-reg-pwd').onkeydown = function(e){if(e.key==='Enter')doRegister();};
 
 document.getElementById('btn-login').onclick = doLogin;
 document.getElementById('btn-reg').onclick = doRegister;
@@ -1502,45 +1559,149 @@ document.getElementById('rev-close').onclick = closeReveal;
 
 var ADMIN_PASSWORD = '260494';
 
+// ══════════════════════════════════════
+//  AUTH FIREBASE
+// ══════════════════════════════════════
 function doLogin() {
-  var v = document.getElementById('inp-login').value.trim();
-  var err = validateP(v);
-  if(err){document.getElementById('err-login').textContent=err;return;}
-  var data = loadUser(v);
-  if(!data){document.getElementById('err-login').textContent='Aucun aventurier avec ce nom. Crée un compte !';return;}
-  // Vérification mot de passe admin
-  if(v === 'Mazikeen') {
-    var pwd = prompt('🔐 Mot de passe administrateur :');
-    if(pwd !== ADMIN_PASSWORD) {
-      document.getElementById('err-login').textContent='Mot de passe incorrect.';
-      return;
+  var email = document.getElementById('inp-login-email').value.trim();
+  var pwd = document.getElementById('inp-login-pwd').value;
+  var errEl = document.getElementById('err-login');
+  errEl.textContent = '';
+  if(!email) { errEl.textContent = 'Entre ton adresse e-mail.'; return; }
+  if(!pwd) { errEl.textContent = 'Entre ton mot de passe.'; return; }
+  var btn = document.getElementById('btn-login');
+  btn.textContent = '⏳ Connexion...';
+  btn.disabled = true;
+  auth.signInWithEmailAndPassword(email, pwd).then(function(cred) {
+    // Auth OK — charger les données depuis Firebase
+    loadUserFromFirebase(cred.user.uid, function(data) {
+      if(!data) {
+        // Tentative migration localStorage
+        var localData = loadUser(email.split('@')[0]);
+        data = localData || newUser(email.split('@')[0]);
+      }
+      // Merge avec champs manquants
+      var base = newUser(data.pseudo || email.split('@')[0]);
+      Object.keys(base).forEach(function(k){ if(data[k]===undefined) data[k]=base[k]; });
+      launch(data.pseudo, data, cred.user.uid);
+    });
+  }).catch(function(e) {
+    btn.textContent = '⚔️ Entrer dans l\'Olympe';
+    btn.disabled = false;
+    if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/wrong-password') {
+      errEl.textContent = 'Email ou mot de passe incorrect.';
+    } else if(e.code==='auth/invalid-email') {
+      errEl.textContent = 'Adresse e-mail invalide.';
+    } else if(e.code==='auth/too-many-requests') {
+      errEl.textContent = 'Trop de tentatives. Réessaie plus tard.';
+    } else {
+      errEl.textContent = 'Erreur : ' + e.message;
     }
-  }
-  launch(v, data);
+  });
 }
 
 function doRegister() {
-  var v = document.getElementById('inp-reg').value.trim();
-  var err = validateP(v);
-  if(err){document.getElementById('err-reg').textContent=err;return;}
-  if(loadUser(v)){document.getElementById('err-reg').textContent='Ce pseudo est déjà pris !';return;}
-  var data = newUser(v);
-  pseudo = v;
-  user = data;
-  saveUser();
-  addKnown(v);
-  launch(v, data);
+  var pseudo_v = document.getElementById('inp-reg').value.trim();
+  var email = document.getElementById('inp-reg-email').value.trim();
+  var pwd = document.getElementById('inp-reg-pwd').value;
+  var errEl = document.getElementById('err-reg');
+  errEl.textContent = '';
+  var err = validateP(pseudo_v);
+  if(err) { errEl.textContent = err; return; }
+  if(!email) { errEl.textContent = 'Entre ton adresse e-mail.'; return; }
+  if(!pwd || pwd.length < 8) { errEl.textContent = 'Mot de passe : 8 caractères minimum.'; return; }
+  var btn = document.getElementById('btn-reg');
+  btn.textContent = '⏳ Création...';
+  btn.disabled = true;
+
+  // Vérifier si le pseudo est déjà pris
+  db.collection('pseudos').doc(pseudo_v.toLowerCase()).get().then(function(doc) {
+    if(doc.exists) {
+      errEl.textContent = 'Ce pseudo est déjà pris !';
+      btn.textContent = '✨ Rejoindre l\'Olympe';
+      btn.disabled = false;
+      return;
+    }
+    // Créer le compte Firebase Auth
+    return auth.createUserWithEmailAndPassword(email, pwd).then(function(cred) {
+      var uid = cred.user.uid;
+      var data = newUser(pseudo_v);
+      // Migrer localStorage si existant
+      var localData = loadUser(pseudo_v);
+      if(localData) {
+        Object.keys(localData).forEach(function(k){ if(data[k]===undefined||k==='collection'||k==='drachmes'||k==='badges'||k==='specialCards') data[k]=localData[k]; });
+        addBattleLog && null; // no-op
+      }
+      // Sauvegarder dans Firestore
+      return Promise.all([
+        db.collection('users').doc(uid).set(data),
+        db.collection('pseudos').doc(pseudo_v.toLowerCase()).set({uid: uid, pseudo: pseudo_v})
+      ]).then(function() {
+        launch(pseudo_v, data, uid);
+      });
+    });
+  }).catch(function(e) {
+    btn.textContent = '✨ Rejoindre l\'Olympe';
+    btn.disabled = false;
+    if(e.code==='auth/email-already-in-use') {
+      errEl.textContent = 'Cet email est déjà utilisé.';
+    } else if(e.code==='auth/invalid-email') {
+      errEl.textContent = 'Adresse e-mail invalide.';
+    } else if(e.code==='auth/weak-password') {
+      errEl.textContent = 'Mot de passe trop faible.';
+    } else {
+      errEl.textContent = 'Erreur : ' + e.message;
+    }
+  });
 }
+
+function doLogout() {
+  auth.signOut().then(function() {
+    pseudo = null; user = null;
+    document.getElementById('app').style.display='none';
+    document.getElementById('login').classList.remove('hide');
+    document.getElementById('inp-login-email').value='';
+    document.getElementById('inp-login-pwd').value='';
+    document.getElementById('frm-login').style.display='block';
+    document.getElementById('frm-reg').style.display='none';
+  });
+}
+
+// ══════════════════════════════════════
+//  AUTO-CONNEXION Firebase
+// ══════════════════════════════════════
+auth.onAuthStateChanged(function(firebaseUser) {
+  if(firebaseUser) {
+    // Utilisateur déjà connecté — charger ses données
+    loadUserFromFirebase(firebaseUser.uid, function(data) {
+      if(data) {
+        var base = newUser(data.pseudo || '');
+        Object.keys(base).forEach(function(k){ if(data[k]===undefined) data[k]=base[k]; });
+        document.getElementById('loading').style.display='none';
+        launch(data.pseudo, data, firebaseUser.uid);
+      } else {
+        // Pas de données Firestore — afficher login
+        document.getElementById('loading').style.display='none';
+        document.getElementById('login').classList.remove('hide');
+      }
+    });
+  } else {
+    // Non connecté
+    document.getElementById('loading').style.display='none';
+    document.getElementById('login').classList.remove('hide');
+  }
+});
 
 function updateStats() {
   if(!user) return;
   updateDrachmesDisplay();
 }
 
-function launch(p, data) {
+function launch(p, data, uid) {
   pseudo = p;
   user = data;
-  // Compte admin Mazikeen - toutes les cartes !
+  user.pseudo = p;
+  // Compte admin Mazikeen
   if(p === 'Mazikeen') {
     var savedPending = user.adminPackPending || 0;
     var allC = allCards();
@@ -1553,17 +1714,18 @@ function launch(p, data) {
     user.drachmes = 9999;
     user.specialCards = {};
     SPECIAL_CARDS.forEach(function(sc){ user.specialCards[sc.id] = 10; });
-    user.adminPackPending = savedPending; // préserver les paquets en attente
-    saveUser();
+    user.adminPackPending = savedPending;
     user.badges = COMBOS.map(function(c){ return c.id; });
     user.progressBadges = PROGRESS_BADGES.map(function(pb){ return pb.id; });
     user.combatWins = 999;
     user.totalDays = 999;
     user.xp = 25000;
+  }
+  // Sauvegarder immédiatement
+  if(uid) {
+    localStorage.setItem('olympia_uid', uid);
     saveUser();
   }
-  addKnown(p);
-  localStorage.setItem('olympia_last', p);
   document.getElementById('login').classList.add('hide');
   document.getElementById('app').style.display='block';
   document.getElementById('hdr-pseudo').textContent = p;
@@ -1610,17 +1772,6 @@ function launch(p, data) {
   }
 }
 
-function doLogout() {
-  pseudo=null; user=null;
-  if(timer) clearInterval(timer);
-  document.getElementById('app').style.display='none';
-  document.getElementById('login').classList.remove('hide');
-  document.getElementById('inp-login').value='';
-  document.getElementById('err-login').textContent='';
-  document.getElementById('frm-login').style.display='block';
-  document.getElementById('frm-reg').style.display='none';
-  showChips();
-}
 
 // ══════════════════════════════════════
 //  NAV
