@@ -891,7 +891,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       Construis un deck de <strong style="color:var(--gold)">20 cartes</strong> + 1 carte spéciale optionnelle. Chaque carte a <strong style="color:var(--gold)">ATK · DEF</strong>.
     </div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:6px;">
-      Chaque tour : pose 1-2 cartes → attaque → fin de tour.
+      Chaque tour : pose <strong style="color:var(--gold)">1 carte</strong> sur ton terrain → attaque → fin de tour.
     </div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:6px;">
       <strong style="color:var(--gold)">⚔️ Mode Attaque</strong> : tu infliges des dégâts mais tu en prends aussi si l'IA t'attaque.<br>
@@ -4024,7 +4024,7 @@ function showCombatTutorial() {
     },
     {
       title: 'Les Phases de Tour 🔄',
-      desc: '1️⃣ Pose 1-2 cartes sur ton terrain\n2️⃣ Clique ⚔️ PRÊT\n3️⃣ Sélectionne une carte → Attaquer\n4️⃣ Clique Fin Tour',
+      desc: '1️⃣ Pose 1 carte sur ton terrain\n2️⃣ Clique ⚔️ PRÊT\n3️⃣ Sélectionne une carte → Attaquer\n4️⃣ Clique Fin Tour',
       icon: '🔄'
     },
     {
@@ -5055,7 +5055,7 @@ function showHandPreview(idx) {
       ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:140px;padding:10px 16px;background:linear-gradient(135deg,#7722cc,#aa44ff);">✨ Utiliser</button>'
       : isWeapon
       ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:140px;padding:10px 16px;background:linear-gradient(135deg,#8b6914,#daa520);">⚔️ Équiper</button>'
-      : (canPlace ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:120px;padding:10px 16px;">▶ Poser</button>' : '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,100,100,0.8);">Max 2 cartes posées</div>'))
+      : (canPlace ? '<button class="combat-btn" id="hp-place" style="flex:none;min-width:120px;padding:10px 16px;">▶ Poser</button>' : '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,100,100,0.8);">1 carte par tour max</div>'))
     + '<button class="combat-btn sec" id="hp-cancel" style="flex:none;min-width:80px;padding:10px 16px;">✕</button>'
     + '</div>';
 
@@ -5167,52 +5167,305 @@ function showTargetPicker(attacker) {
   document.getElementById('cancel-target').onclick = function() { overlay.remove(); };
 }
 
+// ══════════════════════════════════════
+//  EFFETS SIGNATURE PAR CARTE
+// ══════════════════════════════════════
+var CARD_SIGNATURES = {
+  'o1':  { color:'#ffe566', color2:'#ffaa00', emoji:'⚡', name:'zeus',     type:'lightning' },
+  'o2':  { color:'#cc88ff', color2:'#8844cc', emoji:'👑', name:'hera',     type:'beam' },
+  'o3':  { color:'#aaddff', color2:'#4488cc', emoji:'🦉', name:'athena',   type:'shield' },
+  'o4':  { color:'#44aaff', color2:'#0055cc', emoji:'🔱', name:'poseidon', type:'wave' },
+  'o5':  { color:'#aa44ff', color2:'#550088', emoji:'💀', name:'hades',    type:'smoke' },
+  'o6':  { color:'#ff6644', color2:'#cc2200', emoji:'⚔️', name:'ares',     type:'fire' },
+  'o8':  { color:'#ffdd44', color2:'#ffaa00', emoji:'☀️', name:'apollo',   type:'beam' },
+  'o9':  { color:'#88ffaa', color2:'#22aa55', emoji:'🌙', name:'artemis',  type:'beam' },
+  'o10': { color:'#ff8844', color2:'#cc4400', emoji:'🔨', name:'hephaïstos', type:'fire' },
+  'o11': { color:'#aa66ff', color2:'#6622cc', emoji:'🌑', name:'hecate',   type:'smoke' },
+  'o13': { color:'#ffffaa', color2:'#dddd00', emoji:'🪽', name:'hermes',   type:'speed' },
+  'o15': { color:'#ff66aa', color2:'#cc2266', emoji:'🍇', name:'dionysos', type:'beam' },
+  't1':  { color:'#aaaaff', color2:'#4444cc', emoji:'⏳', name:'cronos',   type:'time' },
+  't3':  { color:'#ff8844', color2:'#ff4400', emoji:'🔥', name:'prometheus', type:'fire' },
+  't5':  { color:'#ffcc44', color2:'#ffaa00', emoji:'🌞', name:'hyperion', type:'beam' },
+  'm1':  { color:'#44ff88', color2:'#00aa44', emoji:'🐍', name:'meduse',   type:'petrify' },
+  'm2':  { color:'#44ffcc', color2:'#00aaaa', emoji:'🐲', name:'hydre',    type:'wave' },
+  'm3':  { color:'#ff4400', color2:'#880000', emoji:'🌋', name:'typhon',   type:'explosion' },
+  'm5':  { color:'#ff6600', color2:'#cc2200', emoji:'🐕', name:'cerbere',  type:'fire' },
+  'h1':  { color:'#cc8844', color2:'#884400', emoji:'🦁', name:'heracles', type:'shockwave' },
+  'h2':  { color:'#aaaaaa', color2:'#666666', emoji:'⚔️', name:'achille',  type:'speed' },
+  'h3':  { color:'#88aacc', color2:'#446688', emoji:'🧠', name:'ulysse',   type:'beam' },
+  'h4':  { color:'#ffffff', color2:'#aaaacc', emoji:'🛡️', name:'persee',   type:'flash' },
+  'h8':  { color:'#ffaadd', color2:'#cc4488', emoji:'🎶', name:'orphee',   type:'beam' },
+};
+
+function getSignature(cardId) {
+  return CARD_SIGNATURES[cardId] || { color:'#ff4444', color2:'#cc0000', emoji:'⚔️', type:'default' };
+}
+
+function playSignatureEffect(sig, attackerEl, targetEl, onDone) {
+  var container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:600;overflow:hidden;';
+  document.body.appendChild(container);
+
+  var aRect = attackerEl ? attackerEl.getBoundingClientRect() : {left:window.innerWidth/2,top:window.innerHeight/2,width:80,height:120};
+  var tRect = targetEl ? targetEl.getBoundingClientRect() : {left:window.innerWidth/2,top:window.innerHeight/4,width:80,height:120};
+
+  var ax = aRect.left + aRect.width/2;
+  var ay = aRect.top + aRect.height/2;
+  var tx = tRect.left + tRect.width/2;
+  var ty = tRect.top + tRect.height/2;
+
+  function cleanup(delay) {
+    setTimeout(function() {
+      if(container.parentNode) container.remove();
+      if(onDone) onDone();
+    }, delay || 600);
+  }
+
+  function flashTarget(color, duration) {
+    if(!targetEl) return;
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;inset:0;border-radius:8px;pointer-events:none;z-index:10;';
+    flash.style.background = color;
+    flash.style.opacity = '0.8';
+    targetEl.style.position = 'relative';
+    targetEl.appendChild(flash);
+    setTimeout(function(){
+      flash.style.transition = 'opacity 0.3s';
+      flash.style.opacity = '0';
+      setTimeout(function(){ if(flash.parentNode) flash.remove(); }, 300);
+    }, duration || 200);
+  }
+
+  if(sig.type === 'lightning') {
+    // Zeus — éclair en zigzag
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+    container.appendChild(svg);
+    var pts = [[ax,ay]];
+    var steps = 8;
+    for(var i=1;i<steps;i++){
+      var px = ax + (tx-ax)*(i/steps) + (Math.random()-0.5)*60;
+      var py = ay + (ty-ay)*(i/steps) + (Math.random()-0.5)*40;
+      pts.push([px,py]);
+    }
+    pts.push([tx,ty]);
+    var pathD = 'M'+pts.map(function(p){return p[0]+','+p[1];}).join('L');
+    var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('stroke', sig.color);
+    path.setAttribute('stroke-width', '4');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('filter', 'drop-shadow(0 0 8px '+sig.color+')');
+    path.style.strokeDasharray = '2000';
+    path.style.strokeDashoffset = '2000';
+    svg.appendChild(path);
+    // Animate
+    anime({ targets: path, strokeDashoffset: 0, duration: 300, easing: 'easeInQuad',
+      complete: function(){
+        flashTarget('rgba(255,230,100,0.7)', 300);
+        // Particules
+        for(var p=0;p<12;p++){
+          var spark = document.createElement('div');
+          spark.style.cssText = 'position:absolute;width:4px;height:4px;background:'+sig.color+';border-radius:50%;left:'+tx+'px;top:'+ty+'px;';
+          container.appendChild(spark);
+          anime({ targets:spark, translateX: (Math.random()-0.5)*120, translateY: (Math.random()-0.5)*120,
+            opacity:[1,0], duration:400, easing:'easeOutQuad' });
+        }
+        cleanup(450);
+      }
+    });
+
+  } else if(sig.type === 'wave') {
+    // Poséidon / Hydre — vague
+    for(var w=0;w<3;w++){
+      (function(delay){
+        setTimeout(function(){
+          var ring = document.createElement('div');
+          ring.style.cssText = 'position:absolute;border-radius:50%;border:3px solid '+sig.color+';width:20px;height:20px;left:'+(tx-10)+'px;top:'+(ty-10)+'px;opacity:0.9;';
+          container.appendChild(ring);
+          anime({ targets:ring, width:180, height:180, left:tx-90, top:ty-90, opacity:0, duration:600, easing:'easeOutQuad' });
+        }, delay);
+      })(w*120);
+    }
+    flashTarget('rgba(68,170,255,0.6)', 400);
+    cleanup(700);
+
+  } else if(sig.type === 'fire') {
+    // Arès / Prométhée — flammes
+    for(var f=0;f<16;f++){
+      (function(i){
+        setTimeout(function(){
+          var flame = document.createElement('div');
+          var size = 16 + Math.random()*20;
+          flame.style.cssText = 'position:absolute;font-size:'+size+'px;left:'+(tx+(Math.random()-0.5)*80)+'px;top:'+(ty+(Math.random()-0.5)*60)+'px;';
+          flame.textContent = '🔥';
+          container.appendChild(flame);
+          anime({ targets:flame, translateY:-60-Math.random()*40, opacity:[1,0], duration:500+Math.random()*300, easing:'easeOutQuad' });
+        }, i*40);
+      })(f);
+    }
+    flashTarget('rgba(255,80,0,0.6)', 300);
+    cleanup(800);
+
+  } else if(sig.type === 'smoke') {
+    // Hadès / Hécate — fumée violette
+    for(var s=0;s<10;s++){
+      (function(i){
+        setTimeout(function(){
+          var smoke = document.createElement('div');
+          var size = 30+Math.random()*40;
+          smoke.style.cssText = 'position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+sig.color+';opacity:0.6;filter:blur(8px);left:'+(tx+(Math.random()-0.5)*100)+'px;top:'+(ty+(Math.random()-0.5)*80)+'px;';
+          container.appendChild(smoke);
+          anime({ targets:smoke, translateY:-40-Math.random()*40, opacity:0, scale:1.5, duration:700, easing:'easeOutQuad' });
+        }, i*60);
+      })(s);
+    }
+    flashTarget('rgba(170,68,255,0.6)', 400);
+    cleanup(800);
+
+  } else if(sig.type === 'speed') {
+    // Hermès / Achille — traînée de vitesse
+    var trail = document.createElement('div');
+    trail.style.cssText = 'position:absolute;height:3px;background:linear-gradient(90deg,transparent,'+sig.color+');left:'+ax+'px;top:'+ay+'px;width:0;border-radius:2px;box-shadow:0 0 8px '+sig.color+';';
+    container.appendChild(trail);
+    var dist = Math.sqrt((tx-ax)*(tx-ax)+(ty-ay)*(ty-ay));
+    var angle = Math.atan2(ty-ay, tx-ax) * 180/Math.PI;
+    trail.style.transform = 'rotate('+angle+'deg)';
+    trail.style.transformOrigin = '0 50%';
+    anime({ targets:trail, width:dist, opacity:[1,1,0], duration:300, easing:'easeInQuad',
+      complete: function(){
+        flashTarget('rgba(255,255,170,0.7)', 200);
+        cleanup(300);
+      }
+    });
+
+  } else if(sig.type === 'shockwave') {
+    // Héraclès — onde de choc
+    var shock = document.createElement('div');
+    shock.style.cssText = 'position:absolute;border-radius:50%;background:radial-gradient(circle,'+sig.color+'88,transparent);width:10px;height:10px;left:'+(tx-5)+'px;top:'+(ty-5)+'px;';
+    container.appendChild(shock);
+    anime({ targets:shock, width:300, height:300, left:tx-150, top:ty-150, opacity:[0.8,0], duration:500, easing:'easeOutQuad' });
+    // Tremblement de la cible
+    if(targetEl) {
+      anime({ targets:targetEl, translateX:[-8,8,-6,6,-4,4,0], duration:400, easing:'easeInOutSine' });
+    }
+    flashTarget('rgba(200,130,70,0.7)', 300);
+    cleanup(550);
+
+  } else if(sig.type === 'petrify') {
+    // Méduse — rayons verts
+    for(var r=0;r<6;r++){
+      (function(i){
+        var ray = document.createElement('div');
+        var angle2 = (i/6)*360;
+        ray.style.cssText = 'position:absolute;width:80px;height:3px;background:linear-gradient(90deg,'+sig.color+',transparent);left:'+tx+'px;top:'+ty+'px;transform-origin:0 50%;transform:rotate('+angle2+'deg);box-shadow:0 0 6px '+sig.color+';';
+        container.appendChild(ray);
+        anime({ targets:ray, width:[0,100,0], opacity:[0,1,0], duration:600, easing:'easeInOutQuad' });
+      })(r);
+    }
+    flashTarget('rgba(68,255,136,0.6)', 400);
+    cleanup(650);
+
+  } else if(sig.type === 'flash') {
+    // Persée — flash blanc aveuglant
+    var flashDiv = document.createElement('div');
+    flashDiv.style.cssText = 'position:absolute;inset:0;background:white;opacity:0;';
+    container.appendChild(flashDiv);
+    anime({ targets:flashDiv, opacity:[0,0.9,0], duration:400, easing:'easeInOutQuad' });
+    flashTarget('rgba(255,255,255,0.9)', 200);
+    cleanup(450);
+
+  } else if(sig.type === 'time') {
+    // Cronos — distorsion
+    var rings2 = 4;
+    for(var ri=0;ri<rings2;ri++){
+      (function(i){
+        setTimeout(function(){
+          var ring2 = document.createElement('div');
+          ring2.style.cssText = 'position:absolute;border-radius:50%;border:2px solid '+sig.color+';width:10px;height:10px;left:'+(tx-5)+'px;top:'+(ty-5)+'px;opacity:0.8;';
+          container.appendChild(ring2);
+          anime({ targets:ring2, width:160, height:160, left:tx-80, top:ty-80, opacity:0, rotate:180, duration:700, easing:'easeOutQuad' });
+        }, i*100);
+      })(ri);
+    }
+    flashTarget('rgba(170,170,255,0.6)', 400);
+    cleanup(800);
+
+  } else if(sig.type === 'explosion') {
+    // Typhon — explosion
+    for(var e=0;e<20;e++){
+      (function(i){
+        var particle = document.createElement('div');
+        var size2 = 6+Math.random()*10;
+        particle.style.cssText = 'position:absolute;width:'+size2+'px;height:'+size2+'px;border-radius:50%;background:'+sig.color+';left:'+tx+'px;top:'+ty+'px;';
+        container.appendChild(particle);
+        anime({ targets:particle,
+          translateX:(Math.random()-0.5)*200, translateY:(Math.random()-0.5)*200,
+          opacity:[1,0], scale:[1,0], duration:600+Math.random()*200, easing:'easeOutQuad' });
+      })(e);
+    }
+    flashTarget('rgba(255,68,0,0.8)', 300);
+    if(targetEl) anime({ targets:targetEl, translateX:[-12,12,-8,8,0], duration:500 });
+    cleanup(750);
+
+  } else if(sig.type === 'shield') {
+    // Athéna — bouclier
+    var shield = document.createElement('div');
+    shield.style.cssText = 'position:absolute;border-radius:50%;border:4px solid '+sig.color+';box-shadow:0 0 20px '+sig.color+';width:10px;height:10px;left:'+(ax-5)+'px;top:'+(ay-5)+'px;opacity:0.9;';
+    container.appendChild(shield);
+    anime({ targets:shield, width:100, height:100, left:ax-50, top:ay-50, opacity:[0.9,0.9,0], duration:600, easing:'easeOutQuad' });
+    flashTarget('rgba(170,220,255,0.5)', 300);
+    cleanup(650);
+
+  } else {
+    // Défaut — flash rouge simple
+    flashTarget('rgba(255,50,50,0.6)', 300);
+    cleanup(400);
+  }
+}
+
 function animateAttack(attackerEl, targetEl, weaponIcon, onDone) {
-  // Si pas d'éléments DOM, exécuter directement
   if(!attackerEl && !targetEl) { if(onDone) onDone(); return; }
 
   var done = false;
   function finish() { if(!done) { done = true; if(onDone) onDone(); } }
-
-  // Timeout de sécurité — quoi qu'il arrive onDone est appelé
-  var safetyTimer = setTimeout(finish, 1200);
+  var safetyTimer = setTimeout(finish, 1500);
 
   if(!attackerEl || !targetEl) { clearTimeout(safetyTimer); finish(); return; }
 
   var aRect = attackerEl.getBoundingClientRect();
   var tRect = targetEl.getBoundingClientRect();
 
+  // Clone de la carte attaquante qui fonce vers la cible
   var clone = attackerEl.cloneNode(true);
   clone.style.cssText = 'position:fixed;width:'+aRect.width+'px;height:'+aRect.height+'px;'
     +'top:'+aRect.top+'px;left:'+aRect.left+'px;z-index:500;pointer-events:none;border-radius:8px;overflow:hidden;transition:none;';
   document.body.appendChild(clone);
 
-  if(weaponIcon) {
-    var wi = document.createElement('div');
-    wi.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(0,0,0,0.3);z-index:2;';
-    wi.textContent = weaponIcon;
-    clone.appendChild(wi);
-  }
-
   var dx = tRect.left - aRect.left;
   var dy = tRect.top - aRect.top;
 
-  clone.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+  clone.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){
-      clone.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.15)';
+      clone.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.1)';
     });
   });
 
   setTimeout(function(){
-    if(targetEl && targetEl.parentNode) {
-      targetEl.classList.add('anim-hit');
-      var flash = document.createElement('div');
-      flash.style.cssText = 'position:absolute;inset:0;background:rgba(255,50,50,0.6);z-index:10;border-radius:8px;pointer-events:none;';
-      targetEl.style.position = 'relative';
-      targetEl.appendChild(flash);
-      setTimeout(function(){ if(flash.parentNode) flash.remove(); targetEl.classList.remove('anim-hit'); }, 350);
+    // Récupérer l'ID de la carte pour l'effet signature
+    var cardId = null;
+    if(attackerEl.id) {
+      var idx2 = parseInt(attackerEl.id.replace('ai-card-','').replace('player-card-',''));
+      var isAi = attackerEl.id.indexOf('ai-card') >= 0;
+      if(battleState) {
+        var field = isAi ? battleState.aiField : battleState.playerField;
+        if(field && field[idx2]) cardId = field[idx2].card.id;
+      }
     }
+    var sig = getSignature(cardId);
+    playSignatureEffect(sig, attackerEl, targetEl, null);
+
     clone.style.transition = 'transform 0.2s ease, opacity 0.2s';
     clone.style.transform = 'translate(0,0) scale(1)';
     clone.style.opacity = '0';
@@ -5220,8 +5473,8 @@ function animateAttack(attackerEl, targetEl, weaponIcon, onDone) {
       if(clone.parentNode) clone.remove();
       clearTimeout(safetyTimer);
       finish();
-    }, 220);
-  }, 370);
+    }, 700);
+  }, 320);
 }
 
 function showDmgNumber(el, amount, isHeal) {
