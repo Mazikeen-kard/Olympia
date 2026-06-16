@@ -1299,6 +1299,7 @@ function addDrachmes(amount, reason) {
   if(!user) return;
   if(!user.drachmes) user.drachmes = 0;
   user.drachmes += amount;
+  if(amount > 0) playSound('drachmes');
   saveUser();
   updateDrachmesDisplay();
   showDrachmesNotif(amount, reason);
@@ -1771,6 +1772,7 @@ function launch(p, data, uid) {
   checkStreak();
   addXP(20, 'Connexion quotidienne');
   checkCombos(); checkProgressBadges();
+  addAudioToggle();
   updateRankDisplay();
   // Paquets offerts par l'admin
   if(user.adminPackPending && user.adminPackPending > 0) {
@@ -2431,6 +2433,7 @@ function setupTearGesture() {
 function tearPack() {
   if(_torn) return;
   _torn = true;
+  playSound('packOpen');
   document.getElementById('pr-hint').textContent = '';
   var wrapper = document.getElementById('pack-wrapper');
 
@@ -2577,24 +2580,30 @@ function showRevealCardNew(index) {
   cardEl.style.width = '280px';
   cardEl.style.pointerEvents = 'none';
 
-  // Rarity animation
+  // Rarity animation + son
   var anim = 'cardRevealCommon 0.6s ease-out forwards';
   var glow = '';
   if(d.isShiny) {
     anim = 'cardRevealShiny 1.2s ease-out forwards';
     glow = '#ff44aa';
     spawnParticles(slot, '#ff44aa', '#ffe566', '#cc88ff');
+    playSound('shiny');
   } else if(d.card.rarity === 'légendaire') {
     anim = 'cardRevealLegend 1s ease-out forwards';
     glow = '#daa520';
     spawnParticles(slot, '#daa520', '#ffe566', '#fff');
+    playSound('legendary');
   } else if(d.card.rarity === 'épique') {
     anim = 'cardRevealEpic 0.8s ease-out forwards';
     glow = '#7722cc';
     spawnParticles(slot, '#7722cc', '#cc88ff', '#fff');
+    playSound('cardReveal');
   } else if(d.card.rarity === 'rare') {
     anim = 'cardRevealRare 0.7s ease-out forwards';
     glow = '#2255cc';
+    playSound('cardReveal');
+  } else {
+    playSound('cardFlip');
   }
   // Initial state
   cardEl.style.opacity = '0';
@@ -4014,12 +4023,12 @@ function showCombatTutorial() {
     },
     {
       title: 'Les Stats de Carte',
-      desc: '⚔️ ATK : dégâts infligés\n🛡 DEF : résistance aux coups\n\nSi ton ATK > DEF ennemie → carte ennemie détruite.\nSi ton ATK < DEF ennemie → ta carte est détruite.',
+      desc: '⚔️ ATK : puissance d\'attaque\n🛡 DEF : résistance\n\n▶ Tu attaques une carte en défense :\nTon ATK > sa DEF → elle est détruite + excès sur ses PV\nTon ATK < sa DEF → ta carte est détruite\n\n▶ Tu attaques une carte en attaque :\nTon ATK > son ATK → elle est détruite + différence sur tes PV adverses\nTon ATK < son ATK → ta carte est détruite + tu perds la différence en PV',
       icon: '📊'
     },
     {
       title: 'Mode Attaque / Défense',
-      desc: '⚔️ Mode Attaque : tu infliges des dégâts mais tu en prends aussi si l\'IA t\'attaque.\n\n🛡 Mode Défense : tu absorbes les coups, tes PV perso ne bougent pas.',
+      desc: '⚔️ Mode Attaque : ta carte peut attaquer. Si l\'IA t\'attaque et son ATK > ton ATK, ta carte est détruite et tu perds la différence en PV.\n\n🛡 Mode Défense : ta carte protège. Si l\'IA t\'attaque et son ATK < ta DEF, l\'IA perd des PV. Tu ne prends rien !',
       icon: '⚔️🛡'
     },
     {
@@ -4029,7 +4038,7 @@ function showCombatTutorial() {
     },
     {
       title: 'Tes Points de Vie 💚',
-      desc: 'Tu commences avec 8000 PV. Tu perds des PV quand l\'IA attaque ta carte en mode Attaque, ou si ton terrain est vide.\n\nRéduis les PV de l\'IA à 0 pour gagner !',
+      desc: 'Tu commences avec 20 000 PV. Tu perds des PV quand :\n\n• L\'IA détruit ta carte en mode Attaque (différence ATK)\n• Son ATK perce ta DEF en mode Défense (excès)\n• Ton terrain est vide → attaque directe\n\nRéduis les PV de l\'IA à 0 pour gagner !',
       icon: '💚'
     },
     {
@@ -4689,11 +4698,11 @@ function startBattle(deckIds, playerFirst, secretId) {
     playerDeck: playerDeckFull.slice(5),
     playerHand: playerDeckFull.slice(0,5),
     playerField: [],
-    playerHp: 8000, playerMaxHp: 8000,
+    playerHp: 20000, playerMaxHp: 20000,
     aiDeck: aiCards.slice(5),
     aiHand: aiCards.slice(0,5),
     aiField: [],
-    aiHp: 8000, aiMaxHp: 8000,
+    aiHp: 20000, aiMaxHp: 20000,
     phase: 'place',
     turn: 1,
     log: [],
@@ -4819,20 +4828,21 @@ function renderBattle() {
     +'<div class="combat-log" id="cf-log"></div>'
     +(isPlace||isPlayer?
       '<div class="combat-hand-area">'
-      +'<div class="combat-hand-label" id="cf-hand-label">'+(isPlace?'POSE 1-2 CARTES PUIS CLIQUE PRÊT':'MA MAIN ('+s.playerHand.length+')')+'</div>'
+      +'<div class="combat-hand-label" id="cf-hand-label">'+(isPlace?'👆 TAP UNE CARTE POUR LA POSER':'MA MAIN ('+s.playerHand.length+')')+'</div>'
       +'<div class="combat-hand-fan" id="cf-hand"></div>'
       +'</div>'
     :'')
+    +(s.phase==='ai' ? '<div id="ai-overlay" style="position:absolute;inset:0;z-index:50;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;pointer-events:all;"><div style="background:rgba(0,0,0,0.75);border:1px solid rgba(218,165,32,0.4);border-radius:14px;padding:16px 28px;text-align:center;"><div style="font-size:1.6rem;margin-bottom:6px;">🤖</div><div style="font-family:Cinzel Decorative,serif;font-size:0.75rem;color:var(--gold);">L\'IA joue...</div></div></div>' : '')
     +'<div class="combat-actions">'
-    +(isPlace?
-      '<button class="combat-btn sec" id="cb-mode">🛡 Défense</button>'
-      +'<button class="combat-btn" id="cb-ready" '+(s.playerField.length===0?'disabled':'')+' style="background:linear-gradient(135deg,#22aa44,#44dd66);">⚔️ PRÊT !</button>'
-    : isPlayer?
-      '<button class="combat-btn sec" id="cb-mode">🛡 Défense</button>'
-      +'<button class="combat-btn" id="cb-attack" style="'+(s._pickingTarget?'background:linear-gradient(135deg,#cc2233,#ff4455);':'')+'">'+( s._pickingTarget ? '✕ Annuler' : '⚔️ Attaquer')+'</button>'
-      +'<button class="combat-btn" id="cb-end">⏭ Fin Tour</button>'
+    +(isPlace||isPlayer?
+      '<button class="combat-btn sec" id="cb-mode" style="flex:none;">'+(s.selectedFieldCard!==null&&s.playerField[s.selectedFieldCard]&&s.playerField[s.selectedFieldCard].mode==='defense'?'⚔️ Attaque':'🛡 Défense')+'</button>'
+      +(s._pickingTarget?'<button class="combat-btn sec" id="cb-cancel-target" style="flex:none;background:linear-gradient(135deg,#cc2233,#ff4455);">✕ Annuler</button>':'')
+      +'<div style="flex:1;text-align:center;font-family:Cinzel,serif;font-size:0.52rem;color:rgba(255,255,255,0.35);">'
+      +(isPlace?'Tape une carte pour la poser':s._pickingTarget?'Choisis une cible ennemie':'Sélectionne une carte pour attaquer')
+      +'</div>'
+      +'<button class="combat-btn sec" id="cb-end" style="flex:none;">⏭ Passer</button>'
     :
-      '<div style="flex:1;text-align:center;font-family:Cinzel,serif;font-size:0.55rem;color:rgba(255,255,255,0.4);">L\'IA réfléchit...</div>'
+      '<div style="flex:1;"></div>'
     )
     +'</div>';
 
@@ -4888,7 +4898,6 @@ function renderBattle() {
     d.id = 'player-card-'+idx;
     d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
       +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
-    (function(i){d.onclick=function(){battleState.selectedFieldCard=(battleState.selectedFieldCard===i)?null:i;renderBattle();};})(idx);
 
     var wrapper = document.createElement('div');
     wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;';
@@ -4947,43 +4956,55 @@ function renderBattle() {
     if(s.selectedFieldCard===null){addBattleLog('Sélectionne une carte sur ton terrain.','');renderBattle();return;}
     var bc=s.playerField[s.selectedFieldCard];
     bc.mode=bc.mode==='attack'?'defense':'attack';
-    addBattleLog(bc.card.name+' → '+(bc.mode==='defense'?'défense':'attaque'),'info');
+    addBattleLog(bc.card.name+' → '+(bc.mode==='defense'?'🛡 défense':'⚔️ attaque'),'info');
     renderBattle();
   };
 
-  if(isPlace) {
-    document.getElementById('cb-ready').onclick=function(){
+  var cbCancel = document.getElementById('cb-cancel-target');
+  if(cbCancel) cbCancel.onclick=function(){
+    s._pickingTarget = false;
+    s._pendingAttacker = null;
+    renderBattle();
+  };
+
+  var cbEnd = document.getElementById('cb-end');
+  if(cbEnd) cbEnd.onclick=function(){ endPlayerTurn(); };
+
+  // Tap sur une carte joueur sur le terrain → sélectionner, puis si déjà sélectionnée → attaquer
+  s.playerField.forEach(function(bc, idx) {
+    var el = document.getElementById('player-card-'+idx);
+    if(!el) return;
+    el.onclick = function() {
+      if(s.phase === 'place') return; // en phase pose on ne peut pas attaquer
+      if(s.selectedFieldCard === idx) {
+        // Déjà sélectionnée — tenter d'attaquer
+        if(bc.hasAttacked){ addBattleLog(bc.card.name+' a déjà attaqué.',''); return; }
+        if(bc.mode==='defense'){ addBattleLog('Mode défense : ne peut pas attaquer.',''); return; }
+        if(s.aiField.length > 1) {
+          s._pickingTarget = true;
+          s._pendingAttacker = idx;
+          addBattleLog('🎯 Choisis une cible ennemie.','info');
+          renderBattle();
+        } else {
+          playerAttack(bc, s.aiField.length > 0 ? s.aiField[0] : null);
+        }
+      } else {
+        s.selectedFieldCard = idx;
+        renderBattle();
+      }
+    };
+  });
+
+  // Phase place → passe auto en player quand une carte est posée
+  if(isPlace && s.cardsPlayed >= 1 && !s._phaseTransitioned) {
+    s._phaseTransitioned = true;
+    setTimeout(function(){
       s.phase = 'player';
+      s._phaseTransitioned = false;
       aiPlaceCards();
       addBattleLog('— ⚔️ Combat ! Tour '+s.turn+' —','info');
       renderBattle();
-    };
-  }
-
-  if(isPlayer) {
-    var cbAtk = document.getElementById('cb-attack');
-    var cbEnd = document.getElementById('cb-end');
-    if(cbAtk) cbAtk.onclick=function(){
-      if(s.selectedFieldCard===null){addBattleLog('Sélectionne une de tes cartes pour attaquer.','');renderBattle();return;}
-      var a=s.playerField[s.selectedFieldCard];
-      if(a.hasAttacked){addBattleLog(a.card.name+' a déjà attaqué.','');renderBattle();return;}
-      if(a.mode==='defense'){addBattleLog('Mode défense : ne peut pas attaquer.','');renderBattle();return;}
-      if(s.aiField.length > 1) {
-        // Toggle mode cible
-        if(s._pickingTarget) {
-          s._pickingTarget = false;
-          s._pendingAttacker = null;
-        } else {
-          s._pickingTarget = true;
-          s._pendingAttacker = s.selectedFieldCard;
-          addBattleLog('🎯 Choisis une cible ennemie.','info');
-        }
-        renderBattle();
-      } else {
-        playerAttack(a, s.aiField.length > 0 ? s.aiField[0] : null);
-      }
-    };
-    if(cbEnd) cbEnd.onclick=function(){ endPlayerTurn(); };
+    }, 600);
   }
 
   var cbFlee = document.getElementById('cb-flee');
@@ -5124,6 +5145,7 @@ function showHandPreview(idx) {
         s.cardsPlayed++;
         addBattleLog('Tu poses '+card.card.name+' (⚔'+card.combatAtk+' 🛡'+card.combatDef+')', 'info');
         applyCardOnPlace(card, s);
+        playSound('cardPlace');
         renderBattle();
       }
     };
@@ -5168,7 +5190,233 @@ function showTargetPicker(attacker) {
 }
 
 // ══════════════════════════════════════
-//  EFFETS SIGNATURE PAR CARTE
+//  SYSTÈME AUDIO
+// ══════════════════════════════════════
+var _audioCtx = null;
+var _musicGain = null;
+var _musicSource = null;
+var _musicEnabled = true;
+var _sfxEnabled = true;
+
+function getAudioCtx() {
+  if(!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return _audioCtx;
+}
+
+function playTone(freq, type, duration, volume, attack, decay) {
+  if(!_sfxEnabled) return;
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(volume||0.3, ctx.currentTime + (attack||0.01));
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration||0.3));
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + (duration||0.3) + (decay||0.1));
+  } catch(e) {}
+}
+
+function playNoise(duration, volume, freq) {
+  if(!_sfxEnabled) return;
+  try {
+    var ctx = getAudioCtx();
+    var bufferSize = ctx.sampleRate * duration;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for(var i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1);
+    var source = ctx.createBufferSource();
+    source.buffer = buffer;
+    var gain = ctx.createGain();
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(freq||1000, ctx.currentTime);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(volume||0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    source.start();
+  } catch(e) {}
+}
+
+// Sons spécifiques
+var SOUNDS = {
+  cardPlace: function() {
+    playTone(220, 'sine', 0.08, 0.2);
+    setTimeout(function(){ playTone(330, 'sine', 0.12, 0.15); }, 50);
+  },
+  cardFlip: function() {
+    playNoise(0.08, 0.15, 3000);
+    playTone(440, 'sine', 0.1, 0.1);
+  },
+  attack: function() {
+    playNoise(0.15, 0.3, 500);
+    playTone(150, 'sawtooth', 0.2, 0.25);
+  },
+  lightning: function() {
+    // Zeus ⚡
+    playNoise(0.3, 0.5, 2000);
+    playTone(80, 'sawtooth', 0.3, 0.4);
+    setTimeout(function(){ playNoise(0.2, 0.3, 4000); }, 100);
+  },
+  fire: function() {
+    // Arès/Prométhée 🔥
+    playNoise(0.4, 0.35, 300);
+    playTone(120, 'sawtooth', 0.4, 0.3);
+  },
+  wave: function() {
+    // Poséidon 🔱
+    playTone(180, 'sine', 0.5, 0.3);
+    playTone(120, 'sine', 0.4, 0.2);
+    setTimeout(function(){ playNoise(0.3, 0.15, 400); }, 100);
+  },
+  smoke: function() {
+    // Hadès 💀
+    playTone(60, 'sawtooth', 0.6, 0.3);
+    playNoise(0.4, 0.2, 200);
+  },
+  speed: function() {
+    // Hermès/Achille
+    playTone(800, 'sine', 0.1, 0.2);
+    playTone(1200, 'sine', 0.08, 0.15);
+    setTimeout(function(){ playTone(600, 'sine', 0.12, 0.1); }, 80);
+  },
+  shockwave: function() {
+    // Héraclès
+    playNoise(0.2, 0.5, 200);
+    playTone(80, 'square', 0.3, 0.5);
+  },
+  petrify: function() {
+    // Méduse
+    playTone(300, 'square', 0.4, 0.25, 0.05);
+    setTimeout(function(){ playTone(200, 'square', 0.3, 0.2); }, 150);
+  },
+  flash: function() {
+    // Persée
+    playNoise(0.05, 0.4, 8000);
+    playTone(1000, 'sine', 0.15, 0.3);
+  },
+  explosion: function() {
+    // Typhon
+    playNoise(0.5, 0.6, 150);
+    playTone(60, 'sawtooth', 0.6, 0.5);
+    setTimeout(function(){ playNoise(0.3, 0.4, 300); }, 100);
+  },
+  cardDestroyed: function() {
+    playTone(200, 'sine', 0.1, 0.2);
+    playTone(150, 'sine', 0.3, 0.15);
+    playNoise(0.2, 0.2, 400);
+  },
+  packOpen: function() {
+    playNoise(0.1, 0.3, 2000);
+    setTimeout(function(){ playTone(440, 'sine', 0.15, 0.3); }, 100);
+    setTimeout(function(){ playTone(550, 'sine', 0.15, 0.25); }, 200);
+    setTimeout(function(){ playTone(660, 'sine', 0.2, 0.3); }, 300);
+  },
+  cardReveal: function() {
+    playTone(523, 'sine', 0.1, 0.2);
+    setTimeout(function(){ playTone(659, 'sine', 0.12, 0.2); }, 80);
+    setTimeout(function(){ playTone(784, 'sine', 0.15, 0.25); }, 160);
+  },
+  legendary: function() {
+    playTone(523, 'sine', 0.1, 0.3);
+    setTimeout(function(){ playTone(659, 'sine', 0.1, 0.3); }, 100);
+    setTimeout(function(){ playTone(784, 'sine', 0.1, 0.3); }, 200);
+    setTimeout(function(){ playTone(1047, 'sine', 0.4, 0.4, 0.05); }, 300);
+  },
+  shiny: function() {
+    playTone(880, 'sine', 0.05, 0.2);
+    playTone(1320, 'sine', 0.08, 0.3, 0.02);
+    playTone(1760, 'sine', 0.12, 0.4, 0.03);
+    setTimeout(function(){ playNoise(0.15, 0.1, 6000); }, 50);
+  },
+  victory: function() {
+    var notes = [523, 659, 784, 1047, 784, 1047, 1319];
+    notes.forEach(function(n, i) {
+      setTimeout(function(){ playTone(n, 'sine', 0.3, 0.4, 0.02); }, i*120);
+    });
+  },
+  defeat: function() {
+    var notes = [400, 350, 280, 220];
+    notes.forEach(function(n, i) {
+      setTimeout(function(){ playTone(n, 'sine', 0.4, 0.3, 0.05); }, i*200);
+    });
+  },
+  buttonClick: function() {
+    playTone(600, 'sine', 0.05, 0.1);
+  },
+  drachmes: function() {
+    playTone(880, 'sine', 0.06, 0.15);
+    setTimeout(function(){ playTone(1100, 'sine', 0.06, 0.12); }, 60);
+    setTimeout(function(){ playTone(1320, 'sine', 0.08, 0.15); }, 120);
+  }
+};
+
+function playSound(name) {
+  if(!_sfxEnabled) return;
+  try {
+    var ctx = getAudioCtx();
+    if(ctx.state === 'suspended') ctx.resume();
+    if(SOUNDS[name]) SOUNDS[name]();
+  } catch(e) {}
+}
+
+function playSoundForSignature(sigType) {
+  var map = {
+    lightning: 'lightning', fire: 'fire', wave: 'wave', smoke: 'smoke',
+    speed: 'speed', shockwave: 'shockwave', petrify: 'petrify',
+    flash: 'flash', explosion: 'explosion', time: 'smoke',
+    shield: 'wave', beam: 'flash', default: 'attack'
+  };
+  playSound(map[sigType] || 'attack');
+}
+
+// Musique d'ambiance en boucle
+function startAmbientMusic() {
+  if(document.getElementById('olympia-music')) return;
+  var audio = document.createElement('audio');
+  audio.id = 'olympia-music';
+  audio.src = 'https://archive.org/download/AncientGreekMusic_201512/Ancient%20Greek%20Music.mp3';
+  audio.loop = true;
+  audio.volume = 0.18;
+  audio.preload = 'none';
+  document.body.appendChild(audio);
+  audio.play().catch(function(){
+    // Autoplay bloqué — on attend un tap de l'utilisateur
+    document.addEventListener('click', function startOnClick() {
+      audio.play();
+      document.removeEventListener('click', startOnClick);
+    }, {once: true});
+  });
+}
+
+function addAudioToggle() {
+  var ubar = document.querySelector('.ubar-right');
+  if(!ubar || document.getElementById('audio-toggle')) return;
+  var btn = document.createElement('button');
+  btn.id = 'audio-toggle';
+  btn.className = 'quit-btn';
+  btn.title = 'Son';
+  btn.textContent = '🔊';
+  btn.onclick = function() {
+    _sfxEnabled = !_sfxEnabled;
+    var music = document.getElementById('olympia-music');
+    if(music) music.volume = _sfxEnabled ? 0.18 : 0;
+    btn.textContent = _sfxEnabled ? '🔊' : '🔇';
+    if(_sfxEnabled) playSound('buttonClick');
+  };
+  ubar.insertBefore(btn, ubar.firstChild);
+  startAmbientMusic();
+}
+
+
 // ══════════════════════════════════════
 var CARD_SIGNATURES = {
   'o1':  { color:'#ffe566', color2:'#ffaa00', emoji:'⚡', name:'zeus',     type:'lightning' },
@@ -5236,6 +5484,7 @@ function playSignatureEffect(sig, attackerEl, targetEl, onDone) {
     }, duration || 200);
   }
 
+  playSoundForSignature(sig.type);
   if(sig.type === 'lightning') {
     // Zeus — éclair en zigzag
     var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -5774,6 +6023,7 @@ function checkBattleEnd() {
   if(s.playerHp <= 0 || s.aiHp <= 0) {
     s._ending = true;
     var won = s.aiHp <= 0;
+    if(won) playSound('victory'); else playSound('defeat');
     setTimeout(function() {
       var content = document.getElementById('combat-screen-content');
       if(!content) return;
