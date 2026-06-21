@@ -2223,7 +2223,7 @@ function renderLegendaryScenes() {
     card.innerHTML = '<img src="'+scene.img+'" style="width:100%;display:block;">'
       + '<div style="padding:16px;">'
       + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+scene.name+'</div>'
-      + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.6);line-height:1.7;font-style:italic;">'+scene.lore+'</div>'
+      + '<div style="font-size:0.68rem;color:var(--text-dim);line-height:1.7;font-style:italic;">'+scene.lore+'</div>'
       + '</div>';
     grid.appendChild(card);
   });
@@ -2363,8 +2363,8 @@ function renderPacks() {
     : 'Un mélange de cartes rares issues de tous les paquets — dieux, héros, monstres, armes et monuments !';
 
   var showTimer = !ready && remaining > 0;
-  var dailyIconHtml = '<img src="https://i.imgur.com/ary27Ol.jpeg" style="width:80px;height:80px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">';
-  div.innerHTML = '<span class="pack-icon">'+(ready?(isDaily?'':isAdmin?'🎁':'🎴'):'⏳')+(ready&&isDaily?dailyIconHtml:'')+'</span>'
+  var packImgHtml = '<img src="https://i.imgur.com/ary27Ol.jpeg" style="width:80px;height:80px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">';
+  div.innerHTML = '<span class="pack-icon">'+(ready?(isAdmin?'🎁':''):'⏳')+(ready&&!isAdmin?packImgHtml:'')+'</span>'
     +'<div class="pack-name">'+packLabel+'</div>'
     +'<div class="pack-desc">'+packDesc+'</div>'
     +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
@@ -6514,6 +6514,122 @@ function checkBattleEnd() {
 // ══════════════════════════════════════
 //  ADMIN PANEL
 // ══════════════════════════════════════
+function showAdminCardPicker(onSelect) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;';
+
+  var allC = allCards();
+  var packKeys = Object.keys(CARDS);
+
+  overlay.innerHTML = '<div style="background:var(--bg-card);border:2px solid var(--gold);border-radius:16px;padding:18px;max-width:480px;width:100%;max-height:85vh;display:flex;flex-direction:column;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.85rem;color:var(--gold);">🎴 Choisir une carte</div>'
+    + '<button id="admin-picker-close" style="background:transparent;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;">×</button>'
+    + '</div>'
+    + '<input type="text" id="admin-picker-search" placeholder="Rechercher une carte..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Cinzel,serif;font-size:0.7rem;margin-bottom:10px;">'
+    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="admin-picker-filters">'
+    + '<button class="admin-pf active" data-pack="all" style="background:var(--gold-dim);border:none;color:white;font-family:Cinzel,serif;font-size:0.55rem;padding:5px 10px;border-radius:14px;cursor:pointer;">Toutes</button>'
+    + packKeys.map(function(pk){ return '<button class="admin-pf" data-pack="'+pk+'" style="background:var(--bg);border:1px solid var(--border);color:var(--text-dim);font-family:Cinzel,serif;font-size:0.55rem;padding:5px 10px;border-radius:14px;cursor:pointer;">'+PACKS[pk].name+'</button>'; }).join('')
+    + '</div>'
+    + '<label style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);display:flex;align-items:center;gap:6px;margin-bottom:10px;"><input type="checkbox" id="admin-picker-shiny"> Envoyer en version ✦ Shiny</label>'
+    + '<div id="admin-picker-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;overflow-y:auto;flex:1;padding-right:4px;"></div>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
+
+  var currentPackFilter = 'all';
+  var searchTerm = '';
+
+  function renderGrid() {
+    var grid = document.getElementById('admin-picker-grid');
+    var filtered = allC.filter(function(c) {
+      var matchSearch = !searchTerm || c.name.toLowerCase().includes(searchTerm);
+      var matchPack = currentPackFilter === 'all' || (CARDS[currentPackFilter] && CARDS[currentPackFilter].find(function(cc){return cc.id===c.id;}));
+      return matchSearch && matchPack;
+    });
+    grid.innerHTML = filtered.map(function(c) {
+      var r = getRarity(c.rarity, false);
+      return '<div class="admin-pick-card" data-id="'+c.id+'" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+r.color+'66;transition:transform 0.15s;">'
+        + (c.img ? '<img src="'+c.img+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">' : '<div style="width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);">'+c.icon+'</div>')
+        + '<div style="font-size:0.4rem;color:var(--text-dim);text-align:center;padding:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+c.name+'</div>'
+        + '</div>';
+    }).join('');
+
+    grid.querySelectorAll('.admin-pick-card').forEach(function(el) {
+      el.onclick = function() {
+        var id = el.getAttribute('data-id');
+        var found = allC.find(function(c){ return c.id === id; });
+        var isShinyGift = document.getElementById('admin-picker-shiny').checked;
+        if(found) {
+          onSelect(found, isShinyGift);
+          overlay.remove();
+        }
+      };
+    });
+  }
+
+  document.getElementById('admin-picker-search').oninput = function() {
+    searchTerm = this.value.trim().toLowerCase();
+    renderGrid();
+  };
+
+  overlay.querySelectorAll('.admin-pf').forEach(function(btn) {
+    btn.onclick = function() {
+      overlay.querySelectorAll('.admin-pf').forEach(function(b){ b.classList.remove('active'); b.style.background='var(--bg)'; b.style.color='var(--text-dim)'; b.style.border='1px solid var(--border)'; });
+      btn.classList.add('active'); btn.style.background='var(--gold-dim)'; btn.style.color='white'; btn.style.border='none';
+      currentPackFilter = btn.getAttribute('data-pack');
+      renderGrid();
+    };
+  });
+
+  document.getElementById('admin-picker-close').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
+
+  renderGrid();
+}
+
+function showAdminPlayerCollection(playerName, pData) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;';
+
+  var collection = pData.collection || [];
+  var cardCounts = {};
+  collection.forEach(function(entry) {
+    cardCounts[entry] = (cardCounts[entry] || 0) + 1;
+  });
+  var uniqueEntries = Object.keys(cardCounts);
+
+  var cardsHtml = uniqueEntries.map(function(entry) {
+    var parts = entry.split('|');
+    var id = parts[0];
+    var isShiny = parts[1] === 'shiny';
+    var c = allCards().find(function(cc){ return cc.id === id; });
+    if(!c) return '';
+    var r = getRarity(c.rarity, isShiny);
+    var imgSrc = (isShiny && c.imgShiny) ? c.imgShiny : c.img;
+    var count = cardCounts[entry];
+    return '<div style="position:relative;border-radius:8px;overflow:hidden;border:2px solid '+r.color+';">'
+      + (imgSrc ? '<img src="'+imgSrc+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">' : '<div style="width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);">'+c.icon+'</div>')
+      + (count > 1 ? '<div style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.8);color:var(--gold);font-size:0.5rem;padding:1px 5px;border-radius:8px;">x'+count+'</div>' : '')
+      + '<div style="font-size:0.4rem;color:var(--text-dim);text-align:center;padding:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+c.name+(isShiny?' ✦':'')+'</div>'
+      + '</div>';
+  }).join('');
+
+  overlay.innerHTML = '<div style="background:var(--bg-card);border:2px solid var(--gold);border-radius:16px;padding:18px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);">👁 Collection de '+playerName+'</div>'
+    + '<button id="admin-col-close" style="background:transparent;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;">×</button>'
+    + '</div>'
+    + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:12px;">'+uniqueEntries.length+' carte(s) unique(s) · '+collection.length+' carte(s) au total</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;overflow-y:auto;flex:1;padding-right:4px;">'
+    + (cardsHtml || '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:0.7rem;padding:20px;">Aucune carte dans la collection.</div>')
+    + '</div></div>';
+
+  document.body.appendChild(overlay);
+  document.getElementById('admin-col-close').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
+}
+
 function renderAdmin() {
   if(pseudo !== 'Mazikeen') return;
   var container = document.getElementById('admin-container');
@@ -6549,9 +6665,12 @@ function renderAdmin() {
 
       var card = document.createElement('div');
       card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;';
-      card.innerHTML = '<div style="margin-bottom:12px;">'
+      card.innerHTML = '<div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start;">'
+        + '<div>'
         + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:var(--gold);">'+playerName+'</div>'
         + '<div style="font-size:0.62rem;color:var(--text-dim);margin-top:2px;">'+unique.length+' cartes uniques · '+(pData.drachmes||0)+' 🪙 · '+(pData.packsOpened||0)+' paquets ouverts</div>'
+        + '</div>'
+        + '<button class="battle-btn sec" style="font-size:0.52rem;padding:6px 10px;min-width:auto;flex-shrink:0;" data-action="viewcol">👁 Collection</button>'
         + '</div>'
         + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
         + '<span style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);min-width:80px;">🪙 Drachmes</span>'
@@ -6564,13 +6683,8 @@ function renderAdmin() {
         + '<button class="battle-btn" style="font-size:0.58rem;padding:7px 12px;min-width:auto;flex:1;" data-action="pack">Envoyer</button>'
         + '</div>'
         + '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">'
-        + '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);margin-bottom:6px;">🎴 Envoyer une carte spécifique</div>'
-        + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'
-        + '<input type="text" placeholder="Nom de la carte..." style="flex:1;min-width:120px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:Cinzel,serif;font-size:0.6rem;" class="admin-input-cardname">'
-        + '<label style="font-family:Cinzel,serif;font-size:0.55rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;"><input type="checkbox" class="admin-input-shiny"> Shiny</label>'
-        + '<button class="battle-btn" style="font-size:0.55rem;padding:7px 10px;" data-action="specific">Envoyer</button>'
-        + '</div>'
-        + '<div class="admin-card-result" style="font-size:0.55rem;color:var(--gold);margin-top:4px;"></div>'
+        + '<button class="battle-btn" style="width:100%;font-size:0.6rem;" data-action="opencardpicker">🎴 Choisir et envoyer une carte</button>'
+        + '<div class="admin-card-result" style="font-size:0.55rem;color:var(--gold);margin-top:4px;text-align:center;"></div>'
         + '</div>';
 
       card.querySelectorAll('[data-action]').forEach(function(btn) {
@@ -6580,30 +6694,49 @@ function renderAdmin() {
           if(action === 'drachmes') {
             var amount = parseInt(card.querySelector('.admin-input-drachmes').value) || 50;
             pData.drachmes = (pData.drachmes||0) + amount;
-            db.collection('users').doc(uid).update({drachmes: pData.drachmes});
-            btn.textContent = '✓ Envoyé !';
-            setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+            btn.textContent = '⏳...';
+            db.collection('users').doc(uid).update({drachmes: pData.drachmes}).then(function() {
+              btn.textContent = '✓ Envoyé !';
+              setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+            }).catch(function(err) {
+              pData.drachmes -= amount;
+              btn.textContent = '❌ Erreur';
+              setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+            });
 
           } else if(action === 'pack') {
             var qty = parseInt(card.querySelector('.admin-input-packs').value) || 1;
             pData.adminPackPending = (pData.adminPackPending||0) + qty;
-            db.collection('users').doc(uid).update({adminPackPending: pData.adminPackPending});
-            btn.textContent = '✓ Envoyé !';
-            setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+            btn.textContent = '⏳...';
+            db.collection('users').doc(uid).update({adminPackPending: pData.adminPackPending}).then(function() {
+              btn.textContent = '✓ Envoyé !';
+              setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+            }).catch(function(err) {
+              pData.adminPackPending -= qty;
+              btn.textContent = '❌ Erreur';
+              setTimeout(function(){ btn.textContent='Envoyer'; }, 2000);
+            });
 
-          } else if(action === 'specific') {
-            var cardName = card.querySelector('.admin-input-cardname').value.trim().toLowerCase();
-            var isShinyGift = card.querySelector('.admin-input-shiny').checked;
-            var resultEl = card.querySelector('.admin-card-result');
-            if(!cardName) { resultEl.textContent = '⚠ Entre un nom de carte'; return; }
-            var found = allCards().find(function(c){ return c.name.toLowerCase().includes(cardName); });
-            if(!found) { resultEl.textContent = '⚠ Carte introuvable'; return; }
-            var entry = found.id + (isShinyGift ? '|shiny' : '');
-            pData.collection = pData.collection || [];
-            pData.collection.push(entry);
-            db.collection('users').doc(uid).update({collection: pData.collection});
-            resultEl.textContent = '✓ '+found.name+(isShinyGift?' ✦':'')+' envoyée !';
-            setTimeout(function(){ resultEl.textContent=''; }, 3000);
+          } else if(action === 'opencardpicker') {
+            showAdminCardPicker(function(found, isShinyGift) {
+              var entry = found.id + (isShinyGift ? '|shiny' : '');
+              pData.collection = pData.collection || [];
+              pData.collection.push(entry);
+              var resultEl = card.querySelector('.admin-card-result');
+              resultEl.textContent = '⏳ Envoi en cours...';
+              db.collection('users').doc(uid).update({collection: pData.collection}).then(function() {
+                resultEl.style.color = 'var(--gold)';
+                resultEl.textContent = '✓ '+found.name+(isShinyGift?' ✦':'')+' envoyée à '+playerName+' !';
+                setTimeout(function(){ resultEl.textContent=''; }, 3000);
+              }).catch(function(err) {
+                pData.collection.pop(); // annuler localement si échec
+                resultEl.style.color = '#ff4455';
+                resultEl.textContent = '❌ Erreur : '+err.message;
+              });
+            });
+
+          } else if(action === 'viewcol') {
+            showAdminPlayerCollection(playerName, pData);
           }
         };
       });
