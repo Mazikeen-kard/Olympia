@@ -465,6 +465,20 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .combat-turn-badge.player{background:rgba(34,170,68,0.25);color:#44dd66;border:1px solid #22aa44;}
   .combat-turn-badge.enemy{background:rgba(204,34,51,0.25);color:#ff6677;border:1px solid #cc2233;}
 
+  /* ══ ANNONCE DE TOUR GRAND FORMAT (style Pokémon TCG Pocket) ══ */
+  .turn-announce{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);z-index:700;pointer-events:none;opacity:0;text-align:center;width:100%;}
+  .turn-announce.show{animation:turnAnnounceIn 1.6s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+  .turn-announce-bar{display:inline-block;padding:14px 40px;border-radius:14px;font-family:'Cinzel Decorative',serif;font-size:1.3rem;letter-spacing:0.08em;box-shadow:0 8px 40px rgba(0,0,0,0.6);}
+  .turn-announce-bar.player{background:linear-gradient(135deg,#1a4d2e,#2d8f4e);color:#aaffcc;border:2px solid #44dd66;text-shadow:0 0 20px rgba(68,221,102,0.6);}
+  .turn-announce-bar.enemy{background:linear-gradient(135deg,#4d1a1a,#8f2d2d);color:#ffaaaa;border:2px solid #ff4455;text-shadow:0 0 20px rgba(255,68,85,0.6);}
+  @keyframes turnAnnounceIn{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(0.6);}
+    15%{opacity:1;transform:translate(-50%,-50%) scale(1.08);}
+    25%{transform:translate(-50%,-50%) scale(1);}
+    75%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(0.92);}
+  }
+
   /* HP compacte */
   .combat-hp-row{display:flex;gap:8px;padding:6px 14px;flex-shrink:0;}
   .combat-hp-block{flex:1;display:flex;align-items:center;gap:6px;}
@@ -1774,6 +1788,37 @@ function launch(p, data, uid) {
   checkCombos(); checkProgressBadges();
   addAudioToggle();
   updateRankDisplay();
+
+  // Listener temps réel — admin peut envoyer des cadeaux instantanément
+  if(uid && p !== 'Mazikeen') {
+    db.collection('users').doc(uid).onSnapshot(function(doc) {
+      if(!doc.exists || !user) return;
+      var newData = doc.data();
+      var hadPending = (user.adminPackPending || 0);
+      var oldCollectionLength = (user.collection || []).length;
+
+      // Détecter un nouveau cadeau de carte
+      if(newData.collection && newData.collection.length > oldCollectionLength) {
+        var added = newData.collection.length - oldCollectionLength;
+        user.collection = newData.collection;
+        showNotif('🎁 Tu as reçu '+added+' nouvelle(s) carte(s) !', '🎴');
+        renderCol();
+      }
+      // Détecter des drachmes offertes
+      if(newData.drachmes !== undefined && newData.drachmes > (user.drachmes||0)) {
+        var gained = newData.drachmes - (user.drachmes||0);
+        user.drachmes = newData.drachmes;
+        showNotif('🎁 +'+gained+' Drachmes offertes !', '🪙');
+        updateDrachmesDisplay();
+      }
+      // Détecter des paquets offerts
+      if(newData.adminPackPending !== undefined && newData.adminPackPending > hadPending) {
+        user.adminPackPending = newData.adminPackPending;
+        renderPacks();
+      }
+      localStorage.setItem('olympia_u_' + pseudo, JSON.stringify(user));
+    });
+  }
   // Paquets offerts par l'admin
   if(user.adminPackPending && user.adminPackPending > 0) {
     setTimeout(function() {
@@ -2433,7 +2478,8 @@ function setupTearGesture() {
 function tearPack() {
   if(_torn) return;
   _torn = true;
-  playSound('packOpen');
+  playSound('packTear');
+  setTimeout(function(){ playSound('packOpen'); }, 300);
   document.getElementById('pr-hint').textContent = '';
   var wrapper = document.getElementById('pack-wrapper');
 
@@ -2698,6 +2744,7 @@ function countDuplicatesByPack() {
   Object.keys(PACKS).forEach(function(packId){ counts[packId] = 0; });
   var cardCounts = {};
   user.collection.forEach(function(entry) {
+    if(entry.includes('|shiny')) return; // Les Shiny ne comptent jamais comme doublons échangeables
     var id = entry.split('|')[0];
     cardCounts[id] = (cardCounts[id] || 0) + 1;
   });
@@ -2752,6 +2799,7 @@ function renderExchange() {
 function exchangeDoublons(packId) {
   var cardCounts = {};
   user.collection.forEach(function(entry) {
+    if(entry.includes('|shiny')) return; // Jamais de Shiny échangées
     var id = entry.split('|')[0];
     cardCounts[id] = (cardCounts[id] || 0) + 1;
   });
@@ -2777,6 +2825,7 @@ function exchangeDoublons(packId) {
   var removedCount = {};
   var newCollection = [];
   user.collection.forEach(function(entry) {
+    if(entry.includes('|shiny')) { newCollection.push(entry); return; } // Shiny jamais touchées
     var id = entry.split('|')[0];
     if(toRemove[id] && (removedCount[id]||0) < toRemove[id]) {
       removedCount[id] = (removedCount[id] || 0) + 1;
@@ -3280,6 +3329,7 @@ var _memFlipped = [];
 var _memMatched = 0;
 var _memTimer = null;
 var _memSeconds = 90;
+var _memStartTime = 0;
 var _memLocked = false;
 
 function renderMinigamesList() {
@@ -3290,20 +3340,21 @@ function renderMinigamesList() {
   if(!user.minigames) user.minigames = {};
   var today = new Date().toDateString();
   if(user.minigames.date !== today) {
-    user.minigames = {date: today, memory:false, quiz:false, archery:false};
+    user.minigames = {date: today, memory:false, quiz:false, archery:false, pegasus:false};
     saveUser();
   }
   var games = [
     {id:'memory', icon:'🃏', title:'Memory Olympien', desc:'Retrouve les 12 paires en 1min15 · +15 🪙', done: user.minigames.memory},
     {id:'quiz', icon:'❓', title:'Quiz Mythologique', desc:'Réponds à 5 questions sur la mythologie · +15 🪙', done: user.minigames.quiz},
-    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise la cible mouvante avec ton arc · +15 🪙', done: user.minigames.archery}
+    {id:'archery', icon:'🏹', title:'Tir à Arc', desc:'Vise la cible mouvante avec ton arc · +15 🪙', done: user.minigames.archery},
+    {id:'pegasus', icon:'🦄', title:'Vol de Pégase', desc:'Évite les obstacles dans les cieux · +15 🪙', done: user.minigames.pegasus}
   ];
 
   var doneCount = games.filter(function(g){ return g.done; }).length;
   container.innerHTML = '<div class="streak-bar" style="flex-direction:column;align-items:flex-start;gap:10px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">'
     + '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">🎮 Mini-Jeux du jour</div>'
-    + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:'+(doneCount===3?'#2ecc71':'var(--text-dim)')+';">'+doneCount+'/3 '+(doneCount===3?'✅ +45 🪙 gagnés !':'complétés')+'</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:'+(doneCount===4?'#2ecc71':'var(--text-dim)')+';">'+doneCount+'/4 '+(doneCount===4?'✅ +60 🪙 gagnés !':'complétés')+'</div>'
     + '</div>'
     + '<div id="minigames-list" style="display:flex;flex-direction:column;gap:8px;width:100%;"></div>'
     + '</div>';
@@ -3331,6 +3382,31 @@ function startGame(id) {
   if(id === 'memory') startMemory();
   if(id === 'archery') startArchery();
   if(id === 'quiz') startQuiz();
+  if(id === 'pegasus') startPegasus();
+}
+
+function formatMemTime(seconds) {
+  var m = Math.floor(seconds/60);
+  var s = seconds%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+
+function fetchMemoryWorldRecord(callback) {
+  db.collection('leaderboards').doc('memory').get().then(function(doc) {
+    if(doc.exists) callback(doc.data());
+    else callback(null);
+  }).catch(function(){ callback(null); });
+}
+
+function submitMemoryRecord(timeSeconds) {
+  db.collection('leaderboards').doc('memory').get().then(function(doc) {
+    var current = doc.exists ? doc.data() : null;
+    if(!current || timeSeconds < current.time) {
+      db.collection('leaderboards').doc('memory').set({
+        time: timeSeconds, pseudo: pseudo, date: Date.now()
+      });
+    }
+  }).catch(function(){});
 }
 
 function startMemory() {
@@ -3338,6 +3414,7 @@ function startMemory() {
   _memFlipped = [];
   _memLocked = false;
   _memSeconds = 75; // 1min15
+  _memStartTime = Date.now();
 
   // Set fixe de 12 cartes Memory — indépendant de la collection
   var MEMORY_SET = [
@@ -3368,15 +3445,29 @@ function startMemory() {
   for(var i=pairs.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pairs[i];pairs[i]=pairs[j];pairs[j]=t;}
   _memCards = pairs;
 
+  var bestTime = user.minigames && user.minigames.memoryBestTime;
   var area = document.getElementById('minigame-area');
   area.innerHTML = '<div class="memory-game">'
     + '<div class="memory-header">'
-    + '<div><div class="memory-timer" id="mem-timer">1:15</div></div>'
+    + '<div><div class="memory-timer" id="mem-timer">1:15</div>'
+    + (bestTime ? '<div style="font-family:Cinzel,serif;font-size:0.5rem;color:var(--gold);margin-top:2px;">🏆 Ton record : '+formatMemTime(bestTime)+'</div>' : '')
+    + '<div id="mem-world-record" style="font-family:Cinzel,serif;font-size:0.46rem;color:rgba(255,255,255,0.4);margin-top:2px;">🌍 Chargement...</div>'
+    + '</div>'
     + '<div class="memory-pairs" id="mem-pairs">0 / 12 paires</div>'
     + '<button class="mg-back-btn" onclick="backToMinigames()">← Retour</button>'
     + '</div>'
     + '<div class="memory-grid" id="mem-grid"></div>'
     + '</div>';
+
+  fetchMemoryWorldRecord(function(record) {
+    var el = document.getElementById('mem-world-record');
+    if(!el) return;
+    if(record) {
+      el.innerHTML = '🌍 Record : '+formatMemTime(record.time)+' par <strong style="color:var(--gold)">'+record.pseudo+'</strong>';
+    } else {
+      el.textContent = '🌍 Sois le premier à établir un record !';
+    }
+  });
 
   var grid = document.getElementById('mem-grid');
   pairs.forEach(function(item, i) {
@@ -3454,14 +3545,34 @@ function flipMemCard(card) {
 }
 
 function memGameOver(won) {
+  var elapsedSec = Math.floor((Date.now() - _memStartTime) / 1000);
+  var isNewRecord = false;
+  if(won) {
+    if(!user.minigames.memoryBestTime || elapsedSec < user.minigames.memoryBestTime) {
+      user.minigames.memoryBestTime = elapsedSec;
+      isNewRecord = true;
+    }
+    submitMemoryRecord(elapsedSec);
+  }
   var area = document.getElementById('minigame-area');
   area.style.display = 'block';
   area.innerHTML = '<div class="memory-result">'
     + '<div style="font-size:3rem;margin-bottom:12px;">'+(won?'🏆':'💀')+'</div>'
     + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;">'+(won?'Victoire !':'Temps écoulé...')+'</div>'
-    + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:20px;">'+(won?'Toutes les paires trouvées ! ✅':'Retente ta chance demain !')+'</div>'
+    + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:8px;">'+(won?'Toutes les paires trouvées en '+formatMemTime(elapsedSec)+' ! ✅':'Retente ta chance demain !')+'</div>'
+    + '<div id="mem-record-check" style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:14px;">'+(isNewRecord ? '✨ Nouveau record personnel !' : '')+'</div>'
     + '<button class="mg-back-btn" onclick="backToMinigames()" style="border-color:var(--gold);color:var(--gold);">← Retour aux mini-jeux</button>'
     + '</div>';
+
+  if(won) {
+    fetchMemoryWorldRecord(function(record) {
+      var el = document.getElementById('mem-record-check');
+      if(!el || !record) return;
+      if(record.pseudo === pseudo && record.time === elapsedSec) {
+        el.innerHTML = '🌍✨ Nouveau RECORD MONDIAL !';
+      }
+    });
+  }
   if(won) {
     user.minigames.memory = true;
     addDrachmes(15, 'Memory réussi');
@@ -3472,6 +3583,28 @@ function memGameOver(won) {
 }
 
 function startArchery() {
+  if(!user.archeryTutoDone) {
+    showArcheryTutorial(function(){ user.archeryTutoDone = true; saveUser(); startArcheryGame(); });
+    return;
+  }
+  startArcheryGame();
+}
+
+function showArcheryTutorial(onDone) {
+  var area = document.getElementById('minigame-area');
+  area.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">'
+    + '<div style="font-size:2.5rem;margin-bottom:14px;">🏹</div>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:14px;">Comment jouer</div>'
+    + '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;max-width:300px;margin-bottom:20px;">'
+    + '<div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;text-align:left;">'
+    + '1️⃣ Une jauge de puissance oscille en haut\n\n2️⃣ Tape l\'écran quand le curseur est dans la <strong style="color:#2ecc71;">zone verte</strong>\n\n3️⃣ Plus tu es précis, plus ta flèche touchera la cible !\n\nTu as <strong style="color:var(--gold)">3 essais</strong> pour marquer un maximum de points.'.replace(/\n/g,'<br>')
+    + '</div></div>'
+    + '<button class="mg-back-btn" id="arch-tuto-start" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));color:white;border:none;font-weight:700;">🏹 Commencer !</button>'
+    + '</div>';
+  document.getElementById('arch-tuto-start').onclick = onDone;
+}
+
+function startArcheryGame() {
   var archTries = 3;
   var archHits = 0;
   var archAnimFrame = null;
@@ -3893,6 +4026,39 @@ var SPECIAL_CARDS = [
 
 function getSpecialCard(id) {
   return SPECIAL_CARDS.find(function(c){ return c.id===id; });
+}
+
+var _aiDifficulty = 'easy';
+
+function showDifficultyPicker(deckIds, specialId) {
+  var screen = document.createElement('div');
+  screen.className = 'coin-flip-screen';
+  screen.id = 'difficulty-screen';
+  screen.innerHTML = '<div style="font-family:Cinzel Decorative,serif;font-size:0.95rem;color:var(--gold);text-align:center;margin-bottom:20px;">⚔️ Choisis ton adversaire</div>'
+    + '<div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;padding:0 16px;">'
+    + '<button class="difficulty-btn" data-diff="easy" style="background:linear-gradient(135deg,rgba(34,170,68,0.15),rgba(68,221,102,0.08));border:2px solid #44dd66;border-radius:12px;padding:16px;text-align:left;cursor:pointer;">'
+      + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#44dd66;margin-bottom:4px;">🟢 Facile</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);">IA débutante — deck de cartes communes uniquement</div>'
+    + '</button>'
+    + '<button class="difficulty-btn" data-diff="medium" style="background:linear-gradient(135deg,rgba(255,170,0,0.15),rgba(255,200,68,0.08));border:2px solid #ffaa00;border-radius:12px;padding:16px;text-align:left;cursor:pointer;">'
+      + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#ffaa00;margin-bottom:4px;">🟡 Moyen</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);">IA stratégique — deck mixte rares/épiques, choix plus réfléchis</div>'
+    + '</button>'
+    + '<button class="difficulty-btn" data-diff="hard" style="background:linear-gradient(135deg,rgba(204,34,51,0.15),rgba(255,68,85,0.08));border:2px solid #cc2233;border-radius:12px;padding:16px;text-align:left;cursor:pointer;opacity:0.5;" disabled>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#ff6677;margin-bottom:4px;">🔴 Difficile</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);">Bientôt disponible</div>'
+    + '</button>'
+    + '</div>';
+  document.body.appendChild(screen);
+
+  screen.querySelectorAll('.difficulty-btn[data-diff]').forEach(function(btn) {
+    if(btn.disabled) return;
+    btn.onclick = function() {
+      _aiDifficulty = btn.getAttribute('data-diff');
+      screen.remove();
+      showCoinFlip(deckIds, specialId);
+    };
+  });
 }
 
 function showCoinFlip(deckIds, specialId) {
@@ -4508,7 +4674,7 @@ function renderDeckBuilder(container, savedDeck) {
     document.getElementById('deck-reset-btn').onclick = function(){ deckIds=[]; specialSlot=null; user.deckSpecial=null; saveUser(); buildHTML(); };
     document.getElementById('deck-fight-btn').onclick = function(){
       user.deck = deckIds.slice(); user.deckSpecial = specialSlot; saveUser();
-      showCoinFlip(deckIds, specialSlot);
+      showDifficultyPicker(deckIds, specialSlot);
     };
   }
 
@@ -4660,14 +4826,24 @@ function startBattle(deckIds, playerFirst, secretId) {
   }
 
   var playerDeckFull = deckIds.map(function(k){ return buildBattleCard(k, false); }).filter(Boolean);
-  
-  // IA deck — seulement communes et rares (niveau facile)
+
+  // IA deck — pool selon la difficulté choisie
   var allC = allCards();
-  var easyPool = allC.filter(function(c){ return c.rarity === 'commune' || c.rarity === 'rare'; });
-  // Quelques épiques max (2)
-  var epics = allC.filter(function(c){ return c.rarity === 'épique'; });
-  for(var i=epics.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=epics[i];epics[i]=epics[j];epics[j]=t;}
-  var aiPool = easyPool.concat(epics.slice(0,2));
+  var aiPool;
+  if(_aiDifficulty === 'medium') {
+    // Moyen — mix rares/épiques, quelques légendaires
+    var rares = allC.filter(function(c){ return c.rarity === 'rare'; });
+    var epicsM = allC.filter(function(c){ return c.rarity === 'épique'; });
+    var legendsM = allC.filter(function(c){ return c.rarity === 'légendaire'; });
+    for(var i=legendsM.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=legendsM[i];legendsM[i]=legendsM[j];legendsM[j]=t;}
+    aiPool = rares.concat(epicsM).concat(legendsM.slice(0,3));
+  } else {
+    // Facile — communes + rares + 2 épiques max
+    var easyPool = allC.filter(function(c){ return c.rarity === 'commune' || c.rarity === 'rare'; });
+    var epics = allC.filter(function(c){ return c.rarity === 'épique'; });
+    for(var i=epics.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=epics[i];epics[i]=epics[j];epics[j]=t;}
+    aiPool = easyPool.concat(epics.slice(0,2));
+  }
   var shuffled = aiPool.slice(); for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t;}
   var aiCards = shuffled.slice(0,12).map(function(card){
     var stats = getCombatStats(card);
@@ -4734,6 +4910,7 @@ function startBattle(deckIds, playerFirst, secretId) {
   if(battleState.bonuses.length) addBattleLog('✨ Bonus famille : '+battleState.bonuses.map(function(b){return FAMILY_BONUS[b].label+' ('+FAMILY_BONUS[b].bonus+')';}).join(', '), 'info');
 
   renderBattle();
+  setTimeout(function(){ showTurnAnnounce('🃏 À TOI DE JOUER', true); }, 200);
 }
 
 function addBattleLog(msg, type) {
@@ -5004,6 +5181,7 @@ function renderBattle() {
       aiPlaceCards();
       addBattleLog('— ⚔️ Combat ! Tour '+s.turn+' —','info');
       renderBattle();
+      showTurnAnnounce('⚔️ TON TOUR', true);
     }, 600);
   }
 
@@ -5313,6 +5491,38 @@ var SOUNDS = {
     playTone(200, 'sine', 0.1, 0.2);
     playTone(150, 'sine', 0.3, 0.15);
     playNoise(0.2, 0.2, 400);
+  },
+  packTear: function() {
+    // Son de papier qui se déchire
+    try {
+      var ctx = getAudioCtx();
+      var duration = 0.4;
+      var bufferSize = ctx.sampleRate * duration;
+      var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for(var i=0;i<bufferSize;i++) {
+        // Bruit blanc filtré + enveloppe qui simule un déchirement
+        var t = i/bufferSize;
+        var tear = Math.sin(t * 80) * 0.3;
+        data[i] = ((Math.random()*2-1) * 0.7 + tear) * Math.pow(1-t, 0.3) * Math.pow(t+0.1, 0.2);
+      }
+      var source = ctx.createBufferSource();
+      source.buffer = buffer;
+      var gain = ctx.createGain();
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 800;
+      var filter2 = ctx.createBiquadFilter();
+      filter2.type = 'lowpass';
+      filter2.frequency.value = 6000;
+      source.connect(filter);
+      filter.connect(filter2);
+      filter2.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.6, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      source.start();
+    } catch(e) {}
   },
   packOpen: function() {
     playNoise(0.1, 0.3, 2000);
@@ -5673,6 +5883,20 @@ function playSignatureEffect(sig, attackerEl, targetEl, onDone) {
   }
 }
 
+function showTurnAnnounce(text, isPlayer) {
+  var old = document.getElementById('turn-announce-el');
+  if(old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'turn-announce-el';
+  el.className = 'turn-announce';
+  el.innerHTML = '<div class="turn-announce-bar '+(isPlayer?'player':'enemy')+'">'+text+'</div>';
+  document.body.appendChild(el);
+  requestAnimationFrame(function(){
+    el.classList.add('show');
+  });
+  setTimeout(function(){ if(el.parentNode) el.remove(); }, 1700);
+}
+
 function animateAttack(attackerEl, targetEl, weaponIcon, onDone) {
   if(!attackerEl && !targetEl) { if(onDone) onDone(); return; }
 
@@ -5829,7 +6053,7 @@ function aiPlaceCards() {
   if(!s) return;
   // IA pioche
   if(s.aiDeck.length > 0) s.aiHand.push(s.aiDeck.pop());
-  // IA pose jusqu'à 2 cartes — pas d'armes sur le terrain
+  // IA pose jusqu'à 1 carte — pas d'armes sur le terrain
   var sorted = s.aiHand.filter(function(bc){ return !bc.card.id.startsWith('ar'); })
     .slice().sort(function(a,b){ return b.combatAtk - a.combatAtk; });
   var played = 0;
@@ -5841,6 +6065,10 @@ function aiPlaceCards() {
       s.aiHand.splice(idx, 1);
       bc.hasAttacked = false;
       if(bc._pack === 'monuments') bc.mode = 'defense';
+      // IA moyenne — joue parfois défensif si sa DEF est nettement supérieure à son ATK
+      else if(_aiDifficulty === 'medium' && bc.combatDef > bc.combatAtk * 1.3 && Math.random() < 0.4) {
+        bc.mode = 'defense';
+      }
       s.aiField.push(bc);
       played++;
       addBattleLog('🤖 IA pose '+bc.card.name+'.', 'info');
@@ -5858,6 +6086,7 @@ function endPlayerTurn() {
   s._pendingAttacker = null;
   s.playerField.forEach(function(c){ c.hasAttacked = false; });
   renderBattle();
+  showTurnAnnounce('🤖 TOUR DE L\'IA', false);
 
   setTimeout(function() {
     if(!battleState || s._ending) return;
@@ -5931,7 +6160,23 @@ function endPlayerTurn() {
           setTimeout(function(){ runAiAttack(i+1); }, 300);
         }
       } else {
-        var target = s.playerField.reduce(function(a,b){ return a.hp < b.hp ? a : b; });
+        var target;
+        if(_aiDifficulty === 'medium') {
+          // IA moyenne — cible la carte qu'elle peut détruire avec le plus gros excès de dégâts
+          target = s.playerField.reduce(function(best, c) {
+            var defVal = c.mode === 'defense' ? c.combatDef : c.combatAtk;
+            var bestDef = best.mode === 'defense' ? best.combatDef : best.combatAtk;
+            var diffC = atkVal - defVal;
+            var diffBest = atkVal - bestDef;
+            // Préfère une cible qu'elle peut détruire (diff positif), puis la plus rentable
+            if(diffC > 0 && diffBest <= 0) return c;
+            if(diffC > diffBest) return c;
+            return best;
+          });
+        } else {
+          // IA facile — cible la carte avec le plus faible ATK
+          target = s.playerField.reduce(function(a,b){ return a.combatAtk < b.combatAtk ? a : b; });
+        }
         var targetIdx = s.playerField.indexOf(target);
         var targetEl = document.getElementById('player-card-'+targetIdx);
 
@@ -6013,6 +6258,7 @@ function nextTurn() {
   }
   addBattleLog('— Tour '+s.turn+' : pose tes cartes —', 'info');
   renderBattle();
+  showTurnAnnounce('🃏 À TOI DE JOUER', true);
 }
 
 
@@ -6188,6 +6434,340 @@ function renderAdmin() {
   });
 }
 
+// ══════════════════════════════════════
+//  MINI-JEU — VOL DE PÉGASE
+// ══════════════════════════════════════
+var _pegasusRAF = null;
+var _pegasusRunning = false;
+
+function fetchPegasusWorldRecord(callback) {
+  db.collection('leaderboards').doc('pegasus').get().then(function(doc) {
+    if(doc.exists) callback(doc.data());
+    else callback(null);
+  }).catch(function(){ callback(null); });
+}
+
+function submitPegasusRecord(score) {
+  db.collection('leaderboards').doc('pegasus').get().then(function(doc) {
+    var current = doc.exists ? doc.data() : null;
+    if(!current || score > current.score) {
+      db.collection('leaderboards').doc('pegasus').set({
+        score: score, pseudo: pseudo, date: Date.now()
+      });
+    }
+  }).catch(function(){});
+}
+
+function startPegasus() {
+  if(!user.pegasusTutoDone) {
+    showPegasusTutorial(function(){ user.pegasusTutoDone = true; saveUser(); startPegasusGame(); });
+    return;
+  }
+  startPegasusGame();
+}
+
+function showPegasusTutorial(onDone) {
+  var area = document.getElementById('minigame-area');
+  area.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;text-align:center;">'
+    + '<div style="font-size:2.5rem;margin-bottom:14px;">🦄</div>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:1rem;color:var(--gold);margin-bottom:14px;">Comment jouer</div>'
+    + '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;max-width:300px;margin-bottom:20px;">'
+    + '<div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;text-align:left;">'
+    + '1️⃣ <strong style="color:var(--gold)">Maintiens</strong> l\'écran pour faire monter Pégase\n\n2️⃣ <strong style="color:var(--gold)">Relâche</strong> pour le laisser redescendre\n\n3️⃣ Évite les colonnes brisées et les nuages mystiques\n\nFranchis <strong style="color:var(--gold)">8 obstacles</strong> pour valider le défi !'.replace(/\n/g,'<br>')
+    + '</div></div>'
+    + '<button class="mg-back-btn" id="peg-tuto-start" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));color:white;border:none;font-weight:700;">🦄 Décoller !</button>'
+    + '</div>';
+  document.getElementById('peg-tuto-start').onclick = onDone;
+}
+
+function startPegasusGame() {
+  var area = document.getElementById('minigame-area');
+  area.innerHTML = '<div style="padding:8px;">'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:0.85rem;color:var(--gold);margin-bottom:6px;text-align:center;">🦄 Vol de Pégase</div>'
+    + '<div style="display:flex;justify-content:center;gap:24px;margin-bottom:4px;">'
+    + '<div id="peg-score" style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--gold);">Score : 0</div>'
+    + '<div id="peg-best" style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);">🏆 Toi : '+(user.minigames.pegasusBest||0)+'</div>'
+    + '</div>'
+    + '<div id="peg-world-record" style="text-align:center;font-family:Cinzel,serif;font-size:0.46rem;color:rgba(255,255,255,0.4);margin-bottom:8px;">🌍 Chargement...</div>'
+    + '<canvas id="peg-canvas" width="340" height="380" style="border-radius:14px;display:block;margin:0 auto;touch-action:none;max-width:100%;background:#0a0518;"></canvas>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.58rem;color:var(--text-dim);margin-top:8px;text-align:center;letter-spacing:0.1em;">MAINTIENS POUR MONTER · RELÂCHE POUR DESCENDRE</div>'
+    + '<button class="mg-back-btn" onclick="stopPegasus()" style="margin-top:10px;display:block;margin-left:auto;margin-right:auto;">← Retour</button>'
+    + '</div>';
+
+  fetchPegasusWorldRecord(function(record) {
+    var el = document.getElementById('peg-world-record');
+    if(!el) return;
+    if(record) {
+      el.innerHTML = '🌍 Record mondial : '+record.score+' par <strong style="color:var(--gold)">'+record.pseudo+'</strong>';
+    } else {
+      el.textContent = '🌍 Sois le premier à établir un record !';
+    }
+  });
+
+  var canvas = document.getElementById('peg-canvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  var pegasus = { x: 70, y: H/2, vy: 0, size: 28, wingFrame: 0 };
+  var gravity = 0.22;
+  var liftForce = -0.42;
+  var maxVy = 6;
+  var holding = false;
+  var pegasusImg = new Image();
+  pegasusImg.src = 'https://i.imgur.com/SLXGvVY.png';
+  var obstacles = [];
+  var clouds = [];
+  var score = 0;
+  var distance = 0;
+  var speed = 1.6;
+  var gameOver = false;
+  var started = false;
+
+  // Decor stars
+  var stars = [];
+  for(var si=0; si<50; si++) stars.push({x:Math.random()*W, y:Math.random()*H, r:0.5+Math.random()*1.3, a:0.3+Math.random()*0.7});
+
+  for(var ci=0; ci<4; ci++) {
+    clouds.push({x: Math.random()*W, y: 30+Math.random()*100, w: 50+Math.random()*40, speed: 0.3+Math.random()*0.3});
+  }
+
+  function spawnObstacle() {
+    var gapY = 80 + Math.random()*(H-260);
+    var gapSize = 160;
+    var type = Math.random() > 0.5 ? 'column' : 'cloud';
+    obstacles.push({
+      x: W + 30,
+      gapY: gapY,
+      gapSize: gapSize,
+      type: type,
+      passed: false,
+      width: 36
+    });
+  }
+
+  function drawBackground() {
+    var sky = ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0, '#0a0518');
+    sky.addColorStop(0.5, '#1a0f3a');
+    sky.addColorStop(1, '#2a1850');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,H);
+
+    stars.forEach(function(s) {
+      ctx.fillStyle = 'rgba(255,255,255,'+s.a+')';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    clouds.forEach(function(c) {
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, c.w, c.w*0.4, 0, 0, Math.PI*2);
+      ctx.fill();
+      if(started && !gameOver) c.x -= c.speed;
+      if(c.x < -c.w) c.x = W + c.w;
+    });
+  }
+
+  function drawPegasus() {
+    ctx.save();
+    ctx.translate(pegasus.x, pegasus.y);
+    var angle = Math.max(-0.35, Math.min(0.4, pegasus.vy * 0.06));
+    ctx.rotate(angle);
+
+    var imgSize = pegasus.size * 3.2;
+    if(pegasusImg.complete && pegasusImg.naturalWidth > 0) {
+      // Léger effet de battement (échelle verticale qui pulse)
+      var flap = 1 + Math.sin(pegasus.wingFrame) * 0.05;
+      ctx.scale(1, flap);
+      ctx.drawImage(pegasusImg, -imgSize*0.55, -imgSize*0.4, imgSize, imgSize*0.62);
+      // Léger glow doré derrière
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.shadowColor = '#ffe566';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = 'rgba(255,229,102,0.001)';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, imgSize*0.3, imgSize*0.2, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    } else {
+      // Fallback pendant le chargement de l'image
+      ctx.fillStyle = '#f5f5f0';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, pegasus.size*0.8, pegasus.size*0.5, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  function drawObstacle(o) {
+    if(o.type === 'column') {
+      var grad = ctx.createLinearGradient(o.x, 0, o.x+o.width, 0);
+      grad.addColorStop(0, '#8a7050');
+      grad.addColorStop(0.5, '#c0a878');
+      grad.addColorStop(1, '#6a5538');
+      ctx.fillStyle = grad;
+      // Colonne haute
+      ctx.fillRect(o.x, 0, o.width, o.gapY - o.gapSize/2);
+      // Colonne basse
+      ctx.fillRect(o.x, o.gapY + o.gapSize/2, o.width, H - (o.gapY + o.gapSize/2));
+      // Détails cannelures
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      ctx.lineWidth = 1;
+      for(var li=1; li<4; li++) {
+        var lx = o.x + (o.width/4)*li;
+        ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx, o.gapY - o.gapSize/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(lx, o.gapY + o.gapSize/2); ctx.lineTo(lx, H); ctx.stroke();
+      }
+    } else {
+      ctx.fillStyle = 'rgba(120,100,160,0.7)';
+      ctx.beginPath();
+      ctx.ellipse(o.x+o.width/2, o.gapY - o.gapSize/2 - 20, o.width*0.9, 30, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(o.x+o.width/2, o.gapY + o.gapSize/2 + 20, o.width*0.9, 30, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function checkCollision(o) {
+    var px = pegasus.x, py = pegasus.y, pr = pegasus.size*0.7;
+    if(px + pr > o.x && px - pr < o.x + o.width) {
+      if(py - pr < o.gapY - o.gapSize/2 || py + pr > o.gapY + o.gapSize/2) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function loop() {
+    if(gameOver) return;
+    ctx.clearRect(0,0,W,H);
+    drawBackground();
+
+    if(started) {
+      // Physique
+      if(holding) pegasus.vy += liftForce;
+      else pegasus.vy += gravity;
+      pegasus.vy = Math.max(-maxVy, Math.min(maxVy, pegasus.vy));
+      pegasus.y += pegasus.vy;
+      pegasus.wingFrame += holding ? 0.5 : 0.2;
+
+      // Limites écran
+      if(pegasus.y < pegasus.size*0.5) { pegasus.y = pegasus.size*0.5; pegasus.vy = 0; }
+      if(pegasus.y > H - pegasus.size*0.5) {
+        endPegasus(score);
+        return;
+      }
+
+      // Obstacles
+      distance += speed;
+      if(distance > 220 - Math.min(speed*15, 100)) {
+        spawnObstacle();
+        distance = 0;
+        speed = Math.min(speed + 0.04, 4.2);
+      }
+
+      obstacles.forEach(function(o) {
+        o.x -= speed;
+        if(!o.passed && o.x + o.width < pegasus.x) {
+          o.passed = true;
+          score++;
+          document.getElementById('peg-score').textContent = 'Score : '+score;
+          playSound('drachmes');
+        }
+        if(checkCollision(o)) {
+          endPegasus(score);
+        }
+      });
+      obstacles = obstacles.filter(function(o){ return o.x > -50; });
+    }
+
+    obstacles.forEach(drawObstacle);
+    drawPegasus();
+
+    if(!started) {
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.font = '14px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Tape pour décoller', W/2, H/2 + 60);
+    }
+
+    _pegasusRAF = requestAnimationFrame(loop);
+  }
+
+  function onDown(e) {
+    e.preventDefault();
+    holding = true;
+    started = true;
+  }
+  function onUp(e) {
+    e.preventDefault();
+    holding = false;
+  }
+
+  canvas.addEventListener('mousedown', onDown);
+  canvas.addEventListener('mouseup', onUp);
+  canvas.addEventListener('mouseleave', onUp);
+  canvas.addEventListener('touchstart', onDown, {passive:false});
+  canvas.addEventListener('touchend', onUp, {passive:false});
+
+  function endPegasus(finalScore) {
+    if(gameOver) return;
+    gameOver = true;
+    if(_pegasusRAF) cancelAnimationFrame(_pegasusRAF);
+    playSound('cardDestroyed');
+
+    var isWin = finalScore >= 8; // 8 obstacles passés = réussite
+    var isNewBest = finalScore > (user.minigames.pegasusBest || 0);
+    if(isNewBest) user.minigames.pegasusBest = finalScore;
+    if(finalScore > 0) submitPegasusRecord(finalScore);
+
+    setTimeout(function() {
+      var area = document.getElementById('minigame-area');
+      area.innerHTML = '<div class="memory-result">'
+        + '<div style="font-size:3rem;margin-bottom:12px;">'+(isWin?'🦄':'💫')+'</div>'
+        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;">'+(isWin?'Vol Réussi !':'Pégase est tombé...')+'</div>'
+        + '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:8px;">Score : '+finalScore+' obstacle'+(finalScore>1?'s':'')+' franchi'+(finalScore>1?'s':'')+'</div>'
+        + '<div id="peg-record-check" style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:14px;">'+(isNewBest ? '✨ Nouveau record personnel !' : '')+'</div>'
+        + (isWin ? '' : '<div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:14px;">Atteins 8 obstacles pour valider le défi.</div>')
+        + '<div style="display:flex;gap:10px;justify-content:center;">'
+        + '<button class="mg-back-btn" onclick="startPegasusGame()" style="border-color:var(--gold);color:var(--gold);">🔄 Réessayer</button>'
+        + '<button class="mg-back-btn" onclick="backToMinigames()">← Retour</button>'
+        + '</div></div>';
+
+      if(finalScore > 0) {
+        fetchPegasusWorldRecord(function(record) {
+          var el = document.getElementById('peg-record-check');
+          if(!el || !record) return;
+          if(record.pseudo === pseudo && record.score === finalScore) {
+            el.innerHTML = '🌍✨ Nouveau RECORD MONDIAL !';
+          }
+        });
+      }
+
+      if(isWin && !user.minigames.pegasus) {
+        user.minigames.pegasus = true;
+        addDrachmes(15, 'Vol de Pégase réussi');
+        checkMinigameBonus();
+        renderMinigamesList();
+      }
+      saveUser();
+    }, 600);
+  }
+
+  _pegasusRunning = true;
+  loop();
+}
+
+function stopPegasus() {
+  if(_pegasusRAF) cancelAnimationFrame(_pegasusRAF);
+  _pegasusRunning = false;
+  backToMinigames();
+}
+
 function stopArchery() {
   backToMinigames();
 }
@@ -6323,9 +6903,9 @@ function startQuiz() {
 
 function checkMinigameBonus() {
   if(!user || !user.minigames) return;
-  if(user.minigames.memory && user.minigames.quiz && user.minigames.archery && !user.minigames.rewardGiven) {
+  if(user.minigames.memory && user.minigames.quiz && user.minigames.archery && user.minigames.pegasus && !user.minigames.rewardGiven) {
     user.minigames.rewardGiven = true;
-    user.bonusPack = true;
+    addDrachmes(15, 'Bonus 4 mini-jeux complétés');
   }
 }
 
