@@ -676,7 +676,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
 <div id="login" class="hide">
   <div class="lbox">
-    <span class="l-orb">🏛️</span>
+    <img src="https://i.imgur.com/3VszR3Z.jpeg" class="l-orb" style="width:64px;height:64px;border-radius:12px;object-fit:cover;display:block;margin:0 auto 12px;">
     <div class="l-name">Olympia</div>
     <div class="l-sub">Sanctuaire des Cartes Grecques</div>
 
@@ -789,6 +789,11 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   <div class="section" id="section-perso">
     <div class="sec-title">Mon Profil</div>
 
+    <!-- BOUTON BADGES — tout en haut pour visibilité immédiate -->
+    <button onclick="document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-badges').classList.add('active'); renderBadges();" style="width:100%;background:linear-gradient(135deg,rgba(184,134,11,0.15),rgba(218,165,32,0.08));border:1px solid var(--gold);color:var(--gold);font-family:'Cinzel',serif;font-size:0.7rem;padding:14px;border-radius:12px;cursor:pointer;letter-spacing:0.1em;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
+      🏆 Voir mes Badges
+    </button>
+
     <!-- PROGRESSION XP -->
     <div id="rank-progress-block" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;"></div>
 
@@ -838,11 +843,6 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       <button class="char-save-btn" id="char-save-btn" style="margin-top:12px;">✨ Sauvegarder</button>
       <button class="avatar-save-btn" id="avatar-save-btn" style="display:none;"></button>
     </div>
-
-    <!-- BOUTON BADGES -->
-    <button onclick="document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-badges').classList.add('active'); renderBadges();" style="width:100%;background:linear-gradient(135deg,rgba(184,134,11,0.15),rgba(218,165,32,0.08));border:1px solid var(--gold);color:var(--gold);font-family:'Cinzel',serif;font-size:0.7rem;padding:14px;border-radius:12px;cursor:pointer;letter-spacing:0.1em;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;">
-      🏆 Voir mes Badges
-    </button>
 
   </div>
 
@@ -1012,11 +1012,52 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 // ══════════════════════════════════════
 //  DONNÉES
 // ══════════════════════════════════════
+// ══════════════════════════════════════
+//  SCÈNES LÉGENDAIRES — cartes hors-combat, pure collection
+// ══════════════════════════════════════
+var LEGENDARY_SCENES = [
+  {
+    id: 'scene_welcome',
+    name: 'Bienvenue dans l\'Olympe',
+    img: 'https://i.imgur.com/tXP04u8.jpeg',
+    icon: '🚪',
+    lore: 'Aux confins du monde mortel, Hermès, fils de Zeus et messager ailé, guide les âmes égarées vers leur destinée. Il fut le premier à franchir les portes de l\'Olympe pour porter la parole des dieux aux hommes. Aujourd\'hui, c\'est lui qui t\'accueille, voyageur, et t\'invite à écrire ta propre légende parmi les héros et les titans.',
+    obtainedBy: 'gift'
+  },
+  {
+    id: 'scene_sanctuary',
+    name: 'Le Sanctuaire Révélé',
+    img: 'https://i.imgur.com/DlDwlsI.jpeg',
+    icon: '🏛️',
+    lore: 'Dans la mythologie grecque, l\'aigle est l\'animal sacré de Zeus — son messager et le porteur de sa foudre. Selon la légende, c\'est sous cette forme que Zeus enleva le jeune prince troyen Ganymède pour en faire l\'échanson des dieux : celui chargé de leur servir le nectar lors des banquets de l\'Olympe. En son honneur, Zeus plaça Ganymède parmi les étoiles, devenu la constellation du Verseau. Aujourd\'hui, cent paquets plus tard, c\'est sous le regard de cet aigle doré que Zeus, Athéna et Poséidon t\'accueillent enfin dans la salle du trône — reconnaissant en toi la persévérance digne d\'un héros.',
+    obtainedBy: 'packs100'
+  }
+];
+
+function checkSceneUnlocks() {
+  if(!user.scenes) user.scenes = [];
+  var unlocked = [];
+  if((user.packsOpened || 0) >= 100 && !user.scenes.includes('scene_sanctuary')) {
+    user.scenes.push('scene_sanctuary');
+    unlocked.push('scene_sanctuary');
+  }
+  if(unlocked.length > 0) {
+    saveUser();
+    unlocked.forEach(function(id, i) {
+      setTimeout(function(){ showSceneUnlockedPopup(id); }, 800 + i*500);
+    });
+  }
+}
+
+function getLegendaryScene(id) {
+  return LEGENDARY_SCENES.find(function(s){ return s.id === id; });
+}
+
 var CARDS = {
   olympe:[
     {id:'o1',name:'Zeus',icon:'⚡',type:'Roi des Dieux',rarity:'légendaire',atk:2654,def:1614,atkName:'Foudre Divine',lore:'Souverain de l\'Olympe, maître du tonnerre. Sa colère fait trembler les mortels et les dieux.',at:'#e8f0f8',ab:'#c8d8f0',img:'https://i.imgur.com/O6GuWgl.jpeg',imgShiny:'https://i.imgur.com/NagBsV6.jpeg'},
     {id:'o2',name:'Héra',icon:'👑',type:'Reine des Dieux',rarity:'légendaire',atk:2025,def:1781,atkName:'Colère Royale',lore:'Déesse du mariage. Sa jalousie est aussi redoutable que l\'amour de Zeus.',at:'#f8e8f0',ab:'#f0c8d8',img:'https://i.imgur.com/n8CYKns.jpeg'},
-    {id:'o3',name:'Athéna',icon:'🦉',type:'Déesse de Sagesse',rarity:'légendaire',atk:2250,def:1728,atkName:'Égide Sacrée',lore:'Née du crâne de Zeus, patronne d\'Athènes. Stratège incomparable.',at:'#f0f0e8',ab:'#d8d8c0',img:'https://i.imgur.com/qP3MFSS.jpeg'},
+    {id:'o3',name:'Athéna',icon:'🦉',type:'Déesse de Sagesse',rarity:'légendaire',atk:2250,def:1728,atkName:'Égide Sacrée',lore:'Née du crâne de Zeus, patronne d\'Athènes. Stratège incomparable.',at:'#f0f0e8',ab:'#d8d8c0',img:'https://i.imgur.com/qP3MFSS.jpeg',imgShiny:'https://i.imgur.com/pERsn9V.jpeg'},
     {id:'o4',name:'Poséidon',icon:'🔱',type:'Dieu des Mers',rarity:'légendaire',atk:2142,def:1604,atkName:'Raz-de-Marée',lore:'Seigneur des océans et des tremblements de terre. Son trident peut fendre la terre.',at:'#e0f0f8',ab:'#b0d8f0',img:'https://i.imgur.com/HJYadY6.jpeg',imgShiny:'https://i.imgur.com/Gmj4O8S.jpeg'},
     {id:'o5',name:'Hadès',icon:'💀',type:'Dieu des Enfers',rarity:'légendaire',atk:2692,def:2058,atkName:'Sceptre des Morts',lore:'Roi des Enfers, son casque le rend invisible. Il règne sur un tiers du cosmos.',at:'#d8d8e0',ab:'#b8b8c8',img:'https://i.imgur.com/I2Rx7yC.jpeg',imgShiny:'https://i.imgur.com/jF92Sm6.jpeg'},
     {id:'o6',name:'Arès',icon:'⚔️',type:'Dieu de la Guerre',rarity:'épique',atk:1544,def:1502,atkName:'Furie Guerrière',lore:'Dieu impétueux de la guerre, il se délecte du chaos des batailles.',at:'#f8e0e0',ab:'#f0b8b8',img:'https://i.imgur.com/GvKl1QQ.jpeg'},
@@ -1042,7 +1083,7 @@ var CARDS = {
     {id:'t1',name:'Cronos',icon:'⏳',type:'Roi des Titans',rarity:'légendaire',atk:2618,def:1770,atkName:'Faucille du Temps',lore:'Père de Zeus, il dévora ses propres enfants par crainte d\'une prophétie.',at:'#e8e0f0',ab:'#c8b8e8',img:'https://i.imgur.com/RCsBYRt.jpeg'},
     {id:'t2',name:'Atlas',icon:'🌍',type:'Titan Porteur',rarity:'légendaire',atk:2044,def:1970,atkName:'Poids du Monde',lore:'Condamné à porter la voûte céleste sur ses épaules pour l\'éternité.',at:'#e0e8f0',ab:'#b8c8e0',img:'https://i.imgur.com/htM2hEr.jpeg',imgShiny:'https://i.imgur.com/7P768Ld.jpeg'},
     {id:'t3',name:'Prométhée',icon:'🔥',type:'Titan Bienfaiteur',rarity:'légendaire',atk:2549,def:1627,atkName:'Feu Volé',lore:'Il vola le feu aux dieux pour le donner aux hommes. Condamné à être torturé éternellement.',at:'#f8ece0',ab:'#f0c8a0',img:'https://i.imgur.com/oqaeW00.jpeg'},
-    {id:'t4',name:'Océanos',icon:'🌊',type:'Titan des Eaux',rarity:'épique',atk:1998,def:1393,atkName:'Déluge Primordial',lore:'Titan personnifiant l\'océan qui entoure le monde. Père de tous les fleuves.',at:'#e0f0f8',ab:'#b0d8f0',img:'https://i.imgur.com/dSf9XfY.jpeg'},
+    {id:'t4',name:'Océanos',icon:'🌊',type:'Titan des Eaux',rarity:'épique',atk:1998,def:1393,atkName:'Déluge Primordial',lore:'Titan personnifiant l\'océan qui entoure le monde. Père de tous les fleuves.',at:'#e0f0f8',ab:'#b0d8f0',img:'https://i.imgur.com/dSf9XfY.jpeg',imgShiny:'https://i.imgur.com/xUjeGMh.jpeg'},
     {id:'t5',name:'Hypérion',icon:'🌞',type:'Titan du Soleil',rarity:'épique',atk:1540,def:1482,atkName:'Feu Primordial',lore:'Titan de la lumière céleste, père d\'Hélios, Séléné et Éos.',at:'#f8f0c8',ab:'#f0e098',img:'https://i.imgur.com/2hfyHar.jpeg',imgShiny:'https://i.imgur.com/Psq9Rb3.jpeg'},
     {id:'t6',name:'Rhéa',icon:'🌿',type:'Mère des Dieux',rarity:'épique',atk:1650,def:1521,atkName:'Protection Maternelle',lore:'Épouse de Cronos, elle sauva Zeus en donnant une pierre à avaler à son mari.',at:'#e8f0e8',ab:'#c8e0c8',img:'https://i.imgur.com/JQa35kx.jpeg'},
     {id:'t7',name:'Japet',icon:'⚡',type:'Titan Ancestral',rarity:'épique',atk:1816,def:1385,atkName:'Élan Titanesque',lore:'Père de Prométhée et Atlas, gardien d\'un des quatre piliers du monde.',at:'#e8e8f0',ab:'#c8c8e8',img:'https://i.imgur.com/G9f9i66.jpeg'},
@@ -1058,14 +1099,14 @@ var CARDS = {
   monstres:[
     {id:'m1',name:'Méduse',icon:'🐍',type:'Gorgone',rarity:'légendaire',atk:2166,def:1879,atkName:'Regard Pétrifiant',lore:'Son regard transforme en pierre quiconque croise ses yeux.',at:'#e0f0e8',ab:'#b0e0c0',img:'https://i.imgur.com/HsoutPp.jpeg',imgShiny:'https://i.imgur.com/jHeGGB4.jpeg'},
     {id:'m2',name:'Hydre',icon:'🐲',type:'Serpent Multicéphale',rarity:'légendaire',atk:2363,def:1714,atkName:'Morsure Régénérante',lore:'Pour chaque tête coupée, deux repoussent. Son sang est le poison le plus mortel.',at:'#e0f0e0',ab:'#b0e0b0',img:'https://i.imgur.com/AeWXQHJ.jpeg'},
-    {id:'m3',name:'Typhon',icon:'🌋',type:'Père des Monstres',rarity:'légendaire',atk:2686,def:1773,atkName:'Tempête Titanesque',lore:'Le plus terrible des monstres, il faillit détruire les dieux de l\'Olympe.',at:'#f0e0e0',ab:'#e0b8b8',img:'https://i.imgur.com/M1sMUJF.jpeg'},
+    {id:'m3',name:'Typhon',icon:'🌋',type:'Père des Monstres',rarity:'légendaire',atk:2686,def:1773,atkName:'Tempête Titanesque',lore:'Le plus terrible des monstres, il faillit détruire les dieux de l\'Olympe.',at:'#f0e0e0',ab:'#e0b8b8',img:'https://i.imgur.com/M1sMUJF.jpeg',imgShiny:'https://i.imgur.com/gIs5FBa.jpeg'},
     {id:'m4',name:'Chimère',icon:'🦁',type:'Monstre Composite',rarity:'épique',atk:1859,def:1549,atkName:'Souffle de Feu',lore:'Tête de lion, corps de chèvre, queue de dragon. Seul Bellérophon put la vaincre.',at:'#f8e8e0',ab:'#f0c8b0',img:'https://i.imgur.com/THQ8c9v.jpeg'},
     {id:'m5',name:'Cerbère',icon:'🐕',type:'Gardien des Enfers',rarity:'épique',atk:1831,def:1236,atkName:'Triple Morsure',lore:'Chien à trois têtes gardant les portes des Enfers.',at:'#e0e0e8',ab:'#c0c0d8',img:'https://i.imgur.com/1ofVom2.jpeg',imgShiny:'https://i.imgur.com/VXDXVU1.jpeg'},
     {id:'m6',name:'Minotaure',icon:'🐂',type:'Mi-homme Mi-taureau',rarity:'épique',atk:1811,def:1525,atkName:'Charge du Labyrinthe',lore:'Né de l\'union contre-nature de Pasiphaé et du taureau de Crète.',at:'#f0ece0',ab:'#e0d8c0',img:'https://i.imgur.com/BCf9oqK.jpeg'},
     {id:'m7',name:'Scylla',icon:'🦑',type:'Monstre Marin',rarity:'épique',atk:1587,def:1473,atkName:'Tentacules Mortels',lore:'Six têtes de serpent, elle dévorait les marins naviguant près de son rocher.',at:'#e0e8f0',ab:'#b8c8e0',img:'https://i.imgur.com/6eWM8mh.jpeg'},
     {id:'m8',name:'Échidna',icon:'🐍',type:'Mère des Monstres',rarity:'épique',atk:1873,def:1325,atkName:'Venin Primordial',lore:'Mi-femme mi-serpent, mère de Cerbère, l\'Hydre, la Chimère et du Sphinx.',at:'#e0f0e8',ab:'#b0e0c0',img:'https://i.imgur.com/U8eQrc4.jpeg'},
     {id:'m9',name:'Talos',icon:'🗿',type:'Géant de Bronze',rarity:'épique',atk:1583,def:1436,atkName:'Écrasement Métallique',lore:'Automate de bronze forgé par Héphaïstos, gardien de la Crète.',at:'#e8e8e8',ab:'#c8c8c8',img:'https://i.imgur.com/0PslbOn.jpeg'},
-    {id:'m10',name:'Érinyes',icon:'😤',type:'Déesses de Vengeance',rarity:'épique',atk:1694,def:1338,atkName:'Châtiment Implacable',lore:'Les Furies traquent ceux qui ont tué un membre de leur famille.',at:'#f0e0e8',ab:'#e0b8c8',img:'https://i.imgur.com/cD0Znhe.jpeg'},
+    {id:'m10',name:'Érinyes',icon:'😤',type:'Déesses de Vengeance',rarity:'épique',atk:1694,def:1338,atkName:'Châtiment Implacable',lore:'Les Furies traquent ceux qui ont tué un membre de leur famille.',at:'#f0e0e8',ab:'#e0b8c8',img:'https://i.imgur.com/cD0Znhe.jpeg',imgShiny:'https://i.imgur.com/Bz4WKP4.jpeg'},
     {id:'m11',name:'Sphinx',icon:'🦁',type:'Gardien des Énigmes',rarity:'rare',atk:1373,def:1127,atkName:'Énigme Mortelle',lore:'Corps de lion, tête de femme, ailes d\'aigle. Elle dévorait ceux qui échouaient.',at:'#f0ece0',ab:'#e0d8c0',img:'https://i.imgur.com/EFEFBx4.jpeg'},
     {id:'m12',name:'Cyclope',icon:'👁️',type:'Géant Borgne',rarity:'rare',atk:1252,def:1085,atkName:'Rocher Massif',lore:'Polyphème fut aveuglé par Ulysse qui se fit appeler "Personne".',at:'#e8f0e8',ab:'#c8e0c8',img:'https://i.imgur.com/xs3R7NW.jpeg'},
     {id:'m13',name:'Pégase',icon:'🐎',type:'Cheval Ailé',rarity:'rare',atk:1012,def:1150,atkName:'Charge Céleste',lore:'Né du sang de Méduse, il porta Bellérophon jusqu\'à la Chimère.',at:'#f0f0f8',ab:'#d8d8f0',img:'https://i.imgur.com/m6wc5RM.jpeg',imgShiny:'https://i.imgur.com/3w8sjiY.jpeg'},
@@ -1214,12 +1255,12 @@ var RARITY = {
 };
 
 var PACKS = {
-  olympe:    {name:'Olympe',    icon:'🏛️', desc:'Les dieux de l\'Olympe et leurs alliés divins.'},
-  titans:    {name:'Titans',    icon:'⚡', desc:'Les anciens dieux primordiaux qui précédèrent les Olympiens.'},
-  monstres:  {name:'Monstres',  icon:'👹', desc:'Les créatures terrifiantes qui hantent la Grèce mythique.'},
-  heros:     {name:'Héros',     icon:'⚔️', desc:'Les mortels extraordinaires aux destins légendaires.'},
-  monuments: {name:'Monuments', icon:'🗿', desc:'Les lieux sacrés et merveilles de la Grèce antique.'},
-  armes:     {name:'Armes',     icon:'🗡️', desc:'Les armes et objets magiques des dieux et héros.'}
+  olympe:    {name:'Olympe',    icon:'🏛️', img:'https://i.imgur.com/rzD2I1n.jpeg', desc:'Les dieux de l\'Olympe et leurs alliés divins.'},
+  titans:    {name:'Titans',    icon:'⚡', img:'https://i.imgur.com/hfo6BH0.jpeg', desc:'Les anciens dieux primordiaux qui précédèrent les Olympiens.'},
+  monstres:  {name:'Monstres',  icon:'👹', img:'https://i.imgur.com/mmcNlhH.jpeg', desc:'Les créatures terrifiantes qui hantent la Grèce mythique.'},
+  heros:     {name:'Héros',     icon:'⚔️', img:'https://i.imgur.com/sl0AOCy.jpeg', desc:'Les mortels extraordinaires aux destins légendaires.'},
+  monuments: {name:'Monuments', icon:'🗿', img:'https://i.imgur.com/W8mVysb.jpeg', desc:'Les lieux sacrés et merveilles de la Grèce antique.'},
+  armes:     {name:'Armes',     icon:'🗡️', img:'https://i.imgur.com/HCGOZ1g.jpeg', desc:'Les armes et objets magiques des dieux et héros.'}
 };
 
 var COOLDOWN = 1.5 * 60 * 60 * 1000;
@@ -1306,6 +1347,7 @@ function newUser(p) {
     avatar: null,
     charClass: null,
     charGender: 'm',
+    scenes: [],
     _nextPack: null
   };
 }
@@ -1367,6 +1409,93 @@ function addXP(amount, reason) {
   notif.textContent = '+'+amount+' XP — '+reason;
   document.body.appendChild(notif);
   setTimeout(function(){ notif.style.opacity='0'; notif.style.transition='opacity 0.4s'; setTimeout(function(){ notif.remove(); },400); }, 1800);
+}
+
+function showSceneUnlockedPopup(sceneId) {
+  var scene = getLegendaryScene(sceneId);
+  if(!scene || !scene.img) return;
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
+
+  overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1a1510,#2a2018);border:2px solid var(--gold);border-radius:20px;padding:24px 20px;text-align:center;max-width:380px;width:100%;box-shadow:0 8px 60px rgba(0,0,0,0.8),0 0 40px rgba(184,134,11,0.4);animation:badgePop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);margin:auto;">'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:0.95rem;color:var(--gold);margin-bottom:4px;">📜 Nouvelle Scène Légendaire ! 📜</div>'
+    + '<div style="font-size:0.6rem;color:rgba(255,255,255,0.4);margin-bottom:16px;">Débloquée par ta progression</div>'
+    + '<div style="border-radius:14px;overflow:hidden;border:2px solid var(--gold);box-shadow:0 0 30px rgba(218,165,32,0.5);margin-bottom:16px;">'
+    + '<img src="'+scene.img+'" style="width:100%;display:block;">'
+    + '</div>'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1.1rem;color:var(--gold);margin-bottom:10px;">'+scene.name+'</div>'
+    + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.65);line-height:1.7;font-style:italic;margin-bottom:20px;text-align:left;background:rgba(0,0,0,0.2);padding:14px;border-radius:10px;border-left:2px solid var(--gold);">'+scene.lore+'</div>'
+    + '<button id="scene-unlock-close" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.7rem;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;letter-spacing:0.08em;">✨ Magnifique !</button>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
+  playSound('legendary');
+  document.getElementById('scene-unlock-close').onclick = function(){ overlay.remove(); };
+}
+
+function showWelcomeScenePopup() {
+  var scene = getLegendaryScene('scene_welcome');
+  if(!scene) return;
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
+
+  overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1a1510,#2a2018);border:2px solid var(--gold);border-radius:20px;padding:24px 20px;text-align:center;max-width:380px;width:100%;box-shadow:0 8px 60px rgba(0,0,0,0.8),0 0 40px rgba(184,134,11,0.4);animation:badgePop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);margin:auto;">'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:0.95rem;color:var(--gold);margin-bottom:4px;">✨ Carte de Bienvenue ✨</div>'
+    + '<div style="font-size:0.6rem;color:rgba(255,255,255,0.4);margin-bottom:16px;">Scène Légendaire</div>'
+    + '<div style="border-radius:14px;overflow:hidden;border:2px solid var(--gold);box-shadow:0 0 30px rgba(218,165,32,0.5);margin-bottom:16px;">'
+    + '<img src="'+scene.img+'" style="width:100%;display:block;">'
+    + '</div>'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1.1rem;color:var(--gold);margin-bottom:10px;">'+scene.name+'</div>'
+    + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.65);line-height:1.7;font-style:italic;margin-bottom:20px;text-align:left;background:rgba(0,0,0,0.2);padding:14px;border-radius:10px;border-left:2px solid var(--gold);">'+scene.lore+'</div>'
+    + '<button id="welcome-scene-close" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.7rem;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;letter-spacing:0.08em;">⚔️ Commencer mon aventure</button>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
+  playSound('legendary');
+  document.getElementById('welcome-scene-close').onclick = function(){ overlay.remove(); };
+}
+
+function showCardGiftPopup(entries) {
+  var cards = entries.map(function(entry) {
+    var parts = entry.split('|');
+    var id = parts[0];
+    var isShiny = parts[1] === 'shiny';
+    var card = allCards().find(function(c){ return c.id === id; });
+    return card ? {card: card, isShiny: isShiny} : null;
+  }).filter(Boolean);
+
+  if(cards.length === 0) return;
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:950;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  var cardsHtml = cards.map(function(c) {
+    var r = getRarity(c.card.rarity, c.isShiny);
+    var imgSrc = (c.isShiny && c.card.imgShiny) ? c.card.imgShiny : c.card.img;
+    return '<div style="width:110px;flex-shrink:0;">'
+      + '<div style="aspect-ratio:2/3;border-radius:10px;overflow:hidden;border:2px solid '+r.color+';box-shadow:0 0 20px '+r.color+'66;position:relative;">'
+      + (imgSrc ? '<img src="'+imgSrc+'" style="width:100%;height:100%;object-fit:cover;display:block;">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--bg-card);">'+c.card.icon+'</div>')
+      + '</div>'
+      + '<div style="text-align:center;font-family:Cinzel,serif;font-size:0.6rem;color:var(--gold);margin-top:6px;">'+c.card.name+(c.isShiny?' ✦':'')+'</div>'
+      + '</div>';
+  }).join('');
+
+  overlay.innerHTML = '<div style="background:linear-gradient(135deg,#1a1510,#2a2018);border:2px solid var(--gold);border-radius:18px;padding:28px 24px;text-align:center;max-width:380px;width:100%;box-shadow:0 8px 50px rgba(0,0,0,0.7),0 0 30px rgba(184,134,11,0.3);animation:badgePop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);">'
+    + '<div style="font-size:2.5rem;margin-bottom:8px;">🎁</div>'
+    + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1rem;color:var(--gold);margin-bottom:6px;">Tu as reçu '+cards.length+' carte'+(cards.length>1?'s':'')+' !</div>'
+    + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.5);margin-bottom:20px;">Un cadeau de l\'Olympe</div>'
+    + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">'
+    + cardsHtml
+    + '</div>'
+    + '<button id="card-gift-close" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.7rem;font-weight:700;padding:11px 28px;border-radius:8px;cursor:pointer;letter-spacing:0.08em;">✨ Génial !</button>'
+    + '</div>';
+
+  document.body.appendChild(overlay);
+  playSound('legendary');
+  document.getElementById('card-gift-close').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
 }
 
 function showNotif(msg, icon) {
@@ -1760,6 +1889,7 @@ function launch(p, data, uid) {
     user.combatWins = 999;
     user.totalDays = 999;
     user.xp = 25000;
+    user.scenes = LEGENDARY_SCENES.map(function(s){ return s.id; });
   }
   // Sauvegarder immédiatement
   if(uid) {
@@ -1789,6 +1919,14 @@ function launch(p, data, uid) {
   addAudioToggle();
   updateRankDisplay();
 
+  // Cadeau rétroactif — carte de bienvenue pour tous les joueurs (anciens et nouveaux)
+  if(!user.scenes) user.scenes = [];
+  if(!user.scenes.includes('scene_welcome')) {
+    user.scenes.push('scene_welcome');
+    saveUser();
+    setTimeout(function(){ showWelcomeScenePopup(); }, 1200);
+  }
+
   // Listener temps réel — admin peut envoyer des cadeaux instantanément
   if(uid && p !== 'Mazikeen') {
     db.collection('users').doc(uid).onSnapshot(function(doc) {
@@ -1799,9 +1937,9 @@ function launch(p, data, uid) {
 
       // Détecter un nouveau cadeau de carte
       if(newData.collection && newData.collection.length > oldCollectionLength) {
-        var added = newData.collection.length - oldCollectionLength;
+        var newEntries = newData.collection.slice(oldCollectionLength);
         user.collection = newData.collection;
-        showNotif('🎁 Tu as reçu '+added+' nouvelle(s) carte(s) !', '🎴');
+        showCardGiftPopup(newEntries);
         renderCol();
       }
       // Détecter des drachmes offertes
@@ -2069,10 +2207,50 @@ function buildMissingCard(card, num) {
   return div;
 }
 
+function renderLegendaryScenes() {
+  var grid = document.getElementById('col-grid');
+  grid.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+    + '<button onclick="renderCol()" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:Cinzel,serif;font-size:0.6rem;padding:6px 14px;border-radius:20px;cursor:pointer;">← Retour</button>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">📜 Scènes Légendaires</div>'
+    + '</div>';
+
+  var owned = user.scenes || [];
+  owned.forEach(function(sceneId) {
+    var scene = getLegendaryScene(sceneId);
+    if(!scene) return;
+    var card = document.createElement('div');
+    card.style.cssText = 'grid-column:1/-1;background:var(--bg-card);border:1px solid var(--gold);border-radius:14px;overflow:hidden;margin-bottom:14px;';
+    card.innerHTML = '<img src="'+scene.img+'" style="width:100%;display:block;">'
+      + '<div style="padding:16px;">'
+      + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1rem;color:var(--gold);margin-bottom:8px;">'+scene.name+'</div>'
+      + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.6);line-height:1.7;font-style:italic;">'+scene.lore+'</div>'
+      + '</div>';
+    grid.appendChild(card);
+  });
+
+  if(owned.length === 0) {
+    grid.innerHTML += '<div class="empty" style="grid-column:1/-1"><div class="empty-i">📜</div><div class="empty-t">Aucune scène légendaire débloquée</div></div>';
+  }
+}
+
 function renderCol() {
   updateFilterCounts();
   var grid = document.getElementById('col-grid');
   grid.innerHTML = '';
+
+  // Bouton Scènes Légendaires (si au moins une possédée)
+  if(user.scenes && user.scenes.length > 0) {
+    var scenesBtn = document.createElement('div');
+    scenesBtn.style.cssText = 'grid-column:1/-1;background:linear-gradient(135deg,rgba(184,134,11,0.15),rgba(218,165,32,0.08));border:1px solid var(--gold);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px;';
+    scenesBtn.innerHTML = '<div style="font-size:1.8rem;">📜</div>'
+      + '<div style="flex:1;text-align:left;">'
+      + '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">Scènes Légendaires</div>'
+      + '<div style="font-size:0.6rem;color:var(--text-dim);">'+user.scenes.length+' scène'+(user.scenes.length>1?'s':'')+' débloquée'+(user.scenes.length>1?'s':'')+'</div>'
+      + '</div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:var(--gold);">→</div>';
+    scenesBtn.onclick = function(){ renderLegendaryScenes(); };
+    grid.appendChild(scenesBtn);
+  }
 
   // Determine which packs to show
   var packsToShow = [];
@@ -2155,7 +2333,7 @@ function renderPacks() {
       + '<div class="daily-banner-content">'
       + '<div class="daily-banner-icon">🎁</div>'
       + '<div>'
-      + '<div class="daily-banner-title">🌅 Paquet du Jour !</div>'
+      + '<div class="daily-banner-title">Paquet du Jour !</div>'
       + '<div class="daily-banner-sub">Ton paquet quotidien gratuit t\'attend — ouvre-le !</div>'
       + '</div>'
       + '</div>'
@@ -2177,7 +2355,7 @@ function renderPacks() {
     else titleEl.textContent = '';
   }
 
-  var packLabel = isDaily ? '🌅 Paquet du Jour' : isAdmin ? '🎁 Paquet Offert' : 'Paquet Collector';
+  var packLabel = isDaily ? 'Paquet du Jour' : isAdmin ? '🎁 Paquet Offert' : 'Paquet Collector';
   var packDesc = isDaily
     ? 'Ton paquet quotidien gratuit ! Un mélange de cartes issues de tous les paquets.'
     : isAdmin
@@ -2185,11 +2363,12 @@ function renderPacks() {
     : 'Un mélange de cartes rares issues de tous les paquets — dieux, héros, monstres, armes et monuments !';
 
   var showTimer = !ready && remaining > 0;
-  div.innerHTML = '<span class="pack-icon">'+(ready?(isDaily?'🌅':isAdmin?'🎁':'🎴'):'⏳')+'</span>'
+  var dailyIconHtml = '<img src="https://i.imgur.com/ary27Ol.jpeg" style="width:80px;height:80px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">';
+  div.innerHTML = '<span class="pack-icon">'+(ready?(isDaily?'':isAdmin?'🎁':'🎴'):'⏳')+(ready&&isDaily?dailyIconHtml:'')+'</span>'
     +'<div class="pack-name">'+packLabel+'</div>'
     +'<div class="pack-desc">'+packDesc+'</div>'
     +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
-    +(ready?'<button class="open-btn" id="main-open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'🌅 Ouvrir mon paquet du jour':isAdmin?'🎁 Ouvrir mon paquet offert':'✨ Ouvrir mon paquet')+'</button>'
+    +(ready?'<button class="open-btn" id="main-open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'Ouvrir mon paquet du jour':isAdmin?'🎁 Ouvrir mon paquet offert':'✨ Ouvrir mon paquet')+'</button>'
     : showTimer ? '<div class="pack-timer">'+fmtTime(remaining)+'</div>' : '<div class="pack-timer">Bientôt disponible...</div>');
   grid.appendChild(div);
   if(ready) {
@@ -2222,7 +2401,7 @@ function renderPacks() {
     var d = document.createElement('div');
     d.className = canBuy ? 'pack avail' : 'pack locked';
     d.style.cssText = 'padding:16px 12px;';
-    d.innerHTML = '<span class="pack-icon" style="font-size:2rem;">'+p.icon+'</span>'
+    d.innerHTML = '<img src="'+p.img+'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
       + '<div class="pack-name" style="font-size:0.78rem;">'+p.name+'</div>'
       + '<div class="pack-desc" style="font-size:0.62rem;margin-bottom:8px;">'+p.desc+'</div>'
       + (canBuy
@@ -2354,6 +2533,7 @@ function openPackDrachmes(packId) {
   });
   if(user.adminPackPending && user.adminPackPending > 0) user.adminPackPending--;
   saveUser();
+  checkSceneUnlocks();
   addXP(10, 'Paquet ouvert');
   addDrachmes(10, 'Paquet ouvert');
   setTimeout(function(){ startSwipeReveal(drawn); }, 300);
@@ -2407,6 +2587,7 @@ function openPack(packId) {
     user.collection.push(d.card.id + (d.isShiny?'|shiny':''));
   });
   saveUser();
+  checkSceneUnlocks();
   // Drachmes pour ouverture de paquet
   var packBonus = hasDailyPack() ? 5 : 10;
   addDrachmes(10, 'Paquet ouvert');
@@ -2777,7 +2958,7 @@ function renderExchange() {
     var canExchange = dups >= 5;
     var div = document.createElement('div');
     div.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;opacity:'+(canExchange?'1':'0.6')+';';
-    div.innerHTML = '<div style="font-size:2.5rem;margin-bottom:8px;">'+pInfo.icon+'</div>'
+    div.innerHTML = '<img src="'+pInfo.img+'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 14px rgba(0,0,0,0.3);'+(canExchange?'':'filter:grayscale(0.4);')+'">'
       +'<div style="font-family:Cinzel,serif;color:var(--gold);font-size:0.85rem;margin-bottom:6px;">'+pInfo.name+'</div>'
       +'<div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:4px;">Doublons disponibles</div>'
       +'<div style="font-family:Cinzel Decorative,serif;font-size:1.8rem;color:'+(canExchange?'var(--gold)':'var(--text-dim)')+';">'+dups+'<span style="font-size:0.8rem;color:var(--text-dim)">/5</span></div>'
