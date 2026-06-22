@@ -242,9 +242,11 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .pack-img-name{font-family:'Cinzel Decorative',serif;font-size:1rem;color:white;z-index:2;}
   .pack-img-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.2em;color:rgba(255,255,255,0.7);text-transform:uppercase;z-index:2;}
   .pack-tear-hint{font-family:'Cinzel',serif;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;text-align:center;}
-  .pack-tear-line{position:absolute;top:22%;left:0;right:0;height:2px;background:rgba(255,255,255,0);pointer-events:none;transition:background 0.2s;}
-  .pack-tear-line.active{background:linear-gradient(to right,transparent,white,transparent);box-shadow:0 0 8px white;}
-  .pack-top-flap{position:absolute;top:0;left:0;right:0;height:22%;background:transparent;border-radius:12px 12px 0 0;transform-origin:top;transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275),opacity 0.4s;z-index:3;}
+  .pack-half{position:absolute;left:0;right:0;overflow:hidden;}
+  .pack-half-top{top:0;height:22%;transform-origin:top center;}
+  .pack-half-bottom{top:22%;bottom:0;transform-origin:bottom center;}
+  @keyframes tearFlash{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+  .tear-flash{position:fixed;inset:0;background:rgba(255,240,180,0.85);z-index:400;pointer-events:none;animation:tearFlash 0.5s ease-out forwards;}
   /* BEAUTIFUL PACK DESIGN */
   .pack-img{
     width:100%;height:100%;border-radius:14px;
@@ -730,12 +732,12 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <button class="quit-btn" id="btn-quit">✕</button>
   </div>
   <nav style="display:flex;justify-content:space-around;flex-wrap:nowrap;">
-    <button class="nav-btn active" data-sec="packs">📦<span style="font-size:0.38rem;letter-spacing:0.05em;">Paquets</span></button>
-    <button class="nav-btn" data-sec="collection">📚<span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
-    <button class="nav-btn" data-sec="minijeux">🎮<span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
-    <button class="nav-btn" data-sec="combat" id="nav-combat">⚔️<span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
-    <button class="nav-btn" data-sec="boutique">🏺<span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
-    <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;">🔧<span style="font-size:0.38rem;letter-spacing:0.05em;">Admin</span></button>
+    <button class="nav-btn active" data-sec="packs"><img src="https://i.imgur.com/6wJXCrA.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Paquets</span></button>
+    <button class="nav-btn" data-sec="collection"><img src="https://i.imgur.com/TbzQFfh.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
+    <button class="nav-btn" data-sec="minijeux"><img src="https://i.imgur.com/STQkIeu.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
+    <button class="nav-btn" data-sec="combat" id="nav-combat"><img src="https://i.imgur.com/1Dp8qEi.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
+    <button class="nav-btn" data-sec="boutique"><img src="https://i.imgur.com/MNqaUqS.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
+    <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7ZM12 17C10 17 8.2 15.9 7.2 14.2C7.2 12.5 10 11.5 12 11.5C14 11.5 16.8 12.5 16.8 14.2C15.8 15.9 14 17 12 17Z"/></svg><span style="font-size:0.38rem;letter-spacing:0.05em;">Admin</span></button>
   </nav>
 
   <div class="section active" id="section-collection">
@@ -745,12 +747,12 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     </div>
     <div class="filters">
       <button class="fbtn active" data-f="all" id="fb-all">Toutes</button>
-      <button class="fbtn" data-f="olympe" id="fb-olympe">🏛️ Olympe</button>
-      <button class="fbtn" data-f="titans" id="fb-titans">⚡ Titans</button>
-      <button class="fbtn" data-f="monstres" id="fb-monstres">👹 Monstres</button>
-      <button class="fbtn" data-f="heros" id="fb-heros">⚔️ Héros</button>
-      <button class="fbtn" data-f="monuments" id="fb-monuments">🗿 Monuments</button>
-      <button class="fbtn" data-f="armes" id="fb-armes">🗡️ Armes</button>
+      <button class="fbtn" data-f="olympe" id="fb-olympe">Olympe</button>
+      <button class="fbtn" data-f="titans" id="fb-titans">Titans</button>
+      <button class="fbtn" data-f="monstres" id="fb-monstres">Monstres</button>
+      <button class="fbtn" data-f="heros" id="fb-heros">Héros</button>
+      <button class="fbtn" data-f="monuments" id="fb-monuments">Monuments</button>
+      <button class="fbtn" data-f="armes" id="fb-armes">Armes</button>
       <button class="fbtn" data-f="shiny" id="fb-shiny">✦ Shiny</button>
     </div>
     <div class="grid" id="col-grid"></div>
@@ -962,11 +964,9 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
 <!-- PACK TEAR REVEAL -->
 <div class="pack-reveal" id="pack-reveal">
-  <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold-light);text-align:center;" id="pr-title">✨ Nouveau paquet !</div>
+  <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold-light);text-align:center;" id="pr-title">Nouveau paquet !</div>
   <div class="pack-wrapper" id="pack-wrapper">
     <div class="pack-img" id="pack-img">
-      <div class="pack-tear-line" id="pack-tear-line"></div>
-      <div class="pack-top-flap" id="pack-top-flap"></div>
       <!-- Decorative elements -->
       <div class="pack-shine"></div>
       <div class="pack-particles">
@@ -1001,13 +1001,13 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div class="card-reveal-slot" id="card-reveal-slot"></div>
   </div>
   <div class="reveal-hint-swipe" id="pr-swipe-hint" style="display:none;">← Clique pour la suite →</div>
-  <button class="reveal-done-btn" id="pr-done-btn">🎴 Ajouter à ma collection</button>
+  <button class="reveal-done-btn" id="pr-done-btn">Ajouter à ma collection</button>
 </div>
 
 <div class="reveal" id="reveal">
   <div class="rev-title" id="rev-title">✨ Nouvelles cartes !</div>
   <div class="rev-cards" id="rev-cards"></div>
-  <button class="rev-close" id="rev-close">🎴 Ajouter à ma collection</button>
+  <button class="rev-close" id="rev-close">Ajouter à ma collection</button>
 </div>
 
 <script>
@@ -2182,13 +2182,12 @@ function updateFilterCounts() {
 
   Object.keys(PACKS).forEach(function(packId) {
     var packCardIds = CARDS[packId].map(function(c){return c.id;});
-    var packTotal = CARDS[packId].length * 2; // x2 for shiny
+    var packTotal = CARDS[packId].length + CARDS[packId].filter(function(c){return c.imgShiny;}).length;
     var packOwned = u.filter(function(e){return packCardIds.indexOf(e.card.id) >= 0;}).length;
     var btn = document.getElementById('fb-' + packId);
     if(btn) {
-      var icon = btn.textContent.split(' ')[0];
       var name = PACKS[packId].name;
-      btn.textContent = icon + ' ' + name + ' ' + packOwned + '/' + packTotal;
+      btn.textContent = name + ' ' + packOwned + '/' + packTotal;
     }
   });
 
@@ -2595,16 +2594,16 @@ function startSwipeReveal(drawn) {
   _tearring = false;
 
   var pr = document.getElementById('pack-reveal');
-  document.getElementById('pr-title').textContent = '✨ Nouveau paquet !';
+  document.getElementById('pr-title').textContent = 'Nouveau paquet !';
   document.getElementById('pr-hint').style.display = 'block';
   document.getElementById('pr-counter').style.display = 'none';
   document.getElementById('card-reveal-area').classList.remove('open');
   document.getElementById('pr-swipe-hint').style.display = 'none';
   document.getElementById('pr-done-btn').classList.remove('show');
-  document.getElementById('pack-top-flap').style.transform = '';
-  document.getElementById('pack-top-flap').style.opacity = '';
-  document.getElementById('pack-tear-line').classList.remove('active');
+  document.getElementById('pack-tear-line') && (document.getElementById('pack-tear-line').classList.remove('active'));
   var wrapper = document.getElementById('pack-wrapper');
+  // Nettoyer les moitiés créées dynamiquement
+  wrapper.querySelectorAll('div[style*="clip-path"], div[style*="overflow:visible"]').forEach(function(el){ el.remove(); });
   anime.remove(wrapper);
   wrapper.style.display = 'block';
   wrapper.style.transform = '';
@@ -2644,54 +2643,82 @@ function tearPack() {
   if(_torn) return;
   _torn = true;
   playSound('packTear');
-  setTimeout(function(){ playSound('packOpen'); }, 300);
   document.getElementById('pr-hint').textContent = '';
+
   var wrapper = document.getElementById('pack-wrapper');
+  var packImg = document.getElementById('pack-img');
 
-  // Nettoyer les anciennes particules éventuelles
-  wrapper.querySelectorAll('div[style*="overflow:visible"]').forEach(function(el){ el.remove(); });
+  // Créer le chemin de déchirure irrégulier SVG
+  var tearPath = 'polygon(0 0, 100% 0, 100% 20%, 90% 22%, 80% 19%, 70% 23%, 60% 20%, 50% 24%, 40% 21%, 30% 23%, 20% 20%, 10% 22%, 0 20%)';
+  var tearPathBottom = 'polygon(0 20%, 10% 22%, 20% 20%, 30% 23%, 40% 21%, 50% 24%, 60% 20%, 70% 23%, 80% 19%, 90% 22%, 100% 20%, 100% 100%, 0 100%)';
 
-  // Create particles container
+  // Créer deux moitiés par-dessus le paquet
+  var topHalf = document.createElement('div');
+  topHalf.style.cssText = 'position:absolute;inset:0;background:url("https://i.imgur.com/AGGWuAL.jpeg") center/cover no-repeat;border-radius:14px;z-index:10;clip-path:'+tearPath+';';
+
+  var botHalf = document.createElement('div');
+  botHalf.style.cssText = 'position:absolute;inset:0;background:url("https://i.imgur.com/AGGWuAL.jpeg") center/cover no-repeat;border-radius:14px;z-index:10;clip-path:'+tearPathBottom+';';
+
+  wrapper.appendChild(topHalf);
+  wrapper.appendChild(botHalf);
+
+  // Flash lumineux
+  setTimeout(function(){
+    var flash = document.createElement('div');
+    flash.className = 'tear-flash';
+    document.body.appendChild(flash);
+    playSound('packOpen');
+    setTimeout(function(){ flash.remove(); }, 500);
+  }, 80);
+
+  // Animation séparation
+  anime({
+    targets: topHalf,
+    translateY: -180,
+    rotate: -8,
+    opacity: [1, 0],
+    duration: 600,
+    delay: 80,
+    easing: 'easeInQuad'
+  });
+
+  anime({
+    targets: botHalf,
+    translateY: 180,
+    rotate: 6,
+    opacity: [1, 0],
+    duration: 600,
+    delay: 80,
+    easing: 'easeInQuad'
+  });
+
+  // Particules dorées
   var particleContainer = document.createElement('div');
   particleContainer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:30;';
   wrapper.appendChild(particleContainer);
-
-  // Spawn gold particles with Anime.js
   var colors = ['#ffe566','#daa520','#fff','#ff8c00'];
-  for(var i=0; i<30; i++) {
+  for(var i=0; i<40; i++) {
     var p = document.createElement('div');
-    var size = 4 + Math.random() * 8;
+    var size = 3 + Math.random() * 7;
     p.style.cssText = 'position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+colors[Math.floor(Math.random()*colors.length)]+';top:22%;left:50%;opacity:0;';
     particleContainer.appendChild(p);
     anime({
       targets: p,
-      translateX: (Math.random()-0.5) * 300,
-      translateY: (Math.random()-0.5) * 300,
+      translateX: (Math.random()-0.5) * 320,
+      translateY: (Math.random()-0.5) * 320,
       opacity: [1, 0],
       scale: [1, 0],
-      duration: 600 + Math.random() * 400,
-      delay: Math.random() * 100,
+      duration: 700 + Math.random() * 400,
+      delay: 100 + Math.random() * 100,
       easing: 'easeOutExpo'
     });
   }
 
-  // Pack shake then fly up
-  anime({
-    targets: wrapper,
-    keyframes: [
-      {rotate: -3, duration: 80},
-      {rotate: 3, duration: 80},
-      {rotate: -2, duration: 80},
-      {rotate: 0, duration: 80},
-      {translateY: -20, scale: 1.05, duration: 200},
-      {translateY: -200, scale: 0.5, opacity: 0, duration: 400}
-    ],
-    easing: 'easeInOutQuad',
-    complete: function() {
-      wrapper.style.display = 'none';
-      showRevealCardNew(0);
-    }
-  });
+  // Révéler les cartes
+  setTimeout(function() {
+    wrapper.style.display = 'none';
+    showRevealCardNew(0);
+  }, 700);
 }
 
 function spawnParticles(container, c1, c2, c3) {
@@ -4344,9 +4371,11 @@ function renderBoutique() {
   });
 
   // ── CARTES SPÉCIALES ──
-  container.innerHTML += '<div style="font-family:Cinzel,serif;font-size:0.72rem;color:var(--gold);letter-spacing:0.1em;margin:8px 0 4px;">✨ Cartes Spéciales de Combat</div>'
+  var specialSection = document.createElement('div');
+  specialSection.innerHTML = '<div style="font-family:Cinzel,serif;font-size:0.72rem;color:var(--gold);letter-spacing:0.1em;margin:8px 0 4px;">✨ Cartes Spéciales de Combat</div>'
     + '<div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:12px;">Cartes utilisables en combat · 1 par combat</div>'
     + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;" id="boutique-grid"></div>';
+  container.appendChild(specialSection);
 
   var grid = document.getElementById('boutique-grid');
   SPECIAL_CARDS.forEach(function(sc) {
@@ -4356,9 +4385,9 @@ function renderBoutique() {
     d.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;';
     d.innerHTML = '<div style="position:relative;">'
       +'<img src="'+sc.img+'" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;">'
-      +'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:8px 8px 6px;">'
-      +'<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--gold);">'+sc.icon+' '+sc.name+'</div>'
-      +'<div style="font-size:0.52rem;color:var(--gold);margin-top:2px;line-height:1.3;">'+sc.desc+'</div>'
+      +'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.95));padding:10px 10px 8px;">'
+      +'<div style="font-family:\'Cinzel Decorative\',serif;font-size:0.6rem;color:var(--gold);margin-bottom:3px;">'+sc.name+'</div>'
+      +'<div style="font-size:0.5rem;color:rgba(255,255,255,0.85);line-height:1.4;">'+sc.desc+'</div>'
       +'</div>'
       +'</div>'
       +'<div style="padding:8px;display:flex;align-items:center;justify-content:space-between;gap:6px;">'
