@@ -756,14 +756,16 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div class="grid" id="col-grid"></div>
   </div>
 
-  <div class="section" id="section-packs">
+  <div class="section" id="section-packs" style="padding:0;">
     <div id="wb-container"></div>
-    <div id="streak-container"></div>
-    <div class="sec-title" id="pack-section-title">Choisissez un Paquet</div>
-    <div class="cd-info" id="cd-info"></div>
-    <div class="pgrid" id="pack-grid"></div>
-    <div id="shop-container"></div>
-    <div id="exchange-in-packs"></div>
+    <div id="pack-hero"></div>
+    <div style="padding:0 16px 16px;" id="pack-below">
+      <div id="streak-container"></div>
+      <div class="cd-info" id="cd-info"></div>
+      <div class="pgrid" id="pack-grid" style="margin-top:0;"></div>
+      <div id="shop-container"></div>
+      <div id="exchange-in-packs"></div>
+    </div>
   </div>
 
   <!-- SECTION MINI-JEUX -->
@@ -2306,124 +2308,102 @@ function getRandomPack() {
 }
 
 function renderPacks() {
-  var grid = document.getElementById('pack-grid');
-  if(grid) { grid.style.display = 'grid'; grid.style.visibility = 'visible'; }
-  var info = document.getElementById('cd-info');
-  var ready = canOpen();
-  var remaining = timeLeft();
   var isWelcome = user && (user.firstTime || (user.firstPackDone && !user.secondPackDone));
-  var isDaily = !isWelcome && hasDailyPack();
+  var isAdmin = !isWelcome && (user.adminPackPending && user.adminPackPending > 0);
 
-  var isAdmin = !isWelcome && !isDaily && (user.adminPackPending && user.adminPackPending > 0);
+  // Hero
+  var hero = document.getElementById('pack-hero');
+  if(hero) hero.innerHTML = '';
 
-  if(info) {
-    if(ready && isWelcome && user.firstTime) info.textContent='🎁 Ton premier paquet t\'attend !';
-    else if(ready && isWelcome) info.textContent='🎁 Encore un paquet gratuit pour toi !';
-    else if(isAdmin) info.textContent='🎁 Tu as reçu des paquets offerts !';
-    else if(isDaily) info.textContent='';
-    else if(ready) info.textContent = '';
-    else info.textContent='⏳ Prochain paquet dans '+fmtTime(remaining);
-  }
-
-  // Bannière daily animée
+  // Bannière bienvenue
   var wb = document.getElementById('wb-container');
-  if(isDaily && wb && !user.firstTime) {
-    wb.innerHTML = '<div class="daily-banner" id="daily-banner">'
-      + '<div class="daily-banner-glow"></div>'
-      + '<div class="daily-banner-content">'
-      + '<div class="daily-banner-icon">🎁</div>'
-      + '<div>'
-      + '<div class="daily-banner-title">Paquet du Jour !</div>'
-      + '<div class="daily-banner-sub">Ton paquet quotidien gratuit t\'attend — ouvre-le !</div>'
-      + '</div>'
-      + '</div>'
-      + '</div>';
+  if(wb) {
+    if(isWelcome && user.firstTime) {
+      wb.innerHTML = '<div class="wbanner"><div class="wb-icon">🎁</div><div><div class="wb-title">Bienvenue dans l\'Olympe !</div><div class="wb-desc">Pour ton arrivée, tu reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> !</div></div></div>';
+    } else { wb.innerHTML = ''; }
   }
 
+  var grid = document.getElementById('pack-grid');
+  if(!grid) return;
   grid.innerHTML = '';
-  var div = document.createElement('div');
-  div.className = ready ? 'pack avail' : 'pack locked';
-  div.style.cssText = 'max-width:280px;margin:0 auto;';
-  div.style.cssText = 'max-width:340px;margin:0 auto;';
 
-  var titleEl = document.getElementById('pack-section-title');
-  if(titleEl) {
-    if(isWelcome) titleEl.textContent = '🎁 Tes paquets de bienvenue';
-    else if(isAdmin) titleEl.textContent = '🎁 Paquet offert';
-    else if(ready && !isDaily) titleEl.textContent = '✨ Un paquet t\'attend !';
-    else if(!ready) titleEl.textContent = '';
-    else titleEl.textContent = '';
-  }
+  if(isWelcome) {
+    // Paquets de bienvenue — ancien comportement
+    var div = document.createElement('div');
+    div.style.cssText = 'max-width:360px;margin:0 auto;';
+    div.innerHTML = '<button class="open-btn" id="main-open-btn" style="width:100%;font-size:0.85rem;padding:16px;">🎁 Ouvrir mon paquet de bienvenue</button>';
+    grid.appendChild(div);
+    document.getElementById('main-open-btn').onclick = function(){ openPack('mixed'); };
 
-  var packLabel = isDaily ? 'Paquet du Jour' : isAdmin ? '🎁 Paquet Offert' : 'Paquet Collector';
-  var packDesc = isDaily
-    ? 'Ton paquet quotidien gratuit ! Un mélange de cartes issues de tous les paquets.'
-    : isAdmin
-    ? 'Un paquet t\'a été offert par l\'administrateur. Bonne chance !'
-    : 'Un mélange de cartes rares issues de tous les paquets — dieux, héros, monstres, armes et monuments !';
+  } else if(isAdmin) {
+    var div = document.createElement('div');
+    div.style.cssText = 'max-width:360px;margin:0 auto;';
+    div.innerHTML = '<button class="open-btn" id="main-open-btn" style="width:100%;font-size:0.85rem;padding:16px;">🎁 Ouvrir mon paquet offert</button>';
+    grid.appendChild(div);
+    document.getElementById('main-open-btn').onclick = function(){ openPack('mixed'); };
 
-  var showTimer = !ready && remaining > 0;
-  var packImgHtml = '<img src="https://i.imgur.com/ary27Ol.jpeg" style="width:80px;height:80px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">';
-  div.innerHTML = '<span class="pack-icon">'+(ready?(isAdmin?'🎁':''):'⏳')+(ready&&!isAdmin?packImgHtml:'')+'</span>'
-    +'<div class="pack-name">'+packLabel+'</div>'
-    +'<div class="pack-desc">'+packDesc+'</div>'
-    +'<div class="pack-count">4 cartes variées + chance Shiny</div>'
-    +(ready?'<button class="open-btn" id="main-open-btn" style="width:100%;margin-top:8px;">'+(isDaily?'Ouvrir mon paquet du jour':isAdmin?'🎁 Ouvrir mon paquet offert':'✨ Ouvrir mon paquet')+'</button>'
-    : showTimer ? '<div class="pack-timer">'+fmtTime(remaining)+'</div>' : '<div class="pack-timer">Bientôt disponible...</div>');
-  grid.appendChild(div);
-  if(ready) {
-    var openBtn = document.getElementById('main-open-btn');
-    if(openBtn) openBtn.onclick = function(){ openPack('mixed'); };
-  }
+  } else {
+    // DEUX CARTES
+    var packImg = 'https://i.imgur.com/ary27Ol.jpeg';
+    var hasDaily = hasDailyPack();
+    var canCollector = (Date.now() - (user.lastPackTime||0)) >= COOLDOWN;
+    var remaining = timeLeft();
 
-  // Paquets thématiques achetables
-  var shopContainer = document.getElementById('shop-container');
-  shopContainer.innerHTML = '';
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;flex-direction:column;gap:12px;max-width:400px;margin:0 auto;';
 
-  var shopTitle = document.createElement('div');
-  shopTitle.className = 'sec-title';
-  shopTitle.style.marginTop = '24px';
-  shopTitle.textContent = 'Paquets Thématiques';
-  shopContainer.appendChild(shopTitle);
+    // ── CARTE 1 : Paquet du Jour ──
+    var daily = document.createElement('div');
+    daily.style.cssText = 'border-radius:14px;overflow:hidden;border:1px solid '+(hasDaily?'var(--gold)':'var(--border)')+';';
+    daily.innerHTML = '<div style="position:relative;height:160px;">'
+      + '<img src="'+packImg+'" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness('+(hasDaily?'0.6':'0.3')+');">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(0,0,0,0.85));"></div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px 10px;">'
+      + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1rem;color:var(--gold);">Paquet du Jour</div>'
+      + '<div style="font-size:0.62rem;color:rgba(255,255,255,0.7);margin-top:3px;">1 gratuit par jour · 4 cartes variées + chance Shiny</div>'
+      + '</div></div>'
+      + '<div style="padding:10px 12px;background:var(--bg-card);">'
+      + (hasDaily
+        ? '<button class="open-btn" id="daily-open-btn" style="width:100%;padding:12px;font-size:0.78rem;">Ouvrir mon paquet du jour</button>'
+        : '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);text-align:center;padding:8px 0;">✅ Déjà récupéré aujourd\'hui — reviens demain !</div>'
+      )
+      + '</div>';
+    wrapper.appendChild(daily);
 
-  var shopDesc = document.createElement('div');
-  shopDesc.style.cssText = 'font-size:0.68rem;color:var(--text-dim);text-align:center;margin-bottom:14px;';
-  shopDesc.innerHTML = 'Cible ce qui te manque — <strong style="color:var(--gold)">50 🪙 Drachmes</strong> par paquet';
-  shopContainer.appendChild(shopDesc);
+    // ── CARTE 2 : Paquet Collector (1h30) ──
+    var collector = document.createElement('div');
+    collector.style.cssText = 'border-radius:14px;overflow:hidden;border:1px solid '+(canCollector?'var(--gold)':'var(--border)')+';';
+    collector.innerHTML = '<div style="position:relative;height:160px;">'
+      + '<img src="'+packImg+'" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness('+(canCollector?'0.6':'0.3')+');">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(0,0,0,0.85));"></div>'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px 10px;">'
+      + '<div style="font-family:\'Cinzel Decorative\',serif;font-size:1rem;color:var(--gold);">Paquet Collector</div>'
+      + '<div style="font-size:0.62rem;color:rgba(255,255,255,0.7);margin-top:3px;">Disponible toutes les 1h30 · 4 cartes variées + chance Shiny</div>'
+      + '</div></div>'
+      + '<div style="padding:10px 12px;background:var(--bg-card);">'
+      + (canCollector
+        ? '<button class="open-btn" id="collector-open-btn" style="width:100%;padding:12px;font-size:0.78rem;">Ouvrir mon paquet collector</button>'
+        : '<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);text-align:center;padding:8px 0;">⏳ '+fmtTime(remaining)+'</div>'
+      )
+      + '</div>';
+    wrapper.appendChild(collector);
+    grid.appendChild(wrapper);
 
-  var shopGrid = document.createElement('div');
-  shopGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;';
-  var drachmes = user.drachmes || 0;
-
-  Object.keys(PACKS).forEach(function(packId) {
-    var p = PACKS[packId];
-    var canBuy = drachmes >= 50;
-    var d = document.createElement('div');
-    d.className = canBuy ? 'pack avail' : 'pack locked';
-    d.style.cssText = 'padding:16px 12px;';
-    d.innerHTML = '<img src="'+p.img+'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
-      + '<div class="pack-name" style="font-size:0.78rem;">'+p.name+'</div>'
-      + '<div class="pack-desc" style="font-size:0.62rem;margin-bottom:8px;">'+p.desc+'</div>'
-      + (canBuy
-        ? '<button class="open-btn" style="width:100%;font-size:0.62rem;padding:7px;">50 🪙 Acheter</button>'
-        : '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);">'+drachmes+' / 50 🪙</div>'
-           +'<div style="height:4px;background:rgba(0,0,0,0.07);border-radius:2px;margin-top:6px;overflow:hidden;"><div style="height:100%;width:'+Math.min(drachmes/50*100,100)+'%;background:linear-gradient(to right,var(--gold-dim),var(--gold-light));border-radius:2px;"></div></div>');
-    if(canBuy) {
-      (function(pid){
-        d.querySelector('.open-btn').onclick = function() {
-          if(!user || (user.drachmes||0) < 50) return;
-          user.drachmes -= 50;
-          saveUser();
-          updateDrachmesDisplay();
-          openPackDrachmes(pid);
-        };
-      })(packId);
+    if(hasDaily) {
+      var db2 = document.getElementById('daily-open-btn');
+      if(db2) db2.onclick = function(){ openPack('daily'); };
     }
-    shopGrid.appendChild(d);
-  });
-  shopContainer.appendChild(shopGrid);
+    if(canCollector) {
+      var cb = document.getElementById('collector-open-btn');
+      if(cb) cb.onclick = function(){ openPack('mixed'); };
+    }
+  }
 
-  // Échange dans la section paquets
+  // Vider shop-container
+  var shopContainer = document.getElementById('shop-container');
+  if(shopContainer) shopContainer.innerHTML = '';
+
+  // Échange
   var exchangeInPacks = document.getElementById('exchange-in-packs');
   if(exchangeInPacks) {
     exchangeInPacks.innerHTML = '';
@@ -2443,6 +2423,7 @@ function renderPacks() {
     renderExchange();
   }
 }
+
 
 function openModal(card, isShiny) {
   var r = getRarity(card.rarity, isShiny);
@@ -2540,7 +2521,10 @@ function openPackDrachmes(packId) {
 }
 
 function openPack(packId) {
-  if(!canOpen()) return;
+  // Vérification selon le type
+  if(packId === 'daily') {
+    if(!hasDailyPack()) return;
+  } else if(!canOpen()) return;
 
   // Utilise le packId tel quel s'il existe dans CARDS, sinon mixed
   if(packId !== 'mixed' && !CARDS[packId]) packId = 'mixed';
@@ -4202,7 +4186,19 @@ var SPECIAL_CARDS = [
    effect:function(s){ s.aiField.forEach(function(c){c.combatAtk=Math.max(0,c.combatAtk-500);}); addBattleLog('🔥 Colère de Zeus ! -500 ATK aux cartes ennemies.','hit'); }},
   {id:'meduse',  name:'Regard de Méduse', icon:'🐍', img:'https://i.imgur.com/a6YmpEw.jpeg', price:180, rarity:'légendaire',
    desc:'L\'ennemi ne peut pas attaquer pendant 1 tour.',
-   effect:function(s){ s._petrified=true; addBattleLog('🐍 Regard de Méduse ! L\'IA est pétrifiée ce tour.','hit'); }}
+   effect:function(s){ s._petrified=true; addBattleLog('🐍 Regard de Méduse ! L\'IA est pétrifiée ce tour.','hit'); }},
+  {id:'troie',   name:'Cheval de Troie',  icon:'🐴', img:'https://i.imgur.com/7Eyb5ay.jpeg', price:160, rarity:'épique',
+   desc:'Pioche 3 cartes supplémentaires dans ton deck.',
+   effect:function(s){ var drawn=0; while(drawn<3 && s.playerDeck.length>0){ s.playerHand.push(s.playerDeck.pop()); drawn++; } addBattleLog('🐴 Cheval de Troie ! +'+drawn+' cartes piochées.','hit'); }},
+  {id:'icare',   name:'Ailes d\'Icare',   icon:'🪽', img:'https://i.imgur.com/zvY7JTB.jpeg', price:140, rarity:'épique',
+   desc:'Double l\'ATK d\'une de tes cartes ce tour.',
+   effect:function(s){ if(s.selectedFieldCard!==null && s.playerField[s.selectedFieldCard]){ var c=s.playerField[s.selectedFieldCard]; c.combatAtk*=2; addBattleLog('🪽 Ailes d\'Icare ! '+c.card.name+' : ATK doublée à '+c.combatAtk+' !','hit'); } else if(s.playerField.length>0){ var c=s.playerField[0]; c.combatAtk*=2; addBattleLog('🪽 Ailes d\'Icare ! '+c.card.name+' : ATK doublée à '+c.combatAtk+' !','hit'); } else { addBattleLog('🪽 Aucune carte sur le terrain.',''); } }},
+  {id:'styx',    name:'Fleuve du Styx',   icon:'💀', img:'https://i.imgur.com/Qfgyviq.jpeg', price:200, rarity:'légendaire',
+   desc:'Immunité totale aux dégâts pendant 1 tour.',
+   effect:function(s){ s._styxShield=true; addBattleLog('💀 Fleuve du Styx ! Immunité aux dégâts ce tour.','hit'); }},
+  {id:'eris',    name:'Pomme d\'Éris',    icon:'🍎', img:'https://i.imgur.com/DzF3t5H.jpeg', price:220, rarity:'légendaire',
+   desc:'Échange la carte ennemie la plus forte avec la tienne la plus faible.',
+   effect:function(s){ if(s.aiField.length>0 && s.playerField.length>0){ var strongest=s.aiField.reduce(function(a,b){return a.combatAtk>b.combatAtk?a:b;}); var weakest=s.playerField.reduce(function(a,b){return a.combatAtk<b.combatAtk?a:b;}); var ai=s.aiField.indexOf(strongest); var pl=s.playerField.indexOf(weakest); s.aiField[ai]=weakest; s.playerField[pl]=strongest; addBattleLog('🍎 Pomme d\'Éris ! '+strongest.card.name+' rejoint ton camp !','hit'); } else { addBattleLog('🍎 Impossible d\'échanger.',''); } }}
 ];
 
 function getSpecialCard(id) {
@@ -4312,9 +4308,45 @@ function renderBoutique() {
   var drachmes = user.drachmes || 0;
   var inventory = user.specialCards || {};
 
-  container.innerHTML = '<div style="font-size:0.7rem;color:var(--text-dim);text-align:center;margin-bottom:6px;">Cartes spéciales utilisables en combat · 1 par combat</div>'
-    +'<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);text-align:center;margin-bottom:18px;">🪙 '+drachmes+' Drachmes disponibles</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;" id="boutique-grid"></div>';
+  container.innerHTML = '<div style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);text-align:center;margin-bottom:4px;">🪙 '+drachmes+' Drachmes disponibles</div>';
+
+  // ── PAQUETS THÉMATIQUES ──
+  container.innerHTML += '<div style="font-family:Cinzel,serif;font-size:0.72rem;color:var(--gold);letter-spacing:0.1em;margin:16px 0 4px;">📦 Paquets Thématiques</div>'
+    + '<div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:12px;">Cible ce qui te manque — <strong style="color:var(--gold)">50 🪙</strong> par paquet</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-bottom:24px;" id="boutique-packs-grid"></div>';
+
+  var packsGrid = document.getElementById('boutique-packs-grid');
+  Object.keys(PACKS).forEach(function(packId) {
+    var p = PACKS[packId];
+    var canBuy = drachmes >= 50;
+    var d = document.createElement('div');
+    d.className = canBuy ? 'pack avail' : 'pack locked';
+    d.style.cssText = 'padding:14px 12px;';
+    d.innerHTML = '<img src="'+p.img+'" style="width:60px;height:60px;object-fit:cover;border-radius:10px;display:block;margin:0 auto 10px;box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+      + '<div class="pack-name" style="font-size:0.75rem;">'+p.name+'</div>'
+      + '<div class="pack-desc" style="font-size:0.6rem;margin-bottom:8px;">'+p.desc+'</div>'
+      + (canBuy
+        ? '<button class="open-btn" style="width:100%;font-size:0.62rem;padding:7px;">50 🪙 Acheter</button>'
+        : '<div style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);">'+drachmes+' / 50 🪙</div>'
+        + '<div style="height:4px;background:rgba(0,0,0,0.07);border-radius:2px;margin-top:6px;overflow:hidden;"><div style="height:100%;width:'+Math.min(drachmes/50*100,100)+'%;background:linear-gradient(to right,var(--gold-dim),var(--gold-light));border-radius:2px;"></div></div>');
+    if(canBuy) {
+      (function(pid){
+        d.querySelector('.open-btn').onclick = function() {
+          if(!user || (user.drachmes||0) < 50) return;
+          user.drachmes -= 50;
+          saveUser();
+          updateDrachmesDisplay();
+          openPackDrachmes(pid);
+        };
+      })(packId);
+    }
+    packsGrid.appendChild(d);
+  });
+
+  // ── CARTES SPÉCIALES ──
+  container.innerHTML += '<div style="font-family:Cinzel,serif;font-size:0.72rem;color:var(--gold);letter-spacing:0.1em;margin:8px 0 4px;">✨ Cartes Spéciales de Combat</div>'
+    + '<div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:12px;">Cartes utilisables en combat · 1 par combat</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;" id="boutique-grid"></div>';
 
   var grid = document.getElementById('boutique-grid');
   SPECIAL_CARDS.forEach(function(sc) {
@@ -5072,6 +5104,7 @@ function startBattle(deckIds, playerFirst, secretId) {
     secretCard: secretId ? getSpecialCard(secretId) : null,
     secretUsed: false,
     _petrified: false,
+    _styxShield: false,
     _lastDestroyed: null,
     _pendingEffect: null,
     _pickingTarget: false,
@@ -6265,6 +6298,7 @@ function endPlayerTurn() {
   s.selectedFieldCard = null;
   s._pickingTarget = false;
   s._pendingAttacker = null;
+  s._styxShield = false;
   s.playerField.forEach(function(c){ c.hasAttacked = false; });
   renderBattle();
   showTurnAnnounce('🤖 TOUR DE L\'IA', false);
@@ -6392,9 +6426,9 @@ function endPlayerTurn() {
             } else {
               if(diff > 0) {
                 target.hp = 0;
-                s.playerHp = Math.max(0, s.playerHp - diff);
-                if(targetEl) showDmgNumber(targetEl, diff, false);
-                addBattleLog('💥 '+attacker.card.name+' détruit '+target.card.name+' ! Tu perds '+diff+' PV.', 'dmg');
+                if(!s._styxShield) s.playerHp = Math.max(0, s.playerHp - diff);
+                if(targetEl) showDmgNumber(targetEl, s._styxShield ? 0 : diff, false);
+                addBattleLog('💥 '+attacker.card.name+' détruit '+target.card.name+' !'+(s._styxShield?' (Styx bloque !)':' Tu perds '+diff+' PV.'), 'dmg');
                 idx = s.playerField.indexOf(target); if(idx >= 0) s.playerField.splice(idx, 1);
                 battleState.selectedFieldCard = null;
               } else if(diff < 0) {
@@ -6532,7 +6566,7 @@ function showAdminCardPicker(onSelect) {
     + packKeys.map(function(pk){ return '<button class="admin-pf" data-pack="'+pk+'" style="background:var(--bg);border:1px solid var(--border);color:var(--text-dim);font-family:Cinzel,serif;font-size:0.55rem;padding:5px 10px;border-radius:14px;cursor:pointer;">'+PACKS[pk].name+'</button>'; }).join('')
     + '</div>'
     + '<label style="font-family:Cinzel,serif;font-size:0.6rem;color:var(--text-dim);display:flex;align-items:center;gap:6px;margin-bottom:10px;"><input type="checkbox" id="admin-picker-shiny"> Envoyer en version ✦ Shiny</label>'
-    + '<div id="admin-picker-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;overflow-y:auto;flex:1;padding-right:4px;"></div>'
+    + '<div id="admin-picker-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;overflow-y:auto;flex:1;padding-right:4px;"></div>'
     + '</div>';
 
   document.body.appendChild(overlay);
@@ -6549,8 +6583,8 @@ function showAdminCardPicker(onSelect) {
     });
     grid.innerHTML = filtered.map(function(c) {
       var r = getRarity(c.rarity, false);
-      return '<div class="admin-pick-card" data-id="'+c.id+'" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+r.color+'66;transition:transform 0.15s;">'
-        + (c.img ? '<img src="'+c.img+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">' : '<div style="width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);">'+c.icon+'</div>')
+      return '<div class="admin-pick-card" data-id="'+c.id+'" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+r.color+'66;transition:transform 0.15s;width:100%;">'
+        + (c.img ? '<img src="'+c.img+'" style="width:100%;height:120px;object-fit:cover;display:block;">' : '<div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);">'+c.icon+'</div>')
         + '<div style="font-size:0.4rem;color:var(--text-dim);text-align:center;padding:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+c.name+'</div>'
         + '</div>';
     }).join('');
@@ -6608,8 +6642,8 @@ function showAdminPlayerCollection(playerName, pData) {
     var r = getRarity(c.rarity, isShiny);
     var imgSrc = (isShiny && c.imgShiny) ? c.imgShiny : c.img;
     var count = cardCounts[entry];
-    return '<div style="position:relative;border-radius:8px;overflow:hidden;border:2px solid '+r.color+';">'
-      + (imgSrc ? '<img src="'+imgSrc+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">' : '<div style="width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);">'+c.icon+'</div>')
+    return '<div style="position:relative;border-radius:8px;overflow:hidden;border:2px solid '+r.color+';width:100%;">'
+      + (imgSrc ? '<img src="'+imgSrc+'" style="width:100%;height:120px;object-fit:cover;display:block;">' : '<div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg);">'+c.icon+'</div>')
       + (count > 1 ? '<div style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.8);color:var(--gold);font-size:0.5rem;padding:1px 5px;border-radius:8px;">x'+count+'</div>' : '')
       + '<div style="font-size:0.4rem;color:var(--text-dim);text-align:center;padding:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+c.name+(isShiny?' ✦':'')+'</div>'
       + '</div>';
@@ -6621,7 +6655,7 @@ function showAdminPlayerCollection(playerName, pData) {
     + '<button id="admin-col-close" style="background:transparent;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;">×</button>'
     + '</div>'
     + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:12px;">'+uniqueEntries.length+' carte(s) unique(s) · '+collection.length+' carte(s) au total</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;overflow-y:auto;flex:1;padding-right:4px;">'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;overflow-y:auto;flex:1;padding-right:4px;">'
     + (cardsHtml || '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:0.7rem;padding:20px;">Aucune carte dans la collection.</div>')
     + '</div></div>';
 
