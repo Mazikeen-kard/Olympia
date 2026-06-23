@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -40,7 +41,7 @@ body.dark .l-inp{background:var(--bg) !important;color:var(--text) !important;bo
 /* LOADING */
 #loading{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity 0.3s;}
 #loading.hide{display:none !important;visibility:hidden !important;pointer-events:none !important;}
-.l-logo{font-family:'Cinzel Decorative',serif;font-size:2.5rem;color:var(--gold);}
+.l-logo{font-family:"Cinzel Decorative",serif;font-size:2.5rem;color:var(--gold);}
 .l-spin{width:36px;height:36px;border:3px solid rgba(184,134,11,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
 .l-txt{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.35em;color:var(--text-dim);text-transform:uppercase;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -51,7 +52,7 @@ body.dark .l-inp{background:var(--bg) !important;color:var(--text) !important;bo
 .lbox{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:44px 38px;width:90%;max-width:410px;text-align:center;box-shadow:0 4px 40px rgba(139,105,20,0.12);}
 .l-orb{font-size:3rem;display:block;margin-bottom:12px;animation:fl 3s ease-in-out infinite;}
 @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.l-name{font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold);margin-bottom:4px;}
+.l-name{font-family:"Cinzel Decorative",serif;font-size:2rem;color:var(--gold);margin-bottom:4px;}
 .l-sub{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.4em;color:var(--text-dim);text-transform:uppercase;margin-bottom:28px;}
 .l-lbl{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:7px;text-align:left;}
 .l-inp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px 15px;color:var(--text);font-family:'Cinzel',serif;font-size:0.95rem;outline:none;transition:all 0.2s;margin-bottom:7px;}
@@ -71,7 +72,7 @@ body.dark .l-inp{background:var(--bg) !important;color:var(--text) !important;bo
 #app{display:none;}
 #app.show{display:block;}
 header{background:var(--bg-dark);padding:22px 20px 16px;text-align:center;border-bottom:3px solid var(--gold-dim);}
-.logo{font-family:'Cinzel Decorative',serif;font-size:clamp(1.8rem,5vw,3rem);color:var(--gold-light);letter-spacing:0.08em;}
+.logo{font-family:"Cinzel Decorative",serif;font-size:clamp(1.8rem,5vw,3rem);color:var(--gold-light);letter-spacing:0.08em;}
 .logo-sub{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.5em;color:rgba(218,165,32,0.4);text-transform:uppercase;margin-top:4px;}
 
 .ubar{background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 20px;flex-wrap:wrap;}
@@ -88,7 +89,7 @@ header{background:var(--bg-dark);padding:22px 20px 16px;text-align:center;border
 .sbar{background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;justify-content:center;flex-wrap:wrap;}
 .stat{text-align:center;padding:11px 20px;border-right:1px solid var(--border);}
 .stat:last-child{border-right:none;}
-.stat-v{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);}
+.stat-v{font-family:"Cinzel Decorative",serif;font-size:1.4rem;color:var(--gold);}
 .stat-l{font-size:0.56rem;color:var(--text-dim);letter-spacing:0.18em;text-transform:uppercase;}
 
 nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:none;display:flex;justify-content:space-around;flex-wrap:nowrap;position:fixed;bottom:0;left:0;right:0;z-index:99;padding-bottom:env(safe-area-inset-bottom);}
@@ -189,20 +190,20 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 .m-close{position:absolute;top:11px;right:15px;background:none;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;}
 .m-close:hover{color:var(--gold);}
 .m-icon{font-size:5rem;display:block;margin-bottom:8px;}
-.m-name{font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--text);margin-bottom:4px;}
+.m-name{font-family:"Cinzel Decorative",serif;font-size:1.2rem;color:var(--text);margin-bottom:4px;}
 .m-shiny{display:inline-block;font-size:0.62rem;letter-spacing:0.2em;background:linear-gradient(135deg,#ff44aa,#aa44ff);color:white;padding:3px 12px;border-radius:20px;margin-bottom:7px;font-family:'Cinzel',serif;}
 .m-rar{font-size:0.63rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:12px;font-family:'Cinzel',serif;}
 .m-lore{font-size:0.8rem;color:var(--text-dim);line-height:1.7;font-style:italic;margin-bottom:16px;padding:0 8px;}
 .m-atk{font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold);margin-bottom:14px;}
 .m-stats{display:flex;justify-content:center;gap:28px;}
 .ms{text-align:center;}
-.ms-v{font-family:'Cinzel Decorative',serif;font-size:1.5rem;color:var(--gold);}
+.ms-v{font-family:"Cinzel Decorative",serif;font-size:1.5rem;color:var(--gold);}
 .ms-k{font-size:0.56rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;}
 
 /* REVEAL */
 .reveal{position:fixed;inset:0;z-index:200;background:rgba(26,21,16,0.97);display:none;align-items:center;justify-content:center;flex-direction:column;gap:22px;}
 .reveal.open{display:flex;}
-.rev-title{font-family:'Cinzel Decorative',serif;font-size:1.25rem;color:var(--gold-light);opacity:0;animation:rfa 0.5s 0.2s ease forwards;text-align:center;padding:0 20px;}
+.rev-title{font-family:"Cinzel Decorative",serif;font-size:1.25rem;color:var(--gold-light);opacity:0;animation:rfa 0.5s 0.2s ease forwards;text-align:center;padding:0 20px;}
 @keyframes rfa{to{opacity:1;}}
 .rev-cards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:680px;padding:0 16px;}
 .rev-card{opacity:0;width:115px;transform:translateY(26px) scale(0.86) rotateY(90deg);animation:rca 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;}
@@ -239,7 +240,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .pack-wrapper{position:relative;width:220px;height:330px;user-select:none;}
   .pack-img{width:100%;height:100%;border-radius:14px;background:url('https://i.imgur.com/AGGWuAL.jpeg') center/cover no-repeat;border:none;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 0 40px rgba(218,165,32,0.3);position:relative;overflow:hidden;padding:12px 8px;}
   .pack-img-icon{font-size:4rem;z-index:2;}
-  .pack-img-name{font-family:'Cinzel Decorative',serif;font-size:1rem;color:white;z-index:2;}
+  .pack-img-name{font-family:"Cinzel Decorative",serif;font-size:1rem;color:white;z-index:2;}
   .pack-img-sub{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.2em;color:rgba(255,255,255,0.7);text-transform:uppercase;z-index:2;}
   .pack-tear-hint{font-family:'Cinzel',serif;font-size:0.65rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;text-align:center;}
   .pack-half{position:absolute;left:0;right:0;overflow:hidden;}
@@ -288,7 +289,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .pack-border-top{display:none !important;}
   .pack-border-bottom{display:none !important;}
   .pack-logo-real{
-    font-family:'Cinzel Decorative',serif;font-size:1.3rem;
+    font-family:"Cinzel Decorative",serif;font-size:1.3rem;
     color:#ffe566;letter-spacing:0.15em;
     text-shadow:0 0 12px rgba(218,165,32,0.8),0 2px 4px rgba(0,0,0,0.5);
     z-index:2;
@@ -337,7 +338,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .card-reveal-slot .card{width:280px;}
   .card-reveal-slot .card-emoji{display:none;}
 
-  .reveal-counter{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);}
+  .reveal-counter{font-family:"Cinzel Decorative",serif;font-size:0.9rem;color:var(--gold);}
   .reveal-hint-swipe{font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;}
   .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;margin-top:8px;}
   .reveal-done-btn.show{display:block;}
@@ -356,7 +357,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   /* MEMORY GAME */
   .memory-game{padding:10px 0;}
   .memory-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
-  .memory-timer{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);transition:color 0.3s;}
+  .memory-timer{font-family:"Cinzel Decorative",serif;font-size:1.4rem;color:var(--gold);transition:color 0.3s;}
   .memory-timer.urgent{color:#e74c3c;animation:pulse 0.5s infinite;}
   .memory-pairs{font-family:'Cinzel',serif;font-size:0.7rem;color:var(--text-dim);}
   .memory-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:500px;margin:0 auto;}
@@ -382,7 +383,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   /* CHARACTER CREATOR */
   .char-creator{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
-  .char-creator-title{font-family:'Cinzel Decorative',serif;font-size:0.9rem;color:var(--gold);text-align:center;margin-bottom:16px;}
+  .char-creator-title{font-family:"Cinzel Decorative",serif;font-size:0.9rem;color:var(--gold);text-align:center;margin-bottom:16px;}
   .char-preview{display:flex;flex-direction:column;align-items:center;margin-bottom:16px;}
   .char-preview svg{width:120px;height:180px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));}
   .char-gender-btns{display:flex;gap:8px;margin-bottom:14px;justify-content:center;}
@@ -401,7 +402,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .char-color-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
   .char-color-dot.active{border-color:white;transform:scale(1.2);}
   .char-save-btn{width:100%;background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;padding:11px;border-radius:8px;cursor:pointer;text-transform:uppercase;}
-  .char-name-display{font-family:'Cinzel Decorative',serif;font-size:0.75rem;color:var(--gold);text-align:center;margin-bottom:4px;}
+  .char-name-display{font-family:"Cinzel Decorative",serif;font-size:0.75rem;color:var(--gold);text-align:center;margin-bottom:4px;}
   .char-class-display{font-family:'Cinzel',serif;font-size:0.6rem;color:var(--text-dim);text-align:center;letter-spacing:0.15em;text-transform:uppercase;}
 
   /* AVATAR CREATOR */
@@ -449,7 +450,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .tuto-box{position:fixed;z-index:802;background:linear-gradient(135deg,#1a1510,#2a2018);border:1px solid var(--gold);border-radius:14px;padding:18px 20px;max-width:280px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 20px rgba(184,134,11,0.2);animation:tutoIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);}
   @keyframes tutoIn{from{opacity:0;transform:scale(0.88) translateY(10px)}to{opacity:1;transform:none}}
   .tuto-step{font-family:Cinzel,serif;font-size:0.48rem;letter-spacing:0.15em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:6px;}
-  .tuto-title{font-family:'Cinzel Decorative',serif;font-size:0.85rem;color:var(--gold-light);margin-bottom:8px;line-height:1.3;}
+  .tuto-title{font-family:"Cinzel Decorative",serif;font-size:0.85rem;color:var(--gold-light);margin-bottom:8px;line-height:1.3;}
   .tuto-desc{font-size:0.72rem;color:rgba(255,255,255,0.75);line-height:1.65;margin-bottom:14px;}
   .tuto-arrow{position:absolute;width:0;height:0;}
   .tuto-arrow.up{border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:10px solid var(--gold);top:-10px;left:50%;transform:translateX(-50%);}
@@ -462,7 +463,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .tuto-dot.active{background:var(--gold);width:14px;border-radius:3px;}
   #combat-screen.open{display:flex !important;}
   .combat-topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,0.5);border-bottom:1px solid rgba(218,165,32,0.2);flex-shrink:0;}
-  .combat-topbar-title{font-family:'Cinzel Decorative',serif;font-size:0.65rem;color:var(--gold);letter-spacing:0.1em;}
+  .combat-topbar-title{font-family:"Cinzel Decorative",serif;font-size:0.65rem;color:var(--gold);letter-spacing:0.1em;}
   .combat-turn-badge{font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.06em;}
   .combat-turn-badge.player{background:rgba(34,170,68,0.25);color:#44dd66;border:1px solid #22aa44;}
   .combat-turn-badge.enemy{background:rgba(204,34,51,0.25);color:#ff6677;border:1px solid #cc2233;}
@@ -470,7 +471,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   /* ══ ANNONCE DE TOUR GRAND FORMAT (style Pokémon TCG Pocket) ══ */
   .turn-announce{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);z-index:700;pointer-events:none;opacity:0;text-align:center;width:100%;}
   .turn-announce.show{animation:turnAnnounceIn 1.6s cubic-bezier(0.34,1.56,0.64,1) forwards;}
-  .turn-announce-bar{display:inline-block;padding:14px 40px;border-radius:14px;font-family:'Cinzel Decorative',serif;font-size:1.3rem;letter-spacing:0.08em;box-shadow:0 8px 40px rgba(0,0,0,0.6);}
+  .turn-announce-bar{display:inline-block;padding:14px 40px;border-radius:14px;font-family:"Cinzel Decorative",serif;font-size:1.3rem;letter-spacing:0.08em;box-shadow:0 8px 40px rgba(0,0,0,0.6);}
   .turn-announce-bar.player{background:linear-gradient(135deg,#1a4d2e,#2d8f4e);color:#aaffcc;border:2px solid #44dd66;text-shadow:0 0 20px rgba(68,221,102,0.6);}
   .turn-announce-bar.enemy{background:linear-gradient(135deg,#4d1a1a,#8f2d2d);color:#ffaaaa;border:2px solid #ff4455;text-shadow:0 0 20px rgba(255,68,85,0.6);}
   @keyframes turnAnnounceIn{
@@ -578,7 +579,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   .combat-locked{text-align:center;padding:40px 20px;}
   .combat-locked-icon{font-size:3rem;margin-bottom:16px;}
-  .combat-locked-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:8px;}
+  .combat-locked-title{font-family:"Cinzel Decorative",serif;font-size:1rem;color:var(--gold);margin-bottom:8px;}
   .combat-locked-desc{font-size:0.75rem;color:var(--text-dim);line-height:1.7;margin-bottom:16px;}
   .combat-locked-bar{height:6px;background:var(--border);border-radius:3px;margin:0 auto 8px;max-width:220px;overflow:hidden;}
   .combat-locked-bar-fill{height:100%;background:linear-gradient(to right,var(--gold-dim),var(--gold-light));border-radius:3px;transition:width 0.5s;}
@@ -652,7 +653,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   }
   .daily-banner-content{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
   .daily-banner-icon{font-size:2.4rem;animation:fl 2s ease-in-out infinite;flex-shrink:0;}
-  .daily-banner-title{font-family:'Cinzel Decorative',serif;font-size:0.88rem;color:var(--gold);margin-bottom:3px;}
+  .daily-banner-title{font-family:"Cinzel Decorative",serif;font-size:0.88rem;color:var(--gold);margin-bottom:3px;}
   .daily-banner-sub{font-size:0.68rem;color:var(--text-dim);line-height:1.5;}
 
 
@@ -736,6 +737,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <button class="nav-btn" data-sec="collection"><img src="https://i.imgur.com/TbzQFfh.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
     <button class="nav-btn" data-sec="minijeux"><img src="https://i.imgur.com/STQkIeu.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
     <button class="nav-btn" data-sec="combat" id="nav-combat"><img src="https://i.imgur.com/1Dp8qEi.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
+    <button class="nav-btn" data-sec="conquete">⚔️<span style="font-size:0.38rem;letter-spacing:0.05em;">Conquête</span></button>
     <button class="nav-btn" data-sec="boutique"><img src="https://i.imgur.com/MNqaUqS.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
     <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7ZM12 17C10 17 8.2 15.9 7.2 14.2C7.2 12.5 10 11.5 12 11.5C14 11.5 16.8 12.5 16.8 14.2C15.8 15.9 14 17 12 17Z"/></svg><span style="font-size:0.38rem;letter-spacing:0.05em;">Admin</span></button>
   </nav>
@@ -866,6 +868,18 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   <div id="combat-screen-content" style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%;"></div>
 </div>
 
+
+  <div class="section" id="section-conquete">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="sec-title" style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.2rem;color:var(--gold);margin-bottom:4px;">⚔️ Conquête de la Grèce</div>
+      <div style="font-size:0.65rem;color:var(--text-dim);" id="conquete-progress-label">Chargement...</div>
+    </div>
+    <div style="position:relative;width:100%;max-width:700px;margin:0 auto;">
+      <img id="conquete-map-img" src="https://i.imgur.com/r22b21y.jpeg" onerror="this.style.background='#c8a96e';this.style.minHeight='420px';" style="width:100%;border-radius:12px;display:block;box-shadow:0 4px 24px rgba(0,0,0,0.5);">
+      <svg id="conquete-svg" viewBox="0 0 1260 952" style="position:absolute;top:0;left:0;width:100%;height:100%;"></svg>
+    </div>
+    <div id="conquete-region-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;padding:20px;"></div>
+  </div>
   <div class="section" id="section-boutique">
     <div class="sec-title">🏺 Boutique</div>
     <div id="boutique-container"></div>
@@ -892,7 +906,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 <div class="overlay" id="rules-modal">
   <div class="modal" style="max-width:480px;text-align:left;">
     <button class="m-close" id="rules-close">×</button>
-    <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:18px;">ℹ Infos & Règles</div>
+    <div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:18px;">ℹ Infos & Règles</div>
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">📦 Paquets</div>
     <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
@@ -964,7 +978,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
 <!-- PACK TEAR REVEAL -->
 <div class="pack-reveal" id="pack-reveal">
-  <div style="font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold-light);text-align:center;" id="pr-title">Nouveau paquet !</div>
+  <div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.1rem;color:var(--gold-light);text-align:center;" id="pr-title">Nouveau paquet !</div>
   <div class="pack-wrapper" id="pack-wrapper">
     <div class="pack-img" id="pack-img">
       <!-- Decorative elements -->
@@ -2025,6 +2039,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
       if(!user.combatTutoDone && uniqueCount >= 20) showCombatTutorial();
     }
     if(sec==='boutique') renderBoutique();
+    if(sec==='conquete') initConquete();
     if(sec==='admin') renderAdmin();
     if(sec==='badges') { renderBadges(); }
     if(sec==='perso') { initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats(); }
@@ -2559,7 +2574,7 @@ function openPack(packId) {
   } else if(user.adminPackPending && user.adminPackPending > 0) {
     user.adminPackPending--;
     user.lastPackTime = Date.now();
-  } else if(hasDailyPack()) {
+  } else if(packId === 'daily' && hasDailyPack()) {
     user.dailyPackDate = new Date().toDateString();
     user.lastPackTime = Date.now();
   } else {
@@ -4248,9 +4263,9 @@ function showDifficultyPicker(deckIds, specialId) {
       + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#ffaa00;margin-bottom:4px;">🟡 Moyen</div>'
       + '<div style="font-size:0.65rem;color:var(--text-dim);">IA stratégique — deck mixte rares/épiques, choix plus réfléchis</div>'
     + '</button>'
-    + '<button class="difficulty-btn" data-diff="hard" style="background:linear-gradient(135deg,rgba(204,34,51,0.15),rgba(255,68,85,0.08));border:2px solid #cc2233;border-radius:12px;padding:16px;text-align:left;cursor:pointer;opacity:0.5;" disabled>'
+    + '<button class="difficulty-btn" data-diff="hard" style="background:linear-gradient(135deg,rgba(204,34,51,0.15),rgba(255,68,85,0.08));border:2px solid #cc2233;border-radius:12px;padding:16px;text-align:left;cursor:pointer;">'
       + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#ff6677;margin-bottom:4px;">🔴 Difficile</div>'
-      + '<div style="font-size:0.65rem;color:var(--text-dim);">Bientôt disponible</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);">Épiques, Légendaires &amp; cartes magiques</div>'
     + '</button>'
     + '</div>';
   document.body.appendChild(screen);
@@ -5072,7 +5087,13 @@ function startBattle(deckIds, playerFirst, secretId) {
   // IA deck — pool selon la difficulté choisie
   var allC = allCards();
   var aiPool;
-  if(_aiDifficulty === 'medium') {
+  if(_aiDifficulty === 'hard') {
+    // Difficile — épiques + légendaires + cartes magiques (armes)
+    var hardEpics = allC.filter(function(c){ return c.rarity === 'épique'; });
+    var hardLegends = allC.filter(function(c){ return c.rarity === 'légendaire'; });
+    var hardWeapons = allC.filter(function(c){ return c.id && c.id.startsWith('ar'); });
+    aiPool = hardEpics.concat(hardLegends).concat(hardWeapons);
+  } else if(_aiDifficulty === 'medium') {
     // Moyen — mix rares/épiques, quelques légendaires
     var rares = allC.filter(function(c){ return c.rarity === 'rare'; });
     var epicsM = allC.filter(function(c){ return c.rarity === 'épique'; });
@@ -6309,7 +6330,9 @@ function aiPlaceCards() {
       bc.hasAttacked = false;
       if(bc._pack === 'monuments') bc.mode = 'defense';
       // IA moyenne — joue parfois défensif si sa DEF est nettement supérieure à son ATK
-      else if(_aiDifficulty === 'medium' && bc.combatDef > bc.combatAtk * 1.3 && Math.random() < 0.4) {
+      else if(_aiDifficulty === 'hard' && bc.combatDef > bc.combatAtk * 1.2) {
+        bc.mode = 'defense';
+      } else if(_aiDifficulty === 'medium' && bc.combatDef > bc.combatAtk * 1.3 && Math.random() < 0.4) {
         bc.mode = 'defense';
       }
       s.aiField.push(bc);
@@ -6405,7 +6428,10 @@ function endPlayerTurn() {
         }
       } else {
         var target;
-        if(_aiDifficulty === 'medium') {
+        if(_aiDifficulty === 'hard') {
+          // IA difficile — cible la carte avec le plus fort ATK (éliminer la menace principale)
+          target = s.playerField.reduce(function(a,b){ return a.combatAtk > b.combatAtk ? a : b; });
+        } else if(_aiDifficulty === 'medium') {
           // IA moyenne — cible la carte qu'elle peut détruire avec le plus gros excès de dégâts
           target = s.playerField.reduce(function(best, c) {
             var defVal = c.mode === 'defense' ? c.combatDef : c.combatAtk;
@@ -6567,6 +6593,7 @@ function checkBattleEnd() {
         addDrachmes(15, 'Victoire en combat !');
         addXP(100, 'Victoire !');
         checkProgressBadges();
+        checkConqueteVictory();
       } else {
         addXP(30, 'Combat terminé');
       }
@@ -7181,8 +7208,328 @@ var QUIZ_QUESTIONS = [
   {q:"Quel monstre avait 100 yeux ?", a:"Argos", choices:["Typhon","Argos","Briarée","Polyphème"]},
   {q:"Qui ferry les morts à travers le Styx ?", a:"Caron", choices:["Hermès","Thanatos","Hadès","Caron"]},
   {q:"Quelle fleur symbolise Morphée ?", a:"Le pavot", choices:["La rose","Le lotus","Le pavot","L'asphodèle"]},
-  {q:"Qui est le dieu du sommeil ?", a:"Hypnos", choices:["Morphée","Hypnos","Thanatos","Hermès"]}
+  {q:"Qui est le dieu du sommeil ?", a:"Hypnos", choices:["Morphée","Hypnos","Thanatos","Hermès"]},
+  {q:"Quel titan portait le monde sur ses épaules ?", a:"Atlas", choices:["Cronos","Prôméthée","Atlas","Japet"]},
+  {q:"Qui a volé le feu des dieux pour le donner aux hommes ?", a:"Prôméthée", choices:["Héphaïsto","Hermès","Prôméthée","Héraclès"]},
+  {q:"Quelle créature avait des serpents à la place des cheveux ?", a:"Méduse", choices:["Charybde","Scylla","Méduse","Chimère"]},
+  {q:"Quel dieu était boiteux et forgeron ?", a:"Héphaïtos", choices:["Arès","Héphaïtos","Hermès","Apollon"]},
+  {q:"Qui a construit les ailes de cire pour s'échapper de Crète ?", a:"Dédale", choices:["Icare","Dédale","Ulysse","Persée"]},
+  {q:"Quel dieu est associé au vin et aux fêtes ?", a:"Dionysos", choices:["Apollon","Hermès","Dionysos","Pan"]},
+  {q:"Quel monstre mi-femme mi-serpent a enfanté Typhon ?", a:"Échidna", choices:["Scylla","Charybde","Échidna","Méduse"]},
+  {q:"Qui a té transformé en araignée pour avoir défié Athéna ?", a:"Achné", choices:["Circé","Médée","Achné","Niobé"]},
+  {q:"Quel roi a sacrifié sa fille Iphigénie ?", a:"Agamemnon", choices:["Priam","Ménélas","Agamemnon","Œdipe"]},
+  {q:"Quelle prophétesse de Troie ne fut jamais crue ?", a:"Cassandre", choices:["Circé","Cassandre","Médée","Hécate"]},
+  {q:"Quel géant n'avait qu'un seul œil ?", a:"Le Cyclope", choices:["Le Géant","Le Cyclope","Le Titan","Le Centaure"]},
+  {q:"Qui a tué Achille d'une flèche dans le talon ?", a:"Pâris", choices:["Hector","Pâris","Priam","Énée"]},
+  {q:"Quel chien à trois têttes gardait les Enfers ?", a:"Cerbère", choices:["Orthros","Ladon","Cerbère","Argos"]},
+  {q:"Qui est le père d'Achille ?", a:"Pélée", choices:["Priam","Zeus","Pélée","Ménélas"]}
+  ,{q:"Qui est la déesse de la victoire ?", a:"Niké", choices:["Héra","Niké","Athéna","Artémis"]}
+  ,{q:"Quelle créature avait la tête d'un lion, le corps d'une chèvre et la queue d'un serpent ?", a:"La Chimère", choices:["Le Sphinx","La Chimère","L'Hydre","Scylla"]}
+  ,{q:"Qui est la mère d'Achille ?", a:"Thétis", choices:["Héra","Aphrodite","Thétis","Déméter"]}
+  ,{q:"Quel dieu a inventé la lyre ?", a:"Hermès", choices:["Apollon","Hermès","Orphée","Dionysos"]}
+  ,{q:"Quel fleuve des Enfers faisait oublier le passé ?", a:"Le Léthé", choices:["Le Styx","Le Léthé","Le Phlégéthon","Le Cocyte"]}
+  ,{q:"Quelle est la montagne sacrée des dieux grecs ?", a:"L'Olympe", choices:["L'Ida","Le Parnasse","L'Olympe","L'Hélicon"]}
+  ,{q:"Qui a puni Prométhée en le clouant sur un rocher ?", a:"Zeus", choices:["Hadès","Poséidon","Zeus","Héra"]}
+  ,{q:"Quelle déesse a provoqué la dispute avec une pomme d'or ?", a:"Éris", choices:["Héra","Éris","Ate","Niké"]}
+  ,{q:"Quelle nymphe a retenu Ulysse sur son île pendant 7 ans ?", a:"Calypso", choices:["Circé","Calypso","Scylla","Leucothée"]}
+  ,{q:"Quelle est la boisson des dieux qui leur confère l'immortalité ?", a:"L'ambroisie", choices:["L'ambroisie","Le nectar","L'hydromel","Le lait divin"]}
+  ,{q:"Qui est le dieu de la médecine ?", a:"Asclépios", choices:["Apollon","Hermès","Asclépios","Hygie"]}
+  ,{q:"Quelle guerre a duré dix ans entre Grecs et Troyens ?", a:"La guerre de Troie", choices:["La guerre du Péloponnèse","La guerre de Troie","La guerre des Titans","La guerre des Géants"]}
+  ,{q:"Qui est le dieu de la mer et des tremblements de terre ?", a:"Poséidon", choices:["Zeus","Hadès","Poséidon","Triton"]}
+  ,{q:"Quelle déesse est associée à la lune et à la nuit ?", a:"Séléné", choices:["Artémis","Hécate","Séléné","Nyx"]}
+  ,{q:"Qui est le père des Cyclopes ?", a:"Ouranos", choices:["Cronos","Ouranos","Poséidon","Zeus"]}
+  ,{q:"Quel animal tirait le char du soleil d'Hélios ?", a:"Des chevaux de feu", choices:["Des aigles","Des chevaux de feu","Des dauphins","Des cygnes"]}
 ];
+
+
+// ═══════════════════════════════════════════════
+// CONQUÊTE DE LA GRÈCE
+// ═══════════════════════════════════════════════
+
+var CONQUETE_REGIONS = [
+  // Continent — du nord au sud
+  {
+    id:'macedoine', name:'Macédoine', date:'336 av. J.-C.',
+    history:'Berceau d\'Alexandre le Grand, la Macédoine forge les guerriers les plus redoutables de Grèce. Sa phalange, mur de lances et de boucliers, est invincible.',
+    difficulty:'easy', unlocks:['thessalie','epire'],
+    x:47, y:6, // % de la viewBox
+    requires:[]
+  },
+  {
+    id:'thessalie', name:'Thessalie', date:'352 av. J.-C.',
+    history:'Terre des Centaures et des meilleurs cavaliers grecs. Philippe II de Macédoine en fit sa base pour conquérir la Grèce entière.',
+    difficulty:'easy', unlocks:['beoitie','lesbos'],
+    x:46, y:18,
+    requires:['macedoine']
+  },
+  {
+    id:'epire', name:'Épire', date:'280 av. J.-C.',
+    history:'Royaume de Pyrrhus, roi guerrier dont les victoires coûtaient si cher en hommes qu\'on les appela "victoires à la Pyrrhus".',
+    difficulty:'easy', unlocks:['ithaque'],
+    x:28, y:12,
+    requires:['macedoine']
+  },
+  {
+    id:'beoitie', name:'Béotie', date:'371 av. J.-C.',
+    history:'Thèbes, sa capitale, a enfanté le Bataillon Sacré : 150 paires d\'amants soldats, invincibles au combat jusqu\'à leur défaite à Chéronée face à Alexandre.',
+    difficulty:'medium', unlocks:['athenes'],
+    x:46, y:30,
+    requires:['thessalie']
+  },
+  {
+    id:'athenes', name:'Athènes', date:'490 av. J.-C.',
+    history:'Berceau de la démocratie et de la philosophie. À Marathon, 10 000 Athéniens ont repoussé seuls 25 000 Perses. La victoire la plus grande de l\'histoire grecque.',
+    difficulty:'medium', unlocks:['corinthe','delos'],
+    x:50, y:40,
+    requires:['beoitie']
+  },
+  {
+    id:'corinthe', name:'Corinthe', date:'337 av. J.-C.',
+    history:'Cité la plus riche de Grèce, maîtresse de deux mers. Alexandre en fit le siège de sa Ligue panhellénique — l\'alliance qui unifia la Grèce.',
+    difficulty:'medium', unlocks:['sparte','rhodes'],
+    x:42, y:37,
+    requires:['athenes']
+  },
+  {
+    id:'sparte', name:'Sparte', date:'480 av. J.-C.',
+    history:'300 Spartiates ont tenu les Thermopyles contre 300 000 Perses pendant trois jours. Ici, on revient avec son bouclier — ou dessus.',
+    difficulty:'hard', unlocks:['crete'],
+    x:36, y:58,
+    requires:['corinthe']
+  },
+  // Îles
+  {
+    id:'ithaque', name:'Ithaque', date:'~800 av. J.-C. (selon la légende)',
+    history:'Royaume d\'Ulysse, le plus rusé des Grecs. Dix ans de guerre à Troie, dix ans d\'errance sur les mers avant de retrouver Pénélope.',
+    difficulty:'easy', unlocks:['delos'],
+    x:12, y:22,
+    requires:['epire']
+  },
+  {
+    id:'lesbos', name:'Lesbos', date:'~600 av. J.-C.',
+    history:'Île de la poétesse Sappho, dont les vers ont traversé vingt-cinq siècles. Centre culturel de la Grèce archaïque, berceau d\'une civilisation raffinée.',
+    difficulty:'medium', unlocks:['delos'],
+    x:60, y:16,
+    requires:['thessalie']
+  },
+  {
+    id:'delos', name:'Délos', date:'~700 av. J.-C.',
+    history:'Île sacrée d\'Apollon, si sainte qu\'il était interdit d\'y naître ou d\'y mourir. Centre religieux et commercial de toute la mer Égée pendant des siècles.',
+    difficulty:'medium', unlocks:['rhodes'],
+    x:58, y:38,
+    requires:['athenes','ithaque','lesbos']
+  },
+  {
+    id:'rhodes', name:'Rhodes', date:'~280 av. J.-C.',
+    history:'L\'île du Colosse, l\'une des sept merveilles du monde antique. Rhodes contrôlait le commerce maritime de toute la Méditerranée orientale.',
+    difficulty:'hard', unlocks:['crete'],
+    x:60, y:72,
+    requires:['corinthe','delos']
+  },
+  {
+    id:'crete', name:'Crète', date:'~2000 av. J.-C.',
+    history:'Berceau de la civilisation minoenne, la plus ancienne d\'Europe. Knossos, son palais labyrinthique, cache encore les secrets du Minotaure et du roi Minos.',
+    difficulty:'hard', unlocks:[],
+    x:56, y:82,
+    requires:['sparte','rhodes']
+  }
+];
+
+function getConqueteData() {
+  if(!user.conquete) user.conquete = {};
+  return user.conquete;
+}
+
+function isRegionUnlocked(region) {
+  var data = getConqueteData();
+  if(region.requires.length === 0) return true;
+  return region.requires.some(function(r){ return data[r] === 'conquered'; });
+}
+
+function isRegionConquered(region) {
+  return getConqueteData()[region.id] === 'conquered';
+}
+
+function initConquete() {
+  var data = getConqueteData();
+  var conquered = Object.values(data).filter(function(v){ return v === 'conquered'; }).length;
+  var label = document.getElementById('conquete-progress-label');
+  if(label) label.textContent = conquered + ' / ' + CONQUETE_REGIONS.length + ' régions conquises';
+
+  var svg = document.getElementById('conquete-svg');
+  if(!svg) return;
+  svg.innerHTML = '';
+
+  // Connexions (lignes entre régions liées)
+  CONQUETE_REGIONS.forEach(function(region) {
+    region.unlocks.forEach(function(targetId) {
+      var target = CONQUETE_REGIONS.find(function(r){ return r.id === targetId; });
+      if(!target) return;
+      var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', region.x * 12.6);
+      line.setAttribute('y1', region.y * 9.52);
+      line.setAttribute('x2', target.x * 12.6);
+      line.setAttribute('y2', target.y * 9.52);
+      line.setAttribute('stroke', isRegionConquered(region) ? '#ffd700' : '#8b6914');
+      line.setAttribute('stroke-width', isRegionConquered(region) ? '3' : '2');
+      line.setAttribute('stroke-dasharray', isRegionConquered(region) ? 'none' : '8,5');
+      line.setAttribute('opacity', '0.8');
+      svg.appendChild(line);
+    });
+  });
+
+  // Points et labels
+  CONQUETE_REGIONS.forEach(function(region) {
+    var conquered = isRegionConquered(region);
+    var unlocked = isRegionUnlocked(region);
+    var cx = region.x * 12.6;
+    var cy = region.y * 9.52;
+
+    var color = conquered ? '#ffd700' : unlocked ? '#ffffff' : 'rgba(255,255,255,0.3)';
+    var fillColor = conquered ? '#c8a200' : unlocked ? '#8b2222' : 'rgba(50,50,50,0.6)';
+    var radius = 14;
+
+    // Cercle
+    var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', radius);
+    circle.setAttribute('fill', fillColor);
+    circle.setAttribute('stroke', color);
+    circle.setAttribute('stroke-width', conquered ? '3' : '2');
+    circle.style.cursor = unlocked ? 'pointer' : 'default';
+    circle.style.filter = conquered ? 'drop-shadow(0 0 6px #ffd700)' : '';
+    svg.appendChild(circle);
+
+    // Icône dans le cercle
+    var regionLetters = {
+      macedoine:'M', thessalie:'T', epire:'E', beoitie:'B',
+      athenes:'A', corinthe:'C', sparte:'S', ithaque:'I',
+      lesbos:'L', delos:'D', rhodes:'R', crete:'K'
+    };
+    var icon = document.createElementNS('http://www.w3.org/2000/svg','text');
+    icon.setAttribute('x', cx);
+    icon.setAttribute('y', cy + 5);
+    icon.setAttribute('text-anchor','middle');
+    icon.setAttribute('font-size', conquered ? '11' : unlocked ? '12' : '14');
+    icon.setAttribute('font-family','Cinzel,serif');
+    icon.setAttribute('font-weight','bold');
+    icon.setAttribute('fill', conquered ? '#ffd700' : unlocked ? '#fff' : '#999');
+    icon.textContent = conquered ? '✓' : unlocked ? (regionLetters[region.id] || '?') : '✕';
+    svg.appendChild(icon);
+
+    // Label fond (rect derrière le texte)
+    var labelY = cy + radius + 16;
+    var labelBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    var nameLen = region.name.length * 5.5;
+    labelBg.setAttribute('x', cx - nameLen/2 - 4);
+    labelBg.setAttribute('y', labelY - 11);
+    labelBg.setAttribute('width', nameLen + 8);
+    labelBg.setAttribute('height', 14);
+    labelBg.setAttribute('rx', '3');
+    labelBg.setAttribute('fill', 'rgba(10,6,0,0.72)');
+    svg.appendChild(labelBg);
+
+    // Label nom
+    var label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x', cx);
+    label.setAttribute('y', labelY);
+    label.setAttribute('text-anchor','middle');
+    label.setAttribute('font-size','12');
+    label.setAttribute('font-family','Cinzel,serif');
+    label.setAttribute('fill', color);
+    label.setAttribute('font-weight','bold');
+    label.textContent = region.name;
+    svg.appendChild(label);
+
+    // Clic
+    if(unlocked) {
+      [circle, icon, label].forEach(function(el){
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', function(){ showConquetePopup(region); });
+      });
+    }
+  });
+}
+
+function showConquetePopup(region) {
+  var conquered = isRegionConquered(region);
+  var diffLabel = {easy:'🟢 Facile', medium:'🟡 Moyen', hard:'🔴 Difficile'}[region.difficulty];
+
+  var popup = document.getElementById('conquete-region-popup');
+  popup.style.display = 'flex';
+  popup.innerHTML = '<div style="background:linear-gradient(135deg,#1a1200,#2a1f00);border:2px solid var(--gold);border-radius:16px;max-width:420px;width:100%;padding:24px;position:relative;">'
+    + '<button onclick="document.getElementById(&quot;conquete-region-popup&quot;).style.display=&quot;none&quot;;" style="position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;">✕</button>'
+    + '<div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.1rem;color:var(--gold);margin-bottom:4px;">' + region.name + '</div>'
+    + '<div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:12px;">📅 ' + region.date + ' · ' + diffLabel + '</div>'
+    + '<div style="font-size:0.72rem;color:var(--text);line-height:1.6;margin-bottom:16px;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px;border-left:3px solid var(--gold);">' + region.history + '</div>'
+    + (conquered
+      ? '<div style="text-align:center;padding:10px;background:rgba(200,162,0,0.15);border-radius:8px;border:1px solid var(--gold);font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">✅ Région conquise !</div>'
+      : '<button onclick="launchConqueteAttack(&quot;' + region.id + '&quot;)" style="width:100%;padding:12px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:10px;color:#fff;font-family:Cinzel,serif;font-size:0.85rem;cursor:pointer;letter-spacing:0.05em;">⚔️ Attaquer</button>'
+    )
+    + '</div>';
+}
+
+function launchConqueteAttack(regionId) {
+  var region = CONQUETE_REGIONS.find(function(r){ return r.id === regionId; });
+  if(!region) return;
+  document.getElementById('conquete-region-popup').style.display = 'none';
+
+  // Stocker la région en cours d'attaque
+  window._conqueteAttackRegion = regionId;
+
+  // Forcer la difficulté selon la région
+  _aiDifficulty = region.difficulty;
+
+  // Lancer le combat normal — on interceptera la victoire
+  var deckIds = (user.deck || []).filter(Boolean);
+  if(deckIds.length < 5) {
+    alert('Tu dois avoir au moins 5 cartes dans ton deck pour attaquer !');
+    return;
+  }
+  showCoinFlip(deckIds, null);
+}
+
+// Appelé quand le joueur gagne un combat — on vérifie si c'est une conquête
+function checkConqueteVictory() {
+  if(!window._conqueteAttackRegion) return;
+  var regionId = window._conqueteAttackRegion;
+  window._conqueteAttackRegion = null;
+
+  if(!user.conquete) user.conquete = {};
+  user.conquete[regionId] = 'conquered';
+  saveUser();
+
+  var region = CONQUETE_REGIONS.find(function(r){ return r.id === regionId; });
+  var name = region ? region.name : regionId;
+
+  // Récompense
+  var reward = {easy:50, medium:100, hard:200}[region ? region.difficulty : 'easy'];
+  addDrachmes(reward, 'Conquête de ' + name);
+
+  setTimeout(function(){
+    showConqueteVictoryBanner(name, reward, region ? region.history : '');
+  }, 600);
+}
+
+function showConqueteVictoryBanner(name, reward, history) {
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
+  el.innerHTML = '<div style="background:linear-gradient(135deg,#1a1200,#2a1f00);border:2px solid var(--gold);border-radius:16px;max-width:400px;width:100%;padding:28px;text-align:center;">'
+    + '<div style="font-size:2rem;margin-bottom:8px;">⚔️</div>'
+    + '<div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1rem;color:var(--gold);margin-bottom:6px;">' + name + ' conquise !</div>'
+    + '<div style="font-size:0.68rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5;padding:10px;background:rgba(0,0,0,0.3);border-radius:8px;">' + history + '</div>'
+    + '<div style="color:var(--gold);font-family:Cinzel,serif;font-size:0.85rem;margin-bottom:16px;">+' + reward + ' 🪙 drachmes</div>'
+    + '<button onclick="this.closest(&quot;div[style*=fixed]&quot;).remove(); showSection(&quot;conquete&quot;); initConquete();" style="padding:10px 24px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:10px;color:#fff;font-family:Cinzel,serif;font-size:0.8rem;cursor:pointer;">Retour à la carte</button>'
+    + '</div>';
+  document.body.appendChild(el);
+}
+
+function showSection(sec) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById('section-' + sec);
+  if(el) el.classList.add('active');
+}
 
 function startQuiz() {
   // Pick 5 random questions based on today's date as seed
