@@ -1663,6 +1663,7 @@ function showChips() {
   var k = getKnown();
   var panel = document.getElementById('known-users');
   var chips = document.getElementById('chips');
+  if(!panel || !chips) return;
   if(!k.length){panel.style.display='none';return;}
   panel.style.display='block';
   chips.innerHTML='';
