@@ -235,7 +235,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .card-num { font-family:'Cinzel',serif; font-size:0.52rem; color:var(--text-dim); opacity:0.5; margin-bottom:1px; }
   .card-lock { position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); font-size:1.6rem; opacity:0.2; z-index:3; pointer-events:none; }
 /* PACK REVEAL */
-  .pack-reveal{position:fixed;inset:0;z-index:300;background:rgba(15,10,5,0.97);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;}
+  .pack-reveal{position:fixed;inset:0;z-index:300;background:rgba(15,10,5,0.97);display:none;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px;padding:20px 20px 100px 20px;overflow-y:auto;}
   .pack-reveal.open{display:flex;}
   .pack-wrapper{position:relative;width:220px;height:330px;user-select:none;}
   .pack-img{width:100%;height:100%;border-radius:14px;background:url('https://i.imgur.com/AGGWuAL.jpeg') center/cover no-repeat;border:none;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 0 40px rgba(218,165,32,0.3);position:relative;overflow:hidden;padding:12px 8px;}
@@ -332,7 +332,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .card-particle{position:absolute;width:6px;height:6px;border-radius:50%;pointer-events:none;}
 
   /* CARD SWIPE */
-  .card-reveal-area{position:relative;width:290px;height:420px;display:none;margin:0 auto;}
+  .card-reveal-area{position:relative;width:100%;max-width:420px;min-height:420px;height:auto;display:none;margin:0 auto;}
   .card-reveal-area.open{display:block;}
   .card-reveal-slot{position:absolute;inset:0;transition:transform 0.35s ease,opacity 0.3s ease;}
   .card-reveal-slot .card{width:280px;}
@@ -340,7 +340,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   .reveal-counter{font-family:"Cinzel Decorative",serif;font-size:0.9rem;color:var(--gold);}
   .reveal-hint-swipe{font-family:'Cinzel',serif;font-size:0.62rem;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;}
-  .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:12px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;margin-top:8px;}
+  .reveal-done-btn{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:'Cinzel',serif;font-size:0.76rem;font-weight:700;letter-spacing:0.15em;padding:14px 34px;border-radius:8px;cursor:pointer;text-transform:uppercase;display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:calc(100% - 48px);max-width:380px;z-index:10;}
   .reveal-done-btn.show{display:block;}
 
   /* MINIGAMES */
@@ -737,7 +737,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <button class="nav-btn" data-sec="collection"><img src="https://i.imgur.com/TbzQFfh.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
     <button class="nav-btn" data-sec="minijeux"><img src="https://i.imgur.com/STQkIeu.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
     <button class="nav-btn" data-sec="combat" id="nav-combat"><img src="https://i.imgur.com/1Dp8qEi.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
-    <button class="nav-btn" data-sec="conquete">⚔️<span style="font-size:0.38rem;letter-spacing:0.05em;">Conquête</span></button>
+    <button class="nav-btn" data-sec="conquete"><img src="https://i.imgur.com/Iu8tc6o.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Conquête</span></button>
     <button class="nav-btn" data-sec="boutique"><img src="https://i.imgur.com/MNqaUqS.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
     <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7ZM12 17C10 17 8.2 15.9 7.2 14.2C7.2 12.5 10 11.5 12 11.5C14 11.5 16.8 12.5 16.8 14.2C15.8 15.9 14 17 12 17Z"/></svg><span style="font-size:0.38rem;letter-spacing:0.05em;">Admin</span></button>
   </nav>
@@ -871,7 +871,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
   <div class="section" id="section-conquete">
     <div style="text-align:center;margin-bottom:16px;">
-      <div class="sec-title" style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.2rem;color:var(--gold);margin-bottom:4px;">⚔️ Conquête de la Grèce</div>
+      <div class="sec-title" style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.2rem;color:var(--gold);margin-bottom:4px;">Conquête de la Grèce</div>
       <div style="font-size:0.65rem;color:var(--text-dim);" id="conquete-progress-label">Chargement...</div>
     </div>
     <div style="position:relative;width:100%;max-width:700px;margin:0 auto;">
@@ -2568,14 +2568,12 @@ function openPack(packId) {
   if(user.firstTime) {
     user.firstPackDone = true;
     user.firstTime = false;
-  } else if(user.firstPackDone && !user.secondPackDone) {
-    user.secondPackDone = true;
-    user.lastPackTime = Date.now();
-  } else if(user.adminPackPending && user.adminPackPending > 0) {
-    user.adminPackPending--;
-    user.lastPackTime = Date.now();
   } else if(packId === 'daily' && hasDailyPack()) {
     user.dailyPackDate = new Date().toDateString();
+    user.lastPackTime = Date.now();
+    if(user.firstPackDone && !user.secondPackDone) user.secondPackDone = true;
+  } else if(user.adminPackPending && user.adminPackPending > 0) {
+    user.adminPackPending--;
     user.lastPackTime = Date.now();
   } else {
     user.lastPackTime = Date.now();
@@ -2773,7 +2771,7 @@ function showRevealCardNew(index) {
     doneBtn.classList.add('show');
     hint.style.display = 'none';
     counter.style.display = 'none';
-    prTitle.textContent = '✨ Ton nouveau butin !';
+    prTitle.textContent = 'Ton nouveau butin !';
 
     // Afficher le récap de toutes les cartes
     slot.innerHTML = '';
@@ -2781,14 +2779,14 @@ function showRevealCardNew(index) {
     slot.style.opacity = '1';
 
     var recap = document.createElement('div');
-    recap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0;';
+    recap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 0;width:100%;';
 
     // Grille des cartes
     var grid = document.createElement('div');
-    grid.style.cssText = 'display:flex;gap:8px;justify-content:center;flex-wrap:wrap;';
+    grid.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;';
     _revealCards.forEach(function(d) {
       var el = buildCard(d.card, d.isShiny, 0, 1);
-      el.style.width = '80px';
+      el.style.width = '140px';
       el.style.pointerEvents = 'none';
       el.style.flexShrink = '0';
       grid.appendChild(el);
@@ -2917,8 +2915,16 @@ function showRevealCardNew(index) {
 
 document.getElementById('pr-done-btn').onclick = function() {
   document.getElementById('pack-reveal').classList.remove('open');
+  document.getElementById('pack-reveal').style.display = 'none';
   renderCol();
   renderPacks();
+  // Retour à la section packs
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  var packsSection = document.getElementById('section-packs');
+  if(packsSection) packsSection.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-sec') === 'packs');
+  });
   if(user && user.adminPackPending && user.adminPackPending > 0) {
     setTimeout(function() {
       openPackDrachmes('mixed');
@@ -4899,7 +4905,7 @@ function renderDeckBuilder(container, savedDeck) {
   var activeFilter = 'all';
 
   function buildHTML() {
-    container.innerHTML = '<div class="sec-title">⚔️ Mon Deck</div>'
+    container.innerHTML = '<div class="sec-title">Mon Deck</div>'
       + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:10px;">20 cartes de combat + 1 carte spéciale optionnelle</div>'
       + '<div id="deck-slots-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px;"></div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-align:center;margin-bottom:6px;">✨ CARTE SPÉCIALE</div>'
@@ -7259,21 +7265,21 @@ var CONQUETE_REGIONS = [
     id:'thessalie', name:'Thessalie', date:'352 av. J.-C.',
     history:'Terre des Centaures et des meilleurs cavaliers grecs. Philippe II de Macédoine en fit sa base pour conquérir la Grèce entière.',
     difficulty:'easy', unlocks:['beoitie','lesbos'],
-    x:46, y:18,
+    x:45, y:22,
     requires:['macedoine']
   },
   {
     id:'epire', name:'Épire', date:'280 av. J.-C.',
     history:'Royaume de Pyrrhus, roi guerrier dont les victoires coûtaient si cher en hommes qu\'on les appela "victoires à la Pyrrhus".',
     difficulty:'easy', unlocks:['ithaque'],
-    x:28, y:12,
+    x:20, y:18,
     requires:['macedoine']
   },
   {
     id:'beoitie', name:'Béotie', date:'371 av. J.-C.',
     history:'Thèbes, sa capitale, a enfanté le Bataillon Sacré : 150 paires d\'amants soldats, invincibles au combat jusqu\'à leur défaite à Chéronée face à Alexandre.',
     difficulty:'medium', unlocks:['athenes'],
-    x:46, y:30,
+    x:44, y:28,
     requires:['thessalie']
   },
   {
@@ -7287,7 +7293,7 @@ var CONQUETE_REGIONS = [
     id:'corinthe', name:'Corinthe', date:'337 av. J.-C.',
     history:'Cité la plus riche de Grèce, maîtresse de deux mers. Alexandre en fit le siège de sa Ligue panhellénique — l\'alliance qui unifia la Grèce.',
     difficulty:'medium', unlocks:['sparte','rhodes'],
-    x:42, y:37,
+    x:36, y:37,
     requires:['athenes']
   },
   {
@@ -7370,7 +7376,7 @@ function initConquete() {
       line.setAttribute('y1', region.y * 9.52);
       line.setAttribute('x2', target.x * 12.6);
       line.setAttribute('y2', target.y * 9.52);
-      line.setAttribute('stroke', isRegionConquered(region) ? '#ffd700' : '#8b6914');
+      line.setAttribute('stroke', isRegionConquered(region) ? '#ffd700' : '#1a1000');
       line.setAttribute('stroke-width', isRegionConquered(region) ? '3' : '2');
       line.setAttribute('stroke-dasharray', isRegionConquered(region) ? 'none' : '8,5');
       line.setAttribute('opacity', '0.8');
@@ -7402,20 +7408,38 @@ function initConquete() {
     svg.appendChild(circle);
 
     // Icône dans le cercle
-    var regionLetters = {
-      macedoine:'M', thessalie:'T', epire:'E', beoitie:'B',
-      athenes:'A', corinthe:'C', sparte:'S', ithaque:'I',
-      lesbos:'L', delos:'D', rhodes:'R', crete:'K'
-    };
-    var icon = document.createElementNS('http://www.w3.org/2000/svg','text');
-    icon.setAttribute('x', cx);
-    icon.setAttribute('y', cy + 5);
-    icon.setAttribute('text-anchor','middle');
-    icon.setAttribute('font-size', conquered ? '11' : unlocked ? '12' : '14');
-    icon.setAttribute('font-family','Cinzel,serif');
-    icon.setAttribute('font-weight','bold');
-    icon.setAttribute('fill', conquered ? '#ffd700' : unlocked ? '#fff' : '#999');
-    icon.textContent = conquered ? '✓' : unlocked ? (regionLetters[region.id] || '?') : '✕';
+    // Icône : image custom ou fallback texte
+    var icon;
+    if(conquered) {
+      // Drapeau rouge SVG
+      var flagGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+      flagGroup.setAttribute('transform', 'translate(' + (cx - 6) + ',' + (cy - radius - 18) + ')');
+      // Mât
+      var pole = document.createElementNS('http://www.w3.org/2000/svg','line');
+      pole.setAttribute('x1','2'); pole.setAttribute('y1','0');
+      pole.setAttribute('x2','2'); pole.setAttribute('y2','20');
+      pole.setAttribute('stroke','#8b5e3c'); pole.setAttribute('stroke-width','2');
+      flagGroup.appendChild(pole);
+      // Drapeau
+      var flag = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      flag.setAttribute('points','2,1 14,5 2,9');
+      flag.setAttribute('fill','#cc0000');
+      flagGroup.appendChild(flag);
+      svg.appendChild(flagGroup);
+      icon = document.createElementNS('http://www.w3.org/2000/svg','text');
+      icon.setAttribute('x', cx); icon.setAttribute('y', cy + 5);
+      icon.setAttribute('text-anchor','middle'); icon.setAttribute('font-size','10');
+      icon.setAttribute('font-family','Cinzel,serif'); icon.setAttribute('font-weight','bold');
+      icon.setAttribute('fill','#ffd700'); icon.textContent = '✓';
+    } else {
+      icon = document.createElementNS('http://www.w3.org/2000/svg','image');
+      icon.setAttribute('href', 'https://i.imgur.com/Iu8tc6o.png');
+      icon.setAttribute('x', cx - radius + 2);
+      icon.setAttribute('y', cy - radius + 2);
+      icon.setAttribute('width', (radius * 2 - 4));
+      icon.setAttribute('height', (radius * 2 - 4));
+      icon.setAttribute('opacity', unlocked ? '1' : '0.4');
+    }
     svg.appendChild(icon);
 
     // Label fond (rect derrière le texte)
