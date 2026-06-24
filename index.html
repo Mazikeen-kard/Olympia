@@ -235,7 +235,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .card-num { font-family:'Cinzel',serif; font-size:0.52rem; color:var(--text-dim); opacity:0.5; margin-bottom:1px; }
   .card-lock { position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); font-size:1.6rem; opacity:0.2; z-index:3; pointer-events:none; }
 /* PACK REVEAL */
-  .pack-reveal{position:fixed;inset:0;z-index:300;background:rgba(15,10,5,0.97);display:none;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px;padding:20px 20px 100px 20px;overflow-y:auto;}
+  .pack-reveal{position:fixed;inset:0;z-index:300;background:rgba(15,10,5,0.97);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;overflow:hidden;}
   .pack-reveal.open{display:flex;}
   .pack-wrapper{position:relative;width:220px;height:330px;user-select:none;}
   .pack-img{width:100%;height:100%;border-radius:14px;background:url('https://i.imgur.com/AGGWuAL.jpeg') center/cover no-repeat;border:none;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 0 40px rgba(218,165,32,0.3);position:relative;overflow:hidden;padding:12px 8px;}
@@ -332,10 +332,10 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .card-particle{position:absolute;width:6px;height:6px;border-radius:50%;pointer-events:none;}
 
   /* CARD SWIPE */
-  .card-reveal-area{position:relative;width:100%;max-width:420px;min-height:420px;height:auto;display:none;margin:0 auto;}
+  .card-reveal-area{position:relative;width:min(290px,80vw);height:min(420px,75vh);display:none;margin:0 auto;}
   .card-reveal-area.open{display:block;}
-  .card-reveal-slot{position:absolute;inset:0;transition:transform 0.35s ease,opacity 0.3s ease;}
-  .card-reveal-slot .card{width:280px;}
+  .card-reveal-slot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:transform 0.35s ease,opacity 0.3s ease;}
+  .card-reveal-slot .card{width:min(270px,78vw);}
   .card-reveal-slot .card-emoji{display:none;}
 
   .reveal-counter{font-family:"Cinzel Decorative",serif;font-size:0.9rem;color:var(--gold);}
@@ -2091,12 +2091,12 @@ function canOpen() {
   if(user.firstPackDone && !user.secondPackDone) return true;
   if(user.adminPackPending && user.adminPackPending > 0) return true;
   if(hasDailyPack()) return true;
-  if(!user.lastPackTime) return false;
-  return (Date.now() - user.lastPackTime) >= COOLDOWN;
+  if(!user.lastCollectorTime) return true;
+  return (Date.now() - user.lastCollectorTime) >= COOLDOWN;
 }
 function timeLeft() {
-  if(!user||!user.lastPackTime) return 0;
-  return Math.max(0, COOLDOWN - (Date.now() - user.lastPackTime));
+  if(!user||!user.lastCollectorTime) return 0;
+  return Math.max(0, COOLDOWN - (Date.now() - user.lastCollectorTime));
 }
 function fmtTime(ms) {
   var s=Math.ceil(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
@@ -2123,7 +2123,7 @@ function startTimer() {
   timer = setInterval(function() {
     updateBadge();
     var nowReady = canOpen();
-    var remaining = timeLeft();
+    var remaining = Math.max(0, COOLDOWN - (Date.now() - (user.lastCollectorTime||0)));
     document.querySelectorAll('.pack-timer').forEach(function(el){el.textContent=fmtTime(remaining);});
     var info = document.getElementById('cd-info');
     if(info && !nowReady) info.textContent='⏳ Prochain paquet dans '+fmtTime(remaining);
@@ -2360,7 +2360,7 @@ function renderPacks() {
     // DEUX CARTES
     var packImg = 'https://i.imgur.com/ary27Ol.jpeg';
     var hasDaily = hasDailyPack();
-    var canCollector = (Date.now() - (user.lastPackTime||0)) >= COOLDOWN;
+    var canCollector = (Date.now() - (user.lastCollectorTime||0)) >= COOLDOWN;
     var remaining = timeLeft();
 
     var wrapper = document.createElement('div');
@@ -2405,11 +2405,11 @@ function renderPacks() {
 
     if(hasDaily) {
       var db2 = document.getElementById('daily-open-btn');
-      if(db2) db2.onclick = function(){ openPack('daily'); };
+      if(db2) db2.onclick = function(){ if(window._packOpening) return; window._packOpening=true; openPack('daily'); setTimeout(function(){ window._packOpening=false; }, 3000); };
     }
     if(canCollector) {
       var cb = document.getElementById('collector-open-btn');
-      if(cb) cb.onclick = function(){ openPack('mixed'); };
+      if(cb) cb.onclick = function(){ if(window._packOpening) return; window._packOpening=true; openPack('mixed'); setTimeout(function(){ window._packOpening=false; }, 3000); };
     }
   }
 
@@ -2568,15 +2568,17 @@ function openPack(packId) {
   if(user.firstTime) {
     user.firstPackDone = true;
     user.firstTime = false;
-  } else if(packId === 'daily' && hasDailyPack()) {
+  }
+  // Timer indépendants — daily et collector ne se touchent jamais
+  if(packId === 'daily') {
     user.dailyPackDate = new Date().toDateString();
-    user.lastPackTime = Date.now();
     if(user.firstPackDone && !user.secondPackDone) user.secondPackDone = true;
-  } else if(user.adminPackPending && user.adminPackPending > 0) {
-    user.adminPackPending--;
-    user.lastPackTime = Date.now();
   } else {
-    user.lastPackTime = Date.now();
+    // Collector : mise à jour du timer collector uniquement
+    if(user.adminPackPending && user.adminPackPending > 0) {
+      user.adminPackPending--;
+    }
+    user.lastCollectorTime = Date.now();
   }
   user.packsOpened++;
   drawn.forEach(function(d) {
@@ -2786,7 +2788,7 @@ function showRevealCardNew(index) {
     grid.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;';
     _revealCards.forEach(function(d) {
       var el = buildCard(d.card, d.isShiny, 0, 1);
-      el.style.width = '140px';
+      el.style.width = 'min(140px,38vw)';
       el.style.pointerEvents = 'none';
       el.style.flexShrink = '0';
       grid.appendChild(el);
