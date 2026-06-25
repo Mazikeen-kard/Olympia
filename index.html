@@ -871,14 +871,47 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
 
   <div class="section" id="section-conquete">
-    <div style="text-align:center;margin-bottom:16px;">
-      <div class="sec-title" style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.2rem;color:var(--gold);margin-bottom:4px;">Conquête de la Grèce</div>
-      <div style="font-size:0.65rem;color:var(--text-dim);" id="conquete-progress-label">Chargement...</div>
+
+    <!-- En-tête -->
+    <div style="text-align:center;margin-bottom:12px;padding:0 8px;">
+      <div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1.1rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:6px;">Conquête de la Grèce</div>
+      <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 10px;"></div>
+      <div id="conquete-rank-label" style="font-size:0.68rem;color:var(--text-dim);margin-bottom:8px;"></div>
+      <!-- Barre de progression -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+        <div style="flex:1;max-width:180px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
+          <div id="conquete-progress-bar" style="height:100%;background:linear-gradient(90deg,#c8a200,#ffd700);border-radius:3px;width:0%;transition:width 0.5s;"></div>
+        </div>
+        <div style="font-size:0.65rem;color:var(--gold);font-family:Cinzel,serif;" id="conquete-progress-label">0 / 12</div>
+      </div>
     </div>
-    <div style="position:relative;width:100%;max-width:700px;margin:0 auto;">
-      <img id="conquete-map-img" src="https://i.imgur.com/r22b21y.jpeg" onerror="this.style.background='#c8a96e';this.style.minHeight='420px';" style="width:100%;border-radius:12px;display:block;box-shadow:0 4px 24px rgba(0,0,0,0.5);">
+
+    <!-- Carte -->
+    <div style="position:relative;width:100%;max-width:700px;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 0 1px rgba(200,162,0,0.3);">
+      <img id="conquete-map-img" src="https://i.imgur.com/r22b21y.jpeg" onerror="this.style.background='#c8a96e';this.style.minHeight='420px';" style="width:100%;display:block;">
       <svg id="conquete-svg" viewBox="0 0 1260 952" style="position:absolute;top:0;left:0;width:100%;height:100%;"></svg>
     </div>
+
+    <!-- Légende -->
+    <div style="display:flex;justify-content:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--text-dim);">
+        <div style="width:10px;height:10px;border-radius:50%;background:#cc2233;border:2px solid #ff4455;"></div>
+        Point de départ
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--text-dim);">
+        <div style="width:10px;height:10px;border-radius:50%;background:#555;border:2px solid #888;"></div>
+        Verrouillé
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--text-dim);">
+        <div style="width:10px;height:10px;border-radius:50%;background:#8b2222;border:2px solid #fff;"></div>
+        Disponible
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--gold);">
+        <div style="width:10px;height:10px;border-radius:50%;background:#c8a200;border:2px solid #ffd700;"></div>
+        Conquis ⚑
+      </div>
+    </div>
+
     <div id="conquete-region-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;padding:20px;"></div>
   </div>
   <div class="section" id="section-boutique">
@@ -1560,13 +1593,18 @@ function renderPersoStats() {
   var badges = (user.badges || []).length;
   var drachmes = user.drachmes || 0;
 
+  var conqueredCount = Object.values(user.conquete||{}).filter(function(v){ return v==='conquered'; }).length;
+  var conqueteRank = getConqueteRank(conqueredCount);
+
   var stats = [
     {icon:'📚', label:'Cartes uniques', value: owned+' / '+totalCards},
     {icon:'✦',  label:'Cartes Shiny',   value: shinys},
     {icon:'⚔️', label:'Victoires',       value: wins},
     {icon:'📦', label:'Paquets ouverts', value: packs},
     {icon:'🏆', label:'Badges',          value: badges},
-    {icon:'🪙', label:'Drachmes',        value: drachmes.toLocaleString()}
+    {icon:'🪙', label:'Drachmes',        value: drachmes.toLocaleString()},
+    {icon:conqueteRank.icon, label:'Rang Conquête', value: conqueteRank.name},
+    {icon:'⚑', label:'Régions conquises', value: conqueredCount+' / 12'}
   ];
 
   block.innerHTML = '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Mes Stats</div>'
@@ -2578,11 +2616,16 @@ function openPackDrachmes(packId) {
   setTimeout(function(){ startSwipeReveal(drawn); }, 300);
 }
 
-function openPack(packId) {
+function openPackFree(packId) {
+  // Ouvre un paquet sans vérifier le cooldown (récompenses streak, admin, etc.)
+  openPack(packId, true);
+}
+
+function openPack(packId, bypassCooldown) {
   // Vérification selon le type
   if(packId === 'daily') {
     if(!hasDailyPack()) return;
-  } else if(!canOpen()) return;
+  } else if(!bypassCooldown && !canOpen()) return;
 
   // Mémoriser si c'est un daily avant de modifier packId
   var isDaily = (packId === 'daily');
@@ -3146,9 +3189,9 @@ function checkStreak() {
         document.body.appendChild(notif);
         document.getElementById('streak-notif-btn').onclick = function() {
           bd.remove(); notif.remove();
-          openPack('mixed');
+          openPackFree('mixed');
         };
-        bd.onclick = function() { bd.remove(); notif.remove(); openPack('mixed'); };
+        bd.onclick = function() { bd.remove(); notif.remove(); openPackFree('mixed'); };
       }, 1000);
     }
   }
@@ -7301,6 +7344,24 @@ var QUIZ_QUESTIONS = [
 // CONQUÊTE DE LA GRÈCE
 // ═══════════════════════════════════════════════
 
+
+var CONQUETE_RANKS = [
+  {min:0,  max:0,  name:'Pèlerin',          icon:'🚶'},
+  {min:1,  max:2,  name:'Éclaireur',         icon:'◈'},
+  {min:3,  max:4,  name:'Stratège',          icon:'⚔️'},
+  {min:5,  max:6,  name:'Général',           icon:'🛡️'},
+  {min:7,  max:8,  name:'Conquérant',        icon:'👑'},
+  {min:9,  max:10, name:'Roi de Grèce',      icon:'🏛️'},
+  {min:11, max:11, name:'Alexandre',         icon:'⭐'},
+  {min:12, max:12, name:'Maître de l\'Olympe', icon:'⚡'},
+];
+
+function getConqueteRank(conqueredCount) {
+  for(var i = CONQUETE_RANKS.length - 1; i >= 0; i--) {
+    if(conqueredCount >= CONQUETE_RANKS[i].min) return CONQUETE_RANKS[i];
+  }
+  return CONQUETE_RANKS[0];
+}
 var CONQUETE_REGIONS = [
   // Continent — du nord au sud
   {
@@ -7431,7 +7492,16 @@ function initConquete() {
   var data = getConqueteData();
   var conquered = Object.values(data).filter(function(v){ return v === 'conquered'; }).length;
   var label = document.getElementById('conquete-progress-label');
-  if(label) label.textContent = conquered + ' / ' + CONQUETE_REGIONS.length + ' régions conquises';
+  if(label) label.textContent = conquered + ' / ' + CONQUETE_REGIONS.length;
+  var bar = document.getElementById('conquete-progress-bar');
+  if(bar) bar.style.width = Math.round(conquered / CONQUETE_REGIONS.length * 100) + '%';
+  var rank = getConqueteRank(conquered);
+  var nextRank = CONQUETE_RANKS[CONQUETE_RANKS.indexOf(rank) + 1];
+  var rankEl = document.getElementById('conquete-rank-label');
+  if(rankEl) {
+    rankEl.innerHTML = rank.icon + ' <span style="color:var(--gold);font-family:Cinzel,serif;">' + rank.name + '</span>'
+      + (nextRank ? ' <span style="color:var(--text-dim);font-size:0.55rem;">→ ' + nextRank.name + ' (' + nextRank.min + ' régions)</span>' : ' <span style="color:#ffd700;font-size:0.55rem;">✨ Rang maximum !</span>');
+  }
 
   showConqueteIntro();
 
