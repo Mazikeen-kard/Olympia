@@ -726,7 +726,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div class="logo-sub">Sanctuaire des Cartes Grecques</div>
   </header>
   <div class="ubar">
-    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');}); document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-perso').classList.add('active'); initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats();">👤</div>
+    <div id="user-avatar" style="width:32px;height:32px;border-radius:8px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');}); document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');}); document.getElementById('section-perso').classList.add('active'); initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats(); renderFriends();">👤</div>
     <div class="ubar-name">Bienvenue, <strong id="hdr-pseudo">—</strong> <span id="hdr-rank" style="font-size:0.6rem;color:var(--text-dim);font-family:Cinzel,serif;"></span></div>
     <div style="display:flex;align-items:center;gap:4px;font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold);background:rgba(184,134,11,0.08);border:1px solid var(--border);border-radius:20px;padding:3px 10px;flex-shrink:0;">🪙 <span id="s-drachmes">0</span></div>
     <button class="quit-btn" id="btn-dark" title="Mode sombre">🌙</button>
@@ -806,6 +806,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
 
     <!-- STATS JOUEUR -->
     <div id="perso-stats-block" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;"></div>
+    <div id="friends-block" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;"></div>
 
     <!-- RÈGLES XP (compacté) -->
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
@@ -1081,6 +1082,14 @@ var LEGENDARY_SCENES = [
     icon: '🏛️',
     lore: 'Dans la mythologie grecque, l\'aigle est l\'animal sacré de Zeus — son messager et le porteur de sa foudre. Selon la légende, c\'est sous cette forme que Zeus enleva le jeune prince troyen Ganymède pour en faire l\'échanson des dieux : celui chargé de leur servir le nectar lors des banquets de l\'Olympe. En son honneur, Zeus plaça Ganymède parmi les étoiles, devenu la constellation du Verseau. Aujourd\'hui, cent paquets plus tard, c\'est sous le regard de cet aigle doré que Zeus, Athéna et Poséidon t\'accueillent enfin dans la salle du trône — reconnaissant en toi la persévérance digne d\'un héros.',
     obtainedBy: 'packs100'
+  },
+  {
+    id: 'scene_troupe',
+    name: 'La Naissance de la Troupe',
+    img: 'https://i.imgur.com/13W1WmQ.jpeg',
+    icon: '⚔️',
+    lore: 'Les grands conquérants ne sont pas nés seuls. Alexandre avait ses Compagnons, Léonidas ses Trois Cents, Ulysse ses marins fidèles. Car un guerrier isolé est une épée sans main — redoutable, mais inutile. Le jour où tu as tendu la main à un allié, tu as cessé d\'être un simple joueur de cartes. Tu es devenu un chef. Et les chefs, eux, changent le monde.',
+    obtainedBy: 'first_friend'
   },
   // ── Cartes de Conquête ──
   {id:'cq_macedoine', name:'Macédoine', icon:'👑', img:'https://i.imgur.com/3UGpCdx.jpeg', obtainedBy:'conquete',
@@ -1582,6 +1591,95 @@ function showNotif(msg, icon) {
   setTimeout(function(){ n.style.opacity='0'; n.style.transition='opacity 0.3s'; setTimeout(function(){n.remove();},300); }, 2500);
 }
 
+
+// ═══════════════════════════════════════════════
+// SYSTÈME D'AMIS
+// ═══════════════════════════════════════════════
+
+function renderFriends() {
+  var block = document.getElementById('friends-block');
+  if(!block || !user) return;
+  var friends = user.friends || [];
+  var myPseudo = user.pseudo || pseudo;
+
+  block.innerHTML = '<div style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Ma Troupe</div>'
+    + '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">'
+    + '<span style="font-size:0.6rem;color:var(--text-dim);">Mon pseudo</span>'
+    + '<span style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);">⚔ ' + myPseudo + '</span>'
+    + '</div>'
+    + '<div style="font-size:0.58rem;color:var(--text-dim);margin-bottom:8px;">' + friends.length + ' / 20 alliés</div>'
+    + (friends.length > 0 ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">' + friends.map(function(f){ return '<div style="background:rgba(200,162,0,0.1);border:1px solid rgba(200,162,0,0.3);border-radius:6px;padding:4px 8px;font-size:0.58rem;color:var(--gold);">⚔ '+f+'</div>'; }).join('') + '</div>' : '')
+    + (friends.length < 20 ?
+      '<div style="display:flex;gap:6px;">'
+      + '<input id="friend-input" type="text" placeholder="Pseudo de ton allié..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:0.65rem;font-family:Cinzel,serif;">'
+      + '<button onclick="addFriend()" style="padding:8px 14px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:8px;color:#fff;font-family:Cinzel,serif;font-size:0.6rem;cursor:pointer;">Ajouter</button>'
+      + '</div>'
+      + '<div id="friend-err" style="font-size:0.58rem;color:#cc2233;margin-top:6px;"></div>'
+    : '<div style="font-size:0.6rem;color:var(--gold);text-align:center;padding:8px;">Troupe complète — 20/20 alliés ✅</div>');
+}
+
+function addFriend() {
+  var input = document.getElementById('friend-input');
+  var errEl = document.getElementById('friend-err');
+  if(!input) return;
+  var friendPseudo = input.value.trim();
+  if(!friendPseudo) { errEl.textContent = 'Entre un pseudo.'; return; }
+  var myPseudo = user.pseudo || pseudo;
+  if(friendPseudo.toLowerCase() === myPseudo.toLowerCase()) { errEl.textContent = 'Tu ne peux pas t\'ajouter toi-même !'; return; }
+  var friends = user.friends || [];
+  if(friends.map(function(f){ return f.toLowerCase(); }).indexOf(friendPseudo.toLowerCase()) !== -1) { errEl.textContent = 'Cet allié est déjà dans ta troupe !'; return; }
+  if(friends.length >= 20) { errEl.textContent = 'Troupe complète (20/20) !'; return; }
+  errEl.textContent = '';
+
+  // Vérifier que le pseudo existe dans Firestore
+  db.collection('pseudos').doc(friendPseudo.toLowerCase()).get().then(function(doc) {
+    if(!doc.exists) { errEl.textContent = 'Ce pseudo n\'existe pas.'; return; }
+
+    var friendUid = doc.data().uid;
+    if(!friendUid) { errEl.textContent = 'Impossible de trouver cet allié.'; return; }
+
+    // Ajouter à ma liste
+    friends.push(friendPseudo);
+    user.friends = friends;
+
+    // Vérifier si premier ami — scène légendaire
+    var isFirstFriend = friends.length === 1;
+    if(isFirstFriend) {
+      if(!user.scenes) user.scenes = [];
+      if(user.scenes.indexOf('scene_troupe') === -1) {
+        user.scenes.push('scene_troupe');
+        setTimeout(function(){ showSceneUnlockedPopup('scene_troupe'); }, 2000);
+      }
+    }
+
+    // Donner un paquet à moi
+    user.adminPackPending = (user.adminPackPending || 0) + 1;
+    saveUser();
+
+    // Donner un paquet à l'ami dans Firestore
+    db.collection('users').doc(friendUid).get().then(function(friendDoc) {
+      if(friendDoc.exists) {
+        var friendData = friendDoc.data();
+        friendData.adminPackPending = (friendData.adminPackPending || 0) + 1;
+        db.collection('users').doc(friendUid).set(friendData);
+      }
+    });
+
+    input.value = '';
+    renderFriends();
+
+    // Notif
+    var msg = isFirstFriend
+      ? '⚔️ Premier allié ajouté ! Tu gagnes un paquet + la scène légendaire "La Naissance de la Troupe" !'
+      : '⚔️ ' + friendPseudo + ' rejoint ta troupe ! Vous gagnez chacun un paquet bonus !';
+    showToast(msg, 4000);
+
+    // Ouvrir le paquet
+    setTimeout(function(){ openPackFree('mixed'); }, 1500);
+  }).catch(function(err) {
+    errEl.textContent = 'Erreur : ' + err.message;
+  });
+}
 function renderPersoStats() {
   var block = document.getElementById('perso-stats-block');
   if(!block || !user) return;
@@ -2107,7 +2205,7 @@ document.querySelectorAll('.nav-btn').forEach(function(btn) {
     if(sec==='conquete') initConquete();
     if(sec==='admin') renderAdmin();
     if(sec==='badges') { renderBadges(); }
-    if(sec==='perso') { initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats(); }
+    if(sec==='perso') { initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats(); renderFriends(); }
   };
 });
 
@@ -2120,7 +2218,7 @@ document.getElementById('info-btn').onclick = function() {
 document.getElementById('badges-back-btn').onclick = function() {
   document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
   document.getElementById('section-perso').classList.add('active');
-  initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats();
+  initCharCreator(); initAvatarCreator(); renderRankProgress(); renderPersoStats(); renderFriends();
 };
 
 document.getElementById('goto-badges-btn').onclick = function() {
@@ -2662,12 +2760,17 @@ function openPack(packId, bypassCooldown) {
   if(isDaily) {
     user.dailyPackDate = new Date().toDateString();
     if(user.firstPackDone && !user.secondPackDone) user.secondPackDone = true;
-  } else {
-    // Collector : mise à jour du timer collector uniquement
+  } else if(!bypassCooldown) {
+    // Collector normal : mise à jour du timer
     if(user.adminPackPending && user.adminPackPending > 0) {
       user.adminPackPending--;
     }
     user.lastCollectorTime = Date.now();
+  } else {
+    // Paquet gratuit (ami, streak) : ne touche pas au timer collector
+    if(user.adminPackPending && user.adminPackPending > 0) {
+      user.adminPackPending--;
+    }
   }
   user.packsOpened++;
   drawn.forEach(function(d) {
@@ -5125,6 +5228,8 @@ function renderDeckBuilder(container, savedDeck) {
     var filtered = unique.filter(function(e){ return !e.card.id.startsWith('mn'); });
     if(activeFilter === 'armes') {
       filtered = filtered.filter(function(e){ return e.card.id.startsWith('ar'); });
+    } else if(activeFilter === 'shiny') {
+      filtered = filtered.filter(function(e){ return e.isShiny && !e.card.id.startsWith('ar'); });
     } else if(activeFilter !== 'all') {
       filtered = filtered.filter(function(e){ return e.card.rarity === activeFilter && !e.card.id.startsWith('ar'); });
     } else {
