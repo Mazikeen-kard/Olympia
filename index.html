@@ -514,7 +514,12 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .tapis-card .tc-stats{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.75);font-size:0.42rem;font-family:Cinzel,serif;text-align:center;color:var(--gold);padding:2px;line-height:1.3;}
   .tapis-card .tc-hp{position:absolute;top:2px;left:2px;background:rgba(180,20,20,0.9);border-radius:3px;font-size:0.4rem;font-family:Cinzel,serif;color:white;padding:2px 5px;}
   .tapis-card.defending{border-color:#4488ff;transform:rotate(-8deg);box-shadow:0 0 12px rgba(68,136,255,0.4);}
-  .tapis-card.can-attack{border-color:#44dd66;box-shadow:0 0 12px rgba(68,221,102,0.5);}
+  .tapis-card.can-attack{border-color:#44dd66;box-shadow:0 0 12px rgba(68,221,102,0.5);animation:cardCanAttack 1.2s ease-in-out infinite;}
+  .tapis-card.has-attacked{opacity:0.45;filter:grayscale(0.4);}
+  @keyframes cardCanAttack {
+    0%,100%{box-shadow:0 0 8px rgba(68,221,102,0.4);border-color:#44dd66;}
+    50%{box-shadow:0 0 18px rgba(68,221,102,0.9);border-color:#88ff88;}
+  }
   .tapis-card.selected{border-color:#ffe566;box-shadow:0 0 18px rgba(255,229,102,0.7);transform:translateY(-10px);}
   .tapis-card.enemy-card{pointer-events:none;border-color:rgba(204,34,51,0.5);}
   .tapis-card.targetable{pointer-events:all !important;border-color:#ff4455 !important;box-shadow:0 0 18px rgba(255,68,85,0.8),0 0 6px rgba(255,68,85,0.5) !important;animation:targetPulse 0.8s ease-in-out infinite alternate;cursor:crosshair !important;}
@@ -532,6 +537,14 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
   .combat-hand-area{flex-shrink:0;background:rgba(0,0,0,0.45);border-top:1px solid rgba(218,165,32,0.15);padding:5px 14px 4px;}
   .combat-hand-label{font-family:Cinzel,serif;font-size:0.38rem;letter-spacing:0.12em;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:3px;text-align:center;}
   .combat-hand-fan{position:relative;height:105px;display:flex;align-items:flex-end;justify-content:center;}
+  @keyframes passerPulse {
+    0%,100% { opacity:1; box-shadow:0 0 8px rgba(200,162,0,0.3); }
+    50% { opacity:0.6; box-shadow:0 0 18px rgba(200,162,0,0.9); }
+  }
+  @keyframes tutoPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(200,162,0,0); }
+    50% { box-shadow: 0 0 12px 4px rgba(200,162,0,0.4); }
+  }
   .fan-card{position:absolute;width:65px;aspect-ratio:2/3;border-radius:8px;border:1.5px solid rgba(218,165,32,0.4);overflow:hidden;cursor:pointer;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.2s;transform-origin:bottom center;background:var(--bg-card);}
   .fan-card img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
   .fan-card .fan-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-family:Cinzel,serif;font-size:0.3rem;text-align:center;padding:8px 2px 3px;color:white;line-height:1.1;}
@@ -1538,7 +1551,10 @@ function showWelcomeScenePopup() {
 
   document.body.appendChild(overlay);
   playSound('legendary');
-  document.getElementById('welcome-scene-close').onclick = function(){ overlay.remove(); };
+  var closeBtn = overlay.querySelector('#welcome-scene-close');
+  if(closeBtn) closeBtn.onclick = function(){ overlay.remove(); };
+  // Fermeture aussi en cliquant sur le fond
+  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
 }
 
 function showCardGiftPopup(entries) {
@@ -2341,7 +2357,7 @@ function getUniqueOwned() {
     if(seen[key]) return;
     seen[key] = true;
     var card = allCards().find(function(c){return c.id===id;});
-    if(card) result.push({card:card, isShiny:isShiny, count:counts[key]});
+    if(card && (!isShiny || card.imgShiny)) result.push({card:card, isShiny:isShiny, count:counts[key]});
   });
   // Update counts after full pass
   result.forEach(function(e){
@@ -2353,14 +2369,15 @@ function getUniqueOwned() {
 
 function updateFilterCounts() {
   var u = getUniqueOwned();
-  var total = Object.values(CARDS).reduce(function(acc, pack){return acc+pack.length;}, 0)*2; // x2 for shiny versions
-  var allOwned = u.length;
+  var allCardsList = Object.values(CARDS).reduce(function(acc, pack){return acc.concat(pack);}, []);
+  var total = allCardsList.length; // cartes normales uniquement, shiny comptées séparément
+  var allOwned = u.filter(function(e){return !e.isShiny;}).length;
   document.getElementById('fb-all').textContent = 'Toutes ' + allOwned + '/' + total;
 
   Object.keys(PACKS).forEach(function(packId) {
     var packCardIds = CARDS[packId].map(function(c){return c.id;});
-    var packTotal = CARDS[packId].length + CARDS[packId].filter(function(c){return c.imgShiny;}).length;
-    var packOwned = u.filter(function(e){return packCardIds.indexOf(e.card.id) >= 0;}).length;
+    var packTotal = CARDS[packId].length; // normales uniquement
+    var packOwned = u.filter(function(e){return packCardIds.indexOf(e.card.id) >= 0 && !e.isShiny;}).length; // normales uniquement
     var btn = document.getElementById('fb-' + packId);
     if(btn) {
       var name = PACKS[packId].name;
@@ -2454,7 +2471,7 @@ function renderCol() {
     packsToShow = Object.keys(CARDS);
   } else if(currentFilter === 'shiny') {
     // For shiny, just show owned shiny cards
-    var entries = getUniqueOwned().filter(function(e){return e.isShiny;});
+    var entries = getUniqueOwned().filter(function(e){return e.isShiny && e.card.imgShiny;});
     if(!entries.length) {
       grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-i">✦</div><div class="empty-t">Aucune carte Shiny pour le moment</div></div>';
       return;
@@ -2755,11 +2772,13 @@ function openPack(packId, bypassCooldown) {
   if(user.firstTime) {
     user.firstPackDone = true;
     user.firstTime = false;
+  } else if(user.firstPackDone && !user.secondPackDone) {
+    // 2e paquet de bienvenue
+    user.secondPackDone = true;
   }
   // Timer indépendants — daily et collector ne se touchent jamais
   if(isDaily) {
     user.dailyPackDate = new Date().toDateString();
-    if(user.firstPackDone && !user.secondPackDone) user.secondPackDone = true;
   } else if(!bypassCooldown) {
     // Collector normal : mise à jour du timer
     if(user.adminPackPending && user.adminPackPending > 0) {
@@ -3109,7 +3128,7 @@ function showRevealCardNew(index) {
 
 document.getElementById('pr-done-btn').onclick = function() {
   document.getElementById('pack-reveal').classList.remove('open');
-  document.getElementById('pack-reveal').style.display = 'none';
+  document.getElementById('pack-reveal').style.display = '';
   renderCol();
   renderPacks();
   // Retour à la section packs
@@ -5287,10 +5306,27 @@ function startBattle(deckIds, playerFirst, secretId) {
 
   var playerDeckFull = deckIds.map(function(k){ return buildBattleCard(k, false); }).filter(Boolean);
 
-  // IA deck — pool selon la difficulté choisie
+  // IA deck — pool selon la difficulté ET le thème de conquête
   var allC = allCards();
   var aiPool;
-  if(_aiDifficulty === 'hard') {
+  var conqueteBoost = 1;
+
+  // Si combat de conquête — deck thématique
+  if(window._conqueteMatchup) {
+    var aiPackId = window._conqueteMatchup.ai;
+    conqueteBoost = window._conqueteMatchup.aiBoost || 1;
+    var themePool = CARDS[aiPackId] ? CARDS[aiPackId].slice() : allC;
+    // Filtre par difficulté dans le thème
+    if(_aiDifficulty === 'hard') {
+      aiPool = themePool.filter(function(c){ return c.rarity === 'épique' || c.rarity === 'légendaire'; });
+      if(aiPool.length < 5) aiPool = themePool;
+    } else if(_aiDifficulty === 'medium') {
+      aiPool = themePool.filter(function(c){ return c.rarity === 'rare' || c.rarity === 'épique'; });
+      if(aiPool.length < 5) aiPool = themePool;
+    } else {
+      aiPool = themePool;
+    }
+  } else if(_aiDifficulty === 'hard') {
     // Difficile — épiques + légendaires + cartes magiques (armes)
     var hardEpics = allC.filter(function(c){ return c.rarity === 'épique'; });
     var hardLegends = allC.filter(function(c){ return c.rarity === 'légendaire'; });
@@ -5315,7 +5351,7 @@ function startBattle(deckIds, playerFirst, secretId) {
     var stats = getCombatStats(card);
     var pack = null;
     Object.keys(CARDS).forEach(function(pk){ if(CARDS[pk].find(function(c){return c.id===card.id;})) pack=pk; });
-    return {card:card, isShiny:false, combatAtk:stats.atk, combatDef:stats.def, hp:stats.hp, maxHp:stats.hp, mode:'attack', canAttack:true, hasAttacked:false, _pack:pack, key:card.id};
+    return {card:card, isShiny:false, combatAtk:Math.round(stats.atk*conqueteBoost), combatDef:Math.round(stats.def*conqueteBoost), hp:Math.round(stats.hp*conqueteBoost), maxHp:Math.round(stats.hp*conqueteBoost), mode:'attack', canAttack:true, hasAttacked:false, _pack:pack, key:card.id};
   });
 
   // Mélanger et distribuer 5 cartes en main
@@ -5509,7 +5545,8 @@ function renderBattle() {
     d.className = 'tapis-card enemy-card'+(bc.mode==='defense'?' defending':'')+((isTargeting||isSouffle)?' targetable':'');
     d.id = 'ai-card-'+idx;
     d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
-      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>'
+      +(bc.hasAttacked&&isPlayer?'<div style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.7);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;">✓</div>':'');
     if(isTargeting) {
       (function(target){ d.onclick = function(){
         s._pickingTarget = false;
@@ -5538,10 +5575,12 @@ function renderBattle() {
     d.className = 'tapis-card'
       +(bc.mode==='defense'?' defending':'')
       +(!bc.hasAttacked&&isPlayer?' can-attack':'')
+      +(bc.hasAttacked&&isPlayer?' has-attacked':'')
       +(s.selectedFieldCard===idx?' selected':'');
     d.id = 'player-card-'+idx;
     d.innerHTML = (bc.card.img?'<img src="'+bc.card.img+'">':(bc.card.icon||''))
-      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>';
+      +'<div class="tc-stats">⚔'+bc.combatAtk+' 🛡'+bc.combatDef+'</div>'
+      +(bc.hasAttacked&&isPlayer?'<div style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.7);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;">✓</div>':'');
 
     var wrapper = document.createElement('div');
     wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;';
@@ -5568,8 +5607,11 @@ function renderBattle() {
   // Main en éventail
   var handEl = document.getElementById('cf-hand');
   var handLabel = document.getElementById('cf-hand-label');
-  if(handLabel && s.turn===1 && s.cardsPlayed===0) {
-    handLabel.innerHTML = '👆 <strong style="color:var(--gold)">1er tap</strong> = sélectionner · <strong style="color:#44dd66">2e tap</strong> = poser';
+  if(handLabel && s.phase==='place' && s.turn===1 && s.cardsPlayed===0 && !user.combatTutoDismissed) {
+    handLabel.innerHTML = '<div style="background:rgba(200,162,0,0.15);border:1px solid var(--gold);border-radius:8px;padding:8px 12px;margin-bottom:6px;animation:tutoPulse 1.5s ease-in-out infinite;">'
+      + '👆 <strong style="color:var(--gold)">Tape une carte</strong> pour la sélectionner, puis <strong style="color:#44dd66">tape encore</strong> pour la poser sur le terrain'
+      + '<button onclick="user.combatTutoDismissed=true;saveUser();this.parentElement.parentElement.innerHTML=\'MA MAIN ('+s.playerHand.length+')\';" style="margin-left:10px;background:none;border:none;color:var(--text-dim);font-size:0.65rem;cursor:pointer;">✕ compris</button>'
+      + '</div>';
   }
   var n = s.playerHand.length;
   var maxSpread = Math.min(16, 90/Math.max(n,1));
@@ -5612,7 +5654,18 @@ function renderBattle() {
   };
 
   var cbEnd = document.getElementById('cb-end');
-  if(cbEnd) cbEnd.onclick=function(){ endPlayerTurn(); };
+  if(cbEnd) {
+    cbEnd.onclick = function(){ endPlayerTurn(); };
+    // Faire clignoter PASSER quand le joueur peut passer (a posé au moins une carte ou phase player)
+    var canPass = (s.phase === 'place' && s.cardsPlayed > 0) || s.phase === 'player';
+    if(canPass) {
+      cbEnd.style.animation = 'passerPulse 1s ease-in-out infinite';
+      cbEnd.style.boxShadow = '0 0 12px rgba(200,162,0,0.6)';
+    } else {
+      cbEnd.style.animation = '';
+      cbEnd.style.boxShadow = '';
+    }
+  }
 
   // Tap sur une carte joueur sur le terrain → sélectionner, puis si déjà sélectionnée → attaquer
   s.playerField.forEach(function(bc, idx) {
@@ -6755,9 +6808,12 @@ function checkBattleEnd() {
         + '<div style="font-size:'+(won?'4':'5')+'rem;margin-bottom:16px;">'+(won?'👑':'💀')+'</div>'
         + '<div style="font-family:Cinzel Decorative,serif;font-size:1.4rem;color:var(--gold);margin-bottom:10px;text-shadow:0 0 30px rgba(218,165,32,0.8);">'+(won?'Victoire !':'Défaite...')+'</div>'
         + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:30px;">'+(won?'Tu as vaincu l\'IA ! +15 🪙 Drachmes':'L\'IA t\'a eu cette fois. Retente !')+'</div>'
-        + '<div style="display:flex;gap:12px;justify-content:center;">'
-        + '<button class="combat-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
-        + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>'
+        + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">'
+        + (window._conqueteRegionId
+          ? '<button class="combat-btn" onclick="closeCombatScreen(); setTimeout(function(){ showSection(\'conquete\'); initConquete(); }, 300);">🗺️ Retour à la carte</button>'
+            + '<button class="combat-btn sec" onclick="closeCombatScreen(); setTimeout(function(){ launchConqueteAttack(window._conqueteRegionId); }, 300);">🔄 Réessayer</button>'
+          : '<button class="combat-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
+            + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>')
         + '</div></div></div>';
 
       if(won) {
@@ -7742,24 +7798,204 @@ function showConquetePopup(region) {
     + '</div>';
 }
 
+// Matchups par région : {playerPack, aiPack}
+var CONQUETE_MATCHUPS = {
+  macedoine: {player:'heros',    ai:'heros'},
+  thessalie: {player:'monstres', ai:'titans'},
+  epire:     {player:'olympe',   ai:'heros'},
+  beoitie:   {player:'heros',    ai:'monstres'},
+  athenes:   {player:'olympe',   ai:'titans'},
+  corinthe:  {player:'titans',   ai:'olympe'},
+  sparte:    {player:'heros',    ai:'heros'},
+  ithaque:   {player:'monstres', ai:'monstres'},
+  lesbos:    {player:'olympe',   ai:'monstres'},
+  delos:     {player:'titans',   ai:'olympe'},
+  rhodes:    {player:'heros',    ai:'titans'},
+  crete:     {player:'monstres', ai:'monstres', aiBoost:1.5}
+};
+
+var PACK_LABELS = {
+  olympe:'Olympiens', titans:'Titans', monstres:'Monstres', heros:'Héros'
+};
+
 function launchConqueteAttack(regionId) {
   var region = CONQUETE_REGIONS.find(function(r){ return r.id === regionId; });
   if(!region) return;
   document.getElementById('conquete-region-popup').style.display = 'none';
 
-  // Stocker la région en cours d'attaque
+  var matchup = CONQUETE_MATCHUPS[regionId];
+  if(!matchup) return;
+
+  var playerPackId = matchup.player;
+  var playerLabel = PACK_LABELS[playerPackId] || playerPackId;
+
+  // Cartes du joueur disponibles dans cette catégorie + cartes magiques
+  var owned = getUniqueOwned().filter(function(e){
+    if(e.isShiny) return false;
+    var inThemePack = CARDS[playerPackId] && CARDS[playerPackId].some(function(c){ return c.id === e.card.id; });
+    var isMagic = CARDS['armes'] && CARDS['armes'].some(function(c){ return c.id === e.card.id; });
+    return inThemePack || isMagic;
+  });
+
+  if(owned.length < 5) {
+    // Popup d'avertissement
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
+    el.innerHTML = '<div style="max-width:380px;width:100%;background:var(--bg-card);border:2px solid #cc2233;border-radius:16px;padding:24px;text-align:center;">'
+      + '<div style="font-size:1.5rem;margin-bottom:12px;">⚔️</div>'
+      + '<div style="font-family:Cinzel,serif;font-size:0.9rem;color:#ff4455;margin-bottom:10px;">Armée insuffisante</div>'
+      + '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.6;margin-bottom:16px;">Pour attaquer <strong style="color:#fff;">' + region.name + '</strong>, tu dois avoir au moins <strong style="color:var(--gold);">5 cartes ' + playerLabel + '</strong> dans ta collection.</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:16px;">Tu en as actuellement : <strong style="color:var(--gold);">' + owned.length + '</strong></div>'
+      + '<button onclick="this.closest(\'div[style*=fixed]\').remove();" style="padding:10px 24px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:8px;color:#fff;font-family:Cinzel,serif;font-size:0.75rem;cursor:pointer;">Compris</button>'
+      + '</div>';
+    el.onclick = function(e){ if(e.target===el) el.remove(); };
+    document.body.appendChild(el);
+    return;
+  }
+
+  // Stocker le matchup pour l'IA
   window._conqueteAttackRegion = regionId;
+  window._conqueteMatchup = matchup;
 
   // Forcer la difficulté selon la région
   _aiDifficulty = region.difficulty;
 
-  // Lancer le combat normal — on interceptera la victoire
-  var deckIds = (user.deck || []).filter(Boolean);
-  if(deckIds.length < 5) {
-    alert('Tu dois avoir au moins 5 cartes dans ton deck pour attaquer !');
-    return;
+  // Deck du joueur = ses cartes du bon pack (max 20)
+  var deckIds = owned.slice(0, 20).map(function(e){ return e.card.id; });
+
+  // Popup de confirmation avant le combat
+  var confirmEl = document.createElement('div');
+  confirmEl.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
+  confirmEl.innerHTML = '<div style="max-width:380px;width:100%;background:var(--bg-card);border:2px solid var(--gold);border-radius:16px;padding:24px;text-align:center;">'
+    + '<div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:0.9rem;color:var(--gold);margin-bottom:16px;">' + region.name + '</div>'
+    + '<div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:16px;">'
+    + '<div style="text-align:center;padding:10px 16px;background:rgba(200,162,0,0.1);border:1px solid var(--gold);border-radius:10px;">'
+    + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:4px;">TON ARMÉE</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#fff;">' + playerLabel + '</div>'
+    + '<div style="font-size:0.55rem;color:var(--text-dim);">' + owned.length + ' cartes</div>'
+    + '</div>'
+    + '<div style="font-size:1.2rem;color:var(--gold);">⚔</div>'
+    + '<div style="text-align:center;padding:10px 16px;background:rgba(204,34,51,0.1);border:1px solid #cc2233;border-radius:10px;">'
+    + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:4px;">ARMÉE ADVERSE</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.8rem;color:#fff;">' + (PACK_LABELS[matchup.ai]||matchup.ai) + '</div>'
+    + (matchup.aiBoost ? '<div style="font-size:0.55rem;color:#ff4455;">×' + matchup.aiBoost + ' stats</div>' : '')
+    + '</div>'
+    + '</div>'
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove(); showCoinFlip(window._conqueteDeckIds, null);" style="width:100%;padding:12px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:10px;color:#fff;font-family:Cinzel,serif;font-size:0.85rem;cursor:pointer;margin-bottom:8px;">⚔️ Au combat !</button>'
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove();" style="width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:Cinzel,serif;font-size:0.7rem;cursor:pointer;">Annuler</button>'
+    + '</div>';
+  // Popup de sélection de cartes
+  var selectEl = document.createElement('div');
+  selectEl.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;overflow:hidden;';
+  
+  var selectedIds = [];
+  
+  function renderSelection() {
+    var scrollPos = selectEl.querySelector('[style*=overflow-y]') ? selectEl.querySelector('[style*=overflow-y]').scrollTop : 0;
+    selectEl.innerHTML = '<div style="padding:16px;border-bottom:1px solid var(--border);flex-shrink:0;">'
+      + '<div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:0.9rem;color:var(--gold);text-align:center;margin-bottom:4px;">' + region.name + '</div>'
+      + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:10px;">Choisis tes <strong style="color:var(--gold);">' + playerLabel + '</strong> (min 5, max 20)</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<div style="font-size:0.65rem;color:var(--gold);font-family:Cinzel,serif;" id="sel-count">' + selectedIds.length + ' / 20 sélectionnées</div>'
+      + '<div style="display:flex;gap:8px;">'
+      + '<button onclick="this.closest(&quot;[style*=fixed]&quot;).remove();" style="padding:6px 12px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);font-size:0.6rem;cursor:pointer;">Annuler</button>'
+      + '<button id="sel-confirm-btn" onclick="confirmConqueteSelection()" style="padding:6px 14px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:6px;color:#fff;font-family:Cinzel,serif;font-size:0.6rem;cursor:pointer;opacity:' + (selectedIds.length >= 5 ? '1' : '0.4') + ';">⚔️ Au combat !</button>'
+      + '</div></div>'
+      + '</div>'
+      + '<div style="overflow-y:auto;flex:1;padding:12px;">'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'
+      + owned.map(function(e) {
+          var isSelected = selectedIds.indexOf(e.card.id) !== -1;
+          return '<div onclick="toggleConqueteCard(&quot;' + e.card.id + '&quot;)" style="position:relative;cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid ' + (isSelected ? '#ffd700' : 'transparent') + ';opacity:' + (isSelected ? '1' : '0.6') + ';transition:all 0.15s;" id="sel-card-' + e.card.id + '">'
+            + '<img src="' + e.card.img + '" style="width:100%;display:block;">'
+            + '<div style="padding:4px 6px;background:rgba(0,0,0,0.8);">'
+            + '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e.card.name + '</div>'
+            + '<div style="font-size:0.5rem;color:var(--gold);">' + e.card.rarity + '</div>'
+            + '</div>'
+            + (isSelected ? '<div style="position:absolute;top:4px;right:4px;background:#ffd700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#000;font-weight:bold;">' + (selectedIds.indexOf(e.card.id)+1) + '</div>' : '')
+            + '</div>';
+        }).join('')
+      + '</div></div>';
+    var scrollEl = selectEl.querySelector('[style*=overflow-y]');
+    if(scrollEl) scrollEl.scrollTop = scrollPos;
   }
-  showCoinFlip(deckIds, null);
+  
+  window._conqueteOwned = owned;
+  window._conqueteSelectedIds = selectedIds;
+  window._conqueteRegionId = regionId;
+  window._conqueteMatchup = matchup;
+  
+  window.toggleConqueteCard = function(cardId) {
+    var idx = selectedIds.indexOf(cardId);
+    if(idx !== -1) {
+      selectedIds.splice(idx, 1);
+    } else {
+      if(selectedIds.length >= 20) return;
+      selectedIds.push(cardId);
+    }
+    window._conqueteSelectedIds = selectedIds;
+    // Mettre à jour sans re-render complet pour éviter le scroll
+    var countEl = document.getElementById('sel-count');
+    if(countEl) countEl.textContent = selectedIds.length + ' / 20 sélectionnées';
+    var confirmBtn = document.getElementById('sel-confirm-btn');
+    if(confirmBtn) confirmBtn.style.opacity = selectedIds.length >= 5 ? '1' : '0.4';
+    // Mettre à jour uniquement la carte cliquée
+    owned.forEach(function(e) {
+      var cardEl = document.getElementById('sel-card-' + e.card.id);
+      if(!cardEl) return;
+      var isSel = selectedIds.indexOf(e.card.id) !== -1;
+      cardEl.style.border = '2px solid ' + (isSel ? '#ffd700' : 'transparent');
+      cardEl.style.opacity = isSel ? '1' : '0.6';
+      var badge = cardEl.querySelector('.sel-badge');
+      if(isSel) {
+        if(!badge) {
+          badge = document.createElement('div');
+          badge.className = 'sel-badge';
+          badge.style.cssText = 'position:absolute;top:4px;right:4px;background:#ffd700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#000;font-weight:bold;';
+          cardEl.appendChild(badge);
+        }
+        badge.textContent = selectedIds.indexOf(e.card.id) + 1;
+      } else if(badge) {
+        badge.remove();
+      }
+    });
+  };
+  
+  window.confirmConqueteSelection = function() {
+    if(selectedIds.length < 5) return;
+    selectEl.remove();
+    window._conqueteAttackRegion = window._conqueteRegionId;
+    _aiDifficulty = region.difficulty;
+    showCoinFlip(selectedIds, null);
+  };
+
+  // D'abord popup matchup, puis sélection
+  var matchupEl = document.createElement('div');
+  matchupEl.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
+  matchupEl.innerHTML = '<div style="max-width:380px;width:100%;background:var(--bg-card);border:2px solid var(--gold);border-radius:16px;padding:24px;text-align:center;">'
+    + '<div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:0.9rem;color:var(--gold);margin-bottom:16px;">' + region.name + '</div>'
+    + '<div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:20px;">'
+    + '<div style="text-align:center;padding:10px 16px;background:rgba(200,162,0,0.1);border:1px solid var(--gold);border-radius:10px;">'
+    + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:4px;">TON ARMÉE</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:#fff;">' + playerLabel + '</div>'
+    + '<div style="font-size:0.55rem;color:var(--text-dim);">' + owned.length + ' cartes dispo</div>'
+    + '</div>'
+    + '<div style="font-size:1.4rem;color:var(--gold);">⚔</div>'
+    + '<div style="text-align:center;padding:10px 16px;background:rgba(204,34,51,0.1);border:1px solid #cc2233;border-radius:10px;">'
+    + '<div style="font-size:0.6rem;color:var(--text-dim);margin-bottom:4px;">ARMÉE ADVERSE</div>'
+    + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:#fff;">' + (PACK_LABELS[matchup.ai]||matchup.ai) + '</div>'
+    + (matchup.aiBoost ? '<div style="font-size:0.55rem;color:#ff4455;">×' + matchup.aiBoost + ' stats</div>' : '')
+    + '</div>'
+    + '</div>'
+    + '<button onclick="window._openConqueteSelection();" style="width:100%;padding:12px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:10px;color:#fff;font-family:Cinzel,serif;font-size:0.85rem;cursor:pointer;margin-bottom:8px;">Choisir mon armée →</button>'
+    + '<button onclick="this.closest(&quot;[style*=fixed]&quot;).remove();" style="width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:Cinzel,serif;font-size:0.7rem;cursor:pointer;">Annuler</button>'
+    + '</div>';
+  window._openConqueteSelection = function() {
+    matchupEl.remove();
+    renderSelection();
+    document.body.appendChild(selectEl);
+  };
+  document.body.appendChild(matchupEl);
 }
 
 // Appelé quand le joueur gagne un combat — on vérifie si c'est une conquête
@@ -7767,6 +8003,7 @@ function checkConqueteVictory() {
   if(!window._conqueteAttackRegion) return;
   var regionId = window._conqueteAttackRegion;
   window._conqueteAttackRegion = null;
+  window._conqueteMatchup = null;
 
   if(!user.conquete) user.conquete = {};
   user.conquete[regionId] = 'conquered';
