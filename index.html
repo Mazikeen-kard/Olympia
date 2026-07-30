@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7964,7 +7965,7 @@ function launchConqueteAttack(regionId) {
   window.confirmConqueteSelection = function() {
     if(selectedIds.length < 5) return;
     selectEl.remove();
-    window._conqueteAttackRegion = window._conqueteRegionId;
+    window._conqueteAttackRegion = regionId;
     _aiDifficulty = region.difficulty;
     showCoinFlip(selectedIds, null);
   };
