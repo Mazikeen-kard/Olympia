@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -907,25 +908,7 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       <svg id="conquete-svg" viewBox="0 0 1260 952" style="position:absolute;top:0;left:0;width:100%;height:100%;"></svg>
     </div>
 
-    <!-- Légende -->
-    <div style="display:flex;justify-content:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--text-dim);">
-        <div style="width:10px;height:10px;border-radius:50%;background:#cc2233;border:2px solid #ff4455;"></div>
-        Point de départ
-      </div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--text-dim);">
-        <div style="width:10px;height:10px;border-radius:50%;background:#555;border:2px solid #888;"></div>
-        Verrouillé
-      </div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--text-dim);">
-        <div style="width:10px;height:10px;border-radius:50%;background:#8b2222;border:2px solid #fff;"></div>
-        Disponible
-      </div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:0.6rem;color:var(--gold);">
-        <div style="width:10px;height:10px;border-radius:50%;background:#c8a200;border:2px solid #ffd700;"></div>
-        Conquis ⚑
-      </div>
-    </div>
+
 
     <div id="conquete-region-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;padding:20px;"></div>
   </div>
@@ -2532,7 +2515,16 @@ function renderPacks() {
   if(wb) {
     if(isWelcome && user.firstTime) {
       wb.innerHTML = '<div class="wbanner"><div class="wb-icon">🎁</div><div><div class="wb-title">Bienvenue dans l\'Olympe !</div><div class="wb-desc">Pour ton arrivée, tu reçois <strong style="color:var(--gold)">2 paquets gratuits</strong> !</div></div></div>';
-    } else { wb.innerHTML = ''; }
+    } else {
+      // Banner région boostée du jour
+      var boosted = getDailyBoostedRegion();
+      var alreadyClaimed = boosted && hasDailyBoostBeenClaimed(boosted.id);
+      if(boosted && !alreadyClaimed) {
+        wb.innerHTML = '<div class="wbanner" style="border-color:rgba(255,100,0,0.5);background:linear-gradient(135deg,rgba(255,80,0,0.08),rgba(255,160,0,0.04));"><div class="wb-icon">🔥</div><div style="flex:1;"><div class="wb-title" style="color:#ff6600;">Région du Jour : ' + boosted.name + ' !</div><div class="wb-desc">Conquiers <strong style="color:var(--gold)">' + boosted.name + '</strong> aujourd\'hui pour gagner un <strong style="color:var(--gold)">paquet bonus</strong> !</div></div><button onclick="document.querySelectorAll(\'.nav-btn\').forEach(function(b){b.classList.remove(\'active\');});document.querySelectorAll(\'.section\').forEach(function(s){s.classList.remove(\'active\');});document.getElementById(\'section-conquete\').classList.add(\'active\');document.querySelector(\'[data-sec=conquete]\').classList.add(\'active\');initConquete();" style="flex-shrink:0;padding:8px 14px;background:linear-gradient(135deg,#cc4400,#ff6600);border:none;border-radius:8px;color:white;font-family:Cinzel,serif;font-size:0.6rem;cursor:pointer;white-space:nowrap;">Voir la carte →</button></div>';
+      } else {
+        wb.innerHTML = '';
+      }
+    }
   }
 
   var grid = document.getElementById('pack-grid');
@@ -2781,13 +2773,16 @@ function openPack(packId, bypassCooldown) {
   if(isDaily) {
     user.dailyPackDate = new Date().toDateString();
   } else if(!bypassCooldown) {
-    // Collector normal : mise à jour du timer
+    // Collector normal : mise à jour du timer SEULEMENT si pas de paquet admin en attente
     if(user.adminPackPending && user.adminPackPending > 0) {
       user.adminPackPending--;
+      // Paquet offert — on ne touche PAS au timer collector
+    } else {
+      user.lastCollectorTime = Date.now();
     }
-    user.lastCollectorTime = Date.now();
   } else {
-    // Paquet gratuit (ami, streak) : ne touche pas au timer collector
+    // Paquet gratuit (conquête, ami, streak) : ne touche PAS au timer collector
+    // On décrémente adminPackPending seulement si c'est lui qui a fourni le paquet
     if(user.adminPackPending && user.adminPackPending > 0) {
       user.adminPackPending--;
     }
@@ -7531,49 +7526,56 @@ var CONQUETE_REGIONS = [
     history:'Berceau d\'Alexandre le Grand, la Macédoine forge les guerriers les plus redoutables de Grèce. Sa phalange, mur de lances et de boucliers, est invincible.',
     difficulty:'easy', unlocks:['thessalie','epire'],
     x:47, y:6, // % de la viewBox
-    requires:[]
+    requires:[],
+    monument:'https://i.imgur.com/CW3iDe0.png'
   },
   {
     id:'thessalie', name:'Thessalie', date:'352 av. J.-C.',
     history:'Terre des Centaures et des meilleurs cavaliers grecs. Philippe II de Macédoine en fit sa base pour conquérir la Grèce entière.',
     difficulty:'easy', unlocks:['beoitie','lesbos'],
     x:45, y:22,
-    requires:['macedoine']
+    requires:['macedoine'],
+    monument:'https://i.imgur.com/AVlt0zu.png'
   },
   {
     id:'epire', name:'Épire', date:'280 av. J.-C.',
     history:'Royaume de Pyrrhus, roi guerrier dont les victoires coûtaient si cher en hommes qu\'on les appela "victoires à la Pyrrhus".',
     difficulty:'easy', unlocks:['ithaque'],
     x:20, y:18,
-    requires:['macedoine']
+    requires:['macedoine'],
+    monument:'https://i.imgur.com/1a4cL0b.png'
   },
   {
     id:'beoitie', name:'Béotie', date:'371 av. J.-C.',
     history:'Thèbes, sa capitale, a enfanté le Bataillon Sacré : 150 paires d\'amants soldats, invincibles au combat jusqu\'à leur défaite à Chéronée face à Alexandre.',
     difficulty:'medium', unlocks:['athenes'],
     x:44, y:28,
-    requires:['thessalie']
+    requires:['thessalie'],
+    monument:'https://i.imgur.com/p13cLyM.png'
   },
   {
     id:'athenes', name:'Athènes', date:'490 av. J.-C.',
     history:'Berceau de la démocratie et de la philosophie. À Marathon, 10 000 Athéniens ont repoussé seuls 25 000 Perses. La victoire la plus grande de l\'histoire grecque.',
     difficulty:'medium', unlocks:['corinthe','delos'],
     x:50, y:40,
-    requires:['beoitie']
+    requires:['beoitie'],
+    monument:'https://i.imgur.com/6lmsb4t.png'
   },
   {
     id:'corinthe', name:'Corinthe', date:'337 av. J.-C.',
     history:'Cité la plus riche de Grèce, maîtresse de deux mers. Alexandre en fit le siège de sa Ligue panhellénique — l\'alliance qui unifia la Grèce.',
     difficulty:'medium', unlocks:['sparte','rhodes'],
     x:36, y:37,
-    requires:['athenes']
+    requires:['athenes'],
+    monument:'https://i.imgur.com/2vMur8K.png'
   },
   {
     id:'sparte', name:'Sparte', date:'480 av. J.-C.',
     history:'300 Spartiates ont tenu les Thermopyles contre 300 000 Perses pendant trois jours. Ici, on revient avec son bouclier — ou dessus.',
     difficulty:'hard', unlocks:['crete'],
     x:36, y:58,
-    requires:['corinthe']
+    requires:['corinthe'],
+    monument:'https://i.imgur.com/2UxuPmt.png'
   },
   // Îles
   {
@@ -7581,35 +7583,40 @@ var CONQUETE_REGIONS = [
     history:'Royaume d\'Ulysse, le plus rusé des Grecs. Dix ans de guerre à Troie, dix ans d\'errance sur les mers avant de retrouver Pénélope.',
     difficulty:'easy', unlocks:['delos'],
     x:12, y:22,
-    requires:['epire']
+    requires:['epire'],
+    monument:'https://i.imgur.com/ARJQdeM.png'
   },
   {
     id:'lesbos', name:'Lesbos', date:'~600 av. J.-C.',
     history:'Île de la poétesse Sappho, dont les vers ont traversé vingt-cinq siècles. Centre culturel de la Grèce archaïque, berceau d\'une civilisation raffinée.',
     difficulty:'medium', unlocks:['delos'],
     x:60, y:16,
-    requires:['thessalie']
+    requires:['thessalie'],
+    monument:'https://i.imgur.com/C9WbG8A.png'
   },
   {
     id:'delos', name:'Délos', date:'~700 av. J.-C.',
     history:'Île sacrée d\'Apollon, si sainte qu\'il était interdit d\'y naître ou d\'y mourir. Centre religieux et commercial de toute la mer Égée pendant des siècles.',
     difficulty:'medium', unlocks:['rhodes'],
     x:58, y:38,
-    requires:['athenes','ithaque','lesbos']
+    requires:['athenes','ithaque','lesbos'],
+    monument:'https://i.imgur.com/cyHcHZG.png'
   },
   {
     id:'rhodes', name:'Rhodes', date:'~280 av. J.-C.',
     history:'L\'île du Colosse, l\'une des sept merveilles du monde antique. Rhodes contrôlait le commerce maritime de toute la Méditerranée orientale.',
     difficulty:'hard', unlocks:['crete'],
     x:60, y:72,
-    requires:['corinthe','delos']
+    requires:['corinthe','delos'],
+    monument:'https://i.imgur.com/VzHUhTT.png'
   },
   {
     id:'crete', name:'Crète', date:'~2000 av. J.-C.',
     history:'Berceau de la civilisation minoenne, la plus ancienne d\'Europe. Knossos, son palais labyrinthique, cache encore les secrets du Minotaure et du roi Minos.',
     difficulty:'hard', unlocks:[],
     x:56, y:82,
-    requires:['sparte','rhodes']
+    requires:['sparte','rhodes'],
+    monument:'https://i.imgur.com/yNG7MQa.png'
   }
 ];
 
@@ -7650,6 +7657,24 @@ function showConqueteIntro() {
   document.body.appendChild(el);
 }
 
+
+// ══════════════════════════════════════
+//  RÉGION BOOSTÉE DU JOUR
+// ══════════════════════════════════════
+function getDailyBoostedRegion() {
+  var now = new Date();
+  var daySeed = now.getFullYear() * 10000 + (now.getMonth()+1) * 100 + now.getDate();
+  // Seulement les régions non conquises ou toutes (pour le banner même si conquise)
+  var idx = daySeed % CONQUETE_REGIONS.length;
+  return CONQUETE_REGIONS[idx];
+}
+
+function hasDailyBoostBeenClaimed(regionId) {
+  if(!user.conqueteDailyBoost) return false;
+  var today = new Date().toDateString();
+  return user.conqueteDailyBoost.date === today && user.conqueteDailyBoost.regionId === regionId;
+}
+
 function initConquete() {
   var data = getConqueteData();
   var conquered = Object.values(data).filter(function(v){ return v === 'conquered'; }).length;
@@ -7671,7 +7696,7 @@ function initConquete() {
   if(!svg) return;
   svg.innerHTML = '';
 
-  // Connexions (lignes entre régions liées)
+  // Connexions (lignes entre régions liées) — toutes en noir
   CONQUETE_REGIONS.forEach(function(region) {
     region.unlocks.forEach(function(targetId) {
       var target = CONQUETE_REGIONS.find(function(r){ return r.id === targetId; });
@@ -7681,10 +7706,10 @@ function initConquete() {
       line.setAttribute('y1', region.y * 9.52);
       line.setAttribute('x2', target.x * 12.6);
       line.setAttribute('y2', target.y * 9.52);
-      line.setAttribute('stroke', isRegionConquered(region) ? '#ffd700' : '#1a1000');
-      line.setAttribute('stroke-width', isRegionConquered(region) ? '3' : '2');
+      line.setAttribute('stroke', '#1a0800');
+      line.setAttribute('stroke-width', '2');
       line.setAttribute('stroke-dasharray', isRegionConquered(region) ? 'none' : '8,5');
-      line.setAttribute('opacity', '0.8');
+      line.setAttribute('opacity', '0.7');
       svg.appendChild(line);
     });
   });
@@ -7695,88 +7720,81 @@ function initConquete() {
     var unlocked = isRegionUnlocked(region);
     var cx = region.x * 12.6;
     var cy = region.y * 9.52;
-
-    var color = conquered ? '#ffd700' : unlocked ? '#ffffff' : 'rgba(255,255,255,0.3)';
-    var fillColor = conquered ? '#c8a200' : unlocked ? '#8b2222' : 'rgba(50,50,50,0.6)';
     var radius = 14;
+    var monSize = 150;
 
-    // Cercle
-    var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    circle.setAttribute('cx', cx);
-    circle.setAttribute('cy', cy);
-    circle.setAttribute('r', radius);
-    circle.setAttribute('fill', fillColor);
-    circle.setAttribute('stroke', color);
-    circle.setAttribute('stroke-width', conquered ? '3' : '2');
-    circle.style.cursor = unlocked ? 'pointer' : 'default';
-    circle.style.filter = conquered ? 'drop-shadow(0 0 6px #ffd700)' : '';
-    svg.appendChild(circle);
+    if(conquered && region.monument) {
+      // ── RÉGION CONQUISE : image monument + drapeau, pas de cercle ──
 
-    // Icône dans le cercle
-    // Icône : image custom ou fallback texte
-    var icon;
-    if(conquered) {
-      // Drapeau rouge SVG
-      var flagGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
-      flagGroup.setAttribute('transform', 'translate(' + (cx - 6) + ',' + (cy - radius - 18) + ')');
-      // Mât
-      var pole = document.createElementNS('http://www.w3.org/2000/svg','line');
-      pole.setAttribute('x1','2'); pole.setAttribute('y1','0');
-      pole.setAttribute('x2','2'); pole.setAttribute('y2','20');
-      pole.setAttribute('stroke','#8b5e3c'); pole.setAttribute('stroke-width','2');
-      flagGroup.appendChild(pole);
-      // Drapeau
-      var flag = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-      flag.setAttribute('points','2,1 14,5 2,9');
-      flag.setAttribute('fill','#cc0000');
-      flagGroup.appendChild(flag);
-      svg.appendChild(flagGroup);
-      icon = document.createElementNS('http://www.w3.org/2000/svg','text');
-      icon.setAttribute('x', cx); icon.setAttribute('y', cy + 5);
-      icon.setAttribute('text-anchor','middle'); icon.setAttribute('font-size','10');
-      icon.setAttribute('font-family','Cinzel,serif'); icon.setAttribute('font-weight','bold');
-      icon.setAttribute('fill','#ffd700'); icon.textContent = '✓';
+      // Image monument (blend multiply pour supprimer le fond blanc)
+      var monImg = document.createElementNS('http://www.w3.org/2000/svg','image');
+      monImg.setAttribute('href', region.monument);
+      monImg.setAttribute('x', cx - monSize/2);
+      monImg.setAttribute('y', cy - monSize/2);
+      monImg.setAttribute('width', monSize);
+      monImg.setAttribute('height', monSize);
+      monImg.style.cursor = 'pointer';
+      monImg.addEventListener('click', function(){ showConquetePopup(region); });
+      svg.appendChild(monImg);
+
+
+
     } else {
-      icon = document.createElementNS('http://www.w3.org/2000/svg','image');
+      // ── RÉGION NON CONQUISE : cercle classique ──
+      var color = unlocked ? '#ffffff' : 'rgba(255,255,255,0.3)';
+      var fillColor = unlocked ? '#8b2222' : 'rgba(50,50,50,0.6)';
+
+      var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', cx);
+      circle.setAttribute('cy', cy);
+      circle.setAttribute('r', radius);
+      circle.setAttribute('fill', fillColor);
+      circle.setAttribute('stroke', color);
+      circle.setAttribute('stroke-width', '2');
+      circle.style.cursor = unlocked ? 'pointer' : 'default';
+      if(unlocked) circle.addEventListener('click', function(){ showConquetePopup(region); });
+      svg.appendChild(circle);
+
+      var icon = document.createElementNS('http://www.w3.org/2000/svg','image');
       icon.setAttribute('href', 'https://i.imgur.com/Iu8tc6o.png');
       icon.setAttribute('x', cx - radius + 2);
       icon.setAttribute('y', cy - radius + 2);
       icon.setAttribute('width', (radius * 2 - 4));
       icon.setAttribute('height', (radius * 2 - 4));
       icon.setAttribute('opacity', unlocked ? '1' : '0.4');
+      svg.appendChild(icon);
     }
-    svg.appendChild(icon);
 
-    // Label fond (rect derrière le texte)
-    var labelY = cy + radius + 16;
-    var labelBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    var nameLen = region.name.length * 5.5;
-    labelBg.setAttribute('x', cx - nameLen/2 - 4);
-    labelBg.setAttribute('y', labelY - 11);
-    labelBg.setAttribute('width', nameLen + 8);
-    labelBg.setAttribute('height', 14);
-    labelBg.setAttribute('rx', '3');
-    labelBg.setAttribute('fill', 'rgba(10,6,0,0.72)');
-    svg.appendChild(labelBg);
-
-    // Label nom
+    // Label nom centré sur l'image avec petit fond
     var label = document.createElementNS('http://www.w3.org/2000/svg','text');
-    label.setAttribute('x', cx);
-    label.setAttribute('y', labelY);
-    label.setAttribute('text-anchor','middle');
-    label.setAttribute('font-size','12');
+    label.setAttribute('x', conquered ? cx + monSize/2 - 6 : cx + radius + 4);
+    label.setAttribute('y', conquered ? cy + 4 : cy + radius + 12);
+    label.setAttribute('text-anchor', conquered ? 'end' : 'start');
+    label.setAttribute('font-size','10');
     label.setAttribute('font-family','Cinzel,serif');
-    label.setAttribute('fill', color);
+    label.setAttribute('fill', '#fff');
     label.setAttribute('font-weight','bold');
+    label.setAttribute('stroke', '#1a0800');
+    label.setAttribute('stroke-width', '3');
+    label.setAttribute('paint-order', 'stroke');
     label.textContent = region.name;
     svg.appendChild(label);
+
+    // Contour orange sur le nom si région boostée du jour
+    var boostedRegion = getDailyBoostedRegion();
+    if(boostedRegion && boostedRegion.id === region.id && !hasDailyBoostBeenClaimed(region.id)) {
+      label.setAttribute('stroke', '#ff6600');
+      label.setAttribute('stroke-width', '3');
+      label.setAttribute('fill', '#ffffff');
+    }
 
     // Clic
     if(unlocked) {
       [circle, icon, label].forEach(function(el){
-        el.style.cursor = 'pointer';
-        el.addEventListener('click', function(){ showConquetePopup(region); });
+        if(el) { el.style.cursor = 'pointer'; el.addEventListener('click', function(){ showConquetePopup(region); }); }
       });
+      // Clic sur le label toujours présent
+      if(label) { label.style.cursor = 'pointer'; label.addEventListener('click', function(){ showConquetePopup(region); }); }
     }
   });
 }
@@ -7794,6 +7812,7 @@ function showConquetePopup(region) {
     + '<div style="font-size:0.72rem;color:var(--text);line-height:1.6;margin-bottom:16px;padding:12px;background:rgba(0,0,0,0.3);border-radius:8px;border-left:3px solid var(--gold);">' + region.history + '</div>'
     + (conquered
       ? '<div style="text-align:center;padding:10px;background:rgba(200,162,0,0.15);border-radius:8px;border:1px solid var(--gold);font-family:Cinzel,serif;font-size:0.75rem;color:var(--gold);">✅ Région conquise !</div>'
+      + '<button onclick="launchConqueteAttack(&quot;' + region.id + '&quot;)" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-family:Cinzel,serif;font-size:0.72rem;cursor:pointer;margin-top:6px;">🔄 Rejouer (sans enjeu)</button>'
       : '<button onclick="launchConqueteAttack(&quot;' + region.id + '&quot;)" style="width:100%;padding:12px;background:linear-gradient(135deg,#8b2222,#cc2233);border:none;border-radius:10px;color:#fff;font-family:Cinzel,serif;font-size:0.85rem;cursor:pointer;letter-spacing:0.05em;">⚔️ Attaquer</button>'
     )
     + '</div>';
@@ -7965,7 +7984,7 @@ function launchConqueteAttack(regionId) {
   window.confirmConqueteSelection = function() {
     if(selectedIds.length < 5) return;
     selectEl.remove();
-    window._conqueteAttackRegion = regionId;
+    window._conqueteAttackRegion = window._conqueteRegionId;
     _aiDifficulty = region.difficulty;
     showCoinFlip(selectedIds, null);
   };
@@ -8017,6 +8036,19 @@ function checkConqueteVictory() {
   var reward = {easy:50, medium:100, hard:200}[region ? region.difficulty : 'easy'];
   addDrachmes(reward, 'Conquête de ' + name);
 
+  // Bonus région du jour
+  var boosted = getDailyBoostedRegion();
+  var isBoostDay = boosted && boosted.id === regionId && !hasDailyBoostBeenClaimed(regionId);
+  // Paquet de récompense conquête — utilise adminPackPending mais ne doit pas toucher le cooldown
+  user.adminPackPending = (user.adminPackPending || 0) + 1;
+  saveUser();
+
+  if(isBoostDay) {
+    user.conqueteDailyBoost = {date: new Date().toDateString(), regionId: regionId};
+    user.adminPackPending = (user.adminPackPending || 0) + 1;
+    saveUser();
+  }
+
   // Donner la scène de conquête
   var sceneId = 'cq_' + regionId;
   if(!user.scenes) user.scenes = [];
@@ -8027,18 +8059,19 @@ function checkConqueteVictory() {
   var conqueteScene = getLegendaryScene(sceneId);
 
   setTimeout(function(){
-    showConqueteVictoryBanner(name, reward, region ? region.history : '', conqueteScene);
+    showConqueteVictoryBanner(name, reward, region ? region.history : '', conqueteScene, isBoostDay);
   }, 600);
 }
 
-function showConqueteVictoryBanner(name, reward, history, conqueteCard) {
+function showConqueteVictoryBanner(name, reward, history, conqueteCard, isBoostDay) {
   var el = document.createElement('div');
   el.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
   el.innerHTML = '<div style="background:linear-gradient(135deg,#1a1200,#2a1f00);border:2px solid var(--gold);border-radius:16px;max-width:400px;width:100%;padding:28px;text-align:center;">'
     + '<div style="font-size:2rem;margin-bottom:8px;">⚔️</div>'
     + '<div style="font-family:&quot;Cinzel Decorative&quot;,serif;font-size:1rem;color:var(--gold);margin-bottom:6px;">' + name + ' conquise !</div>'
     + '<div style="font-size:0.68rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5;padding:10px;background:rgba(0,0,0,0.3);border-radius:8px;">' + history + '</div>'
-    + '<div style="color:var(--gold);font-family:Cinzel,serif;font-size:0.85rem;margin-bottom:12px;">+' + reward + ' 🪙 drachmes</div>'
+    + '<div style="color:var(--gold);font-family:Cinzel,serif;font-size:0.85rem;margin-bottom:6px;">+' + reward + ' 🪙 drachmes</div>'
+  + (isBoostDay ? '<div style="color:#44dd66;font-family:Cinzel,serif;font-size:0.8rem;margin-bottom:12px;background:rgba(68,221,102,0.1);border:1px solid #44dd66;border-radius:8px;padding:8px;">🔥 Région du jour ! +1 paquet bonus !</div>' : '<div style="margin-bottom:12px;"></div>')
     + (conqueteCard ? '<div style="margin-bottom:14px;padding:10px;background:rgba(200,162,0,0.1);border:1px solid var(--gold);border-radius:8px;text-align:center;">'
       + '<div style="font-family:Cinzel,serif;font-size:0.7rem;color:var(--gold);margin-bottom:8px;">🎴 Carte de Conquête débloquée !</div>'
       + '<img src="'+conqueteCard.img+'" style="width:80px;height:110px;object-fit:cover;border-radius:6px;border:2px solid var(--gold);">'
