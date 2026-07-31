@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5590,6 +5591,24 @@ function renderDeckBuilder(container, savedDeck) {
     }
   }
 
+  function getWeaponOwner(weaponId) {
+    // Associe une arme à son héros via le pack
+    var weaponMap = {
+      'ar1': 'o1',  // Foudre de Zeus -> Zeus
+      'ar2': 'o2',  // Trident de Poséidon -> Poséidon
+      'ar3': 'o3',  // Casque d Hadès -> Hadès
+      'ar4': 'o4',  // Arc d Artémis -> Artémis
+      'ar5': 'o5',  // Lyre d Apollon -> Apollon
+      'ar6': 'o6',  // Masse d Héphaïstos -> Héphaïstos
+      'ar7': 'h1',  // Massue d Héraclès -> Héraclès
+      'ar8': 'h2',  // Épée de Persée -> Persée
+      'ar9': 'h3',  // Lance d Achille -> Achille
+    };
+    return weaponMap[weaponId] || null;
+  }
+
+  var rarityOrder = {'légendaire':0, 'épique':1, 'rare':2, 'commune':3};
+
   function refreshPicks() {
     var pickEl=document.getElementById('deck-pick-grid'); if(!pickEl) return;
     pickEl.innerHTML='';
@@ -5601,8 +5620,34 @@ function renderDeckBuilder(container, savedDeck) {
     } else if(activeFilter !== 'all') {
       filtered = filtered.filter(function(e){ return e.card.rarity === activeFilter && !e.card.id.startsWith('ar'); });
     } else {
+      // Vue "all" : cartes normales + armes intercalées avec leur perso
       filtered = filtered.filter(function(e){ return !e.card.id.startsWith('ar'); });
     }
+
+    // Trier par rareté
+    filtered.sort(function(a, b) {
+      var ra = rarityOrder[a.card.rarity] !== undefined ? rarityOrder[a.card.rarity] : 4;
+      var rb = rarityOrder[b.card.rarity] !== undefined ? rarityOrder[b.card.rarity] : 4;
+      if(ra !== rb) return ra - rb;
+      return (a.card.name || '').localeCompare(b.card.name || '');
+    });
+
+    // Intercaler les armes après leur perso dans la vue "all"
+    if(activeFilter === 'all') {
+      var weapons = unique.filter(function(e){ return e.card.id.startsWith('ar'); });
+      var result = [];
+      filtered.forEach(function(entry) {
+        result.push(entry);
+        // Chercher une arme dont le owner est cette carte
+        weapons.forEach(function(w) {
+          if(getWeaponOwner(w.card.id) === entry.card.id) {
+            result.push(w);
+          }
+        });
+      });
+      filtered = result;
+    }
+
     filtered.forEach(function(entry){
       var key=entry.card.id+(entry.isShiny?'|shiny':'');
       var inDeck=deckIds.includes(key);
@@ -5759,7 +5804,16 @@ function startBattle(deckIds, playerFirst, secretId) {
   if(battleState.bonuses.length) addBattleLog('✨ Bonus famille : '+battleState.bonuses.map(function(b){return FAMILY_BONUS[b].label+' ('+FAMILY_BONUS[b].bonus+')';}).join(', '), 'info');
 
   renderBattle();
-  setTimeout(function(){ showTurnAnnounce('🃏 À TOI DE JOUER', true); }, 200);
+  if(playerFirst) {
+    setTimeout(function(){ showTurnAnnounce('🃏 À TOI DE JOUER', true); }, 200);
+  } else {
+    // L'IA commence
+    battleState.phase = 'ai';
+    setTimeout(function(){
+      showTurnAnnounce('🤖 L IA ATTAQUE EN PREMIER', false);
+      setTimeout(function(){ aiPlaceCards(); renderBattle(); setTimeout(function(){ runAiAttack(0); }, 600); }, 1200);
+    }, 200);
+  }
 }
 
 function addBattleLog(msg, type) {
@@ -7202,7 +7256,7 @@ function checkBattleEnd() {
         + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">'
         + (window._conqueteRegionId
           ? '<button class="combat-btn" onclick="closeCombatScreen(); setTimeout(function(){ showSection(\'conquete\'); initConquete(); }, 300);">🗺️ Retour à la carte</button>'
-            + '<button class="combat-btn sec" onclick="closeCombatScreen(); setTimeout(function(){ launchConqueteAttack(window._conqueteRegionId); }, 300);">🔄 Réessayer</button>'
+            + '<button class="combat-btn sec" onclick="closeCombatScreen(); setTimeout(function(){ if(window._conqueteDeck && window._conqueteDeck.length > 0){ window._conqueteAttackRegion = window._conqueteRegionId; showCoinFlip(window._conqueteDeck, null); } else { launchConqueteAttack(window._conqueteRegionId); } }, 300);">🔄 Réessayer</button>'
           : '<button class="combat-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
             + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>')
         + '</div></div></div>';
@@ -8245,11 +8299,22 @@ function launchConqueteAttack(regionId) {
   var playerLabel = PACK_LABELS[playerPackId] || playerPackId;
 
   // Cartes du joueur disponibles dans cette catégorie + cartes magiques
-  var owned = getUniqueOwned().filter(function(e){
+  var weaponOwnerMapGlobal = {
+    'ar1':'o1','ar2':'o2','ar3':'o3','ar4':'o4','ar5':'o5',
+    'ar6':'o6','ar7':'h1','ar8':'h2','ar9':'h3'
+  };
+  var allOwned = getUniqueOwned();
+  var ownedIds = allOwned.map(function(e){ return e.card.id; });
+  var owned = allOwned.filter(function(e){
     if(e.isShiny) return false;
     var inThemePack = CARDS[playerPackId] && CARDS[playerPackId].some(function(c){ return c.id === e.card.id; });
-    var isMagic = CARDS['armes'] && CARDS['armes'].some(function(c){ return c.id === e.card.id; });
-    return inThemePack || isMagic;
+    if(inThemePack) return true;
+    // Arme : afficher seulement si le perso correspondant est dans la collection ET dans le bon pack
+    if(CARDS['armes'] && CARDS['armes'].some(function(c){ return c.id === e.card.id; })) {
+      var ownerId = weaponOwnerMapGlobal[e.card.id];
+      return ownerId && ownedIds.includes(ownerId) && CARDS[playerPackId] && CARDS[playerPackId].some(function(c){ return c.id === ownerId; });
+    }
+    return false;
   });
 
   if(owned.length < 5) {
@@ -8271,6 +8336,7 @@ function launchConqueteAttack(regionId) {
   // Stocker le matchup pour l'IA
   window._conqueteAttackRegion = regionId;
   window._conqueteMatchup = matchup;
+  window._conqueteDeck = null; // Reset — sera rempli à la sélection
 
   // Forcer la difficulté selon la région
   _aiDifficulty = region.difficulty;
@@ -8318,18 +8384,65 @@ function launchConqueteAttack(regionId) {
       + '</div></div>'
       + '</div>'
       + '<div style="overflow-y:auto;flex:1;padding:12px;">'
-      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'
-      + owned.map(function(e) {
-          var isSelected = selectedIds.indexOf(e.card.id) !== -1;
-          return '<div onclick="toggleConqueteCard(&quot;' + e.card.id + '&quot;)" style="position:relative;cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid ' + (isSelected ? '#ffd700' : 'transparent') + ';opacity:' + (isSelected ? '1' : '0.6') + ';transition:all 0.15s;" id="sel-card-' + e.card.id + '">'
-            + '<img src="' + e.card.img + '" style="width:100%;display:block;">'
-            + '<div style="padding:4px 6px;background:rgba(0,0,0,0.8);">'
-            + '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e.card.name + '</div>'
-            + '<div style="font-size:0.5rem;color:var(--gold);">' + e.card.rarity + '</div>'
-            + '</div>'
-            + (isSelected ? '<div style="position:absolute;top:4px;right:4px;background:#ffd700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#000;font-weight:bold;">' + (selectedIds.indexOf(e.card.id)+1) + '</div>' : '')
-            + '</div>';
-        }).join('')
+      + '<div style="display:flex;flex-direction:column;gap:8px;">'
+      + (function() {
+          var weaponOwnerMap = {
+            'ar1':'o1','ar2':'o2','ar3':'o3','ar4':'o4','ar5':'o5',
+            'ar6':'o6','ar7':'h1','ar8':'h2','ar9':'h3'
+          };
+          var ownerWeaponMap = {};
+          Object.keys(weaponOwnerMap).forEach(function(wid){ ownerWeaponMap[weaponOwnerMap[wid]] = wid; });
+          var ro = {'légendaire':0, 'épique':1, 'rare':2, 'commune':3};
+          var persos = owned.filter(function(e){ return !e.card.id.startsWith('ar'); });
+          var armes = owned.filter(function(e){ return e.card.id.startsWith('ar'); });
+          persos.sort(function(a,b){
+            var ra = ro[a.card.rarity] !== undefined ? ro[a.card.rarity] : 4;
+            var rb = ro[b.card.rarity] !== undefined ? ro[b.card.rarity] : 4;
+            return ra !== rb ? ra - rb : (a.card.name||'').localeCompare(b.card.name||'');
+          });
+          function cardHTML(e) {
+            var isSelected = selectedIds.indexOf(e.card.id) !== -1;
+            return '<div onclick="toggleConqueteCard(&quot;' + e.card.id + '&quot;)" style="position:relative;cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid ' + (isSelected ? '#ffd700' : 'transparent') + ';opacity:' + (isSelected ? '1' : '0.6') + ';transition:all 0.15s;flex:1;" id="sel-card-' + e.card.id + '">'
+              + '<img src="' + e.card.img + '" style="width:100%;display:block;">'
+              + '<div style="padding:4px 6px;background:rgba(0,0,0,0.8);">'
+              + '<div style="font-family:Cinzel,serif;font-size:0.55rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + e.card.name + '</div>'
+              + '<div style="font-size:0.5rem;color:var(--gold);">' + e.card.rarity + '</div>'
+              + '</div>'
+              + (isSelected ? '<div style="position:absolute;top:4px;right:4px;background:#ffd700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#000;font-weight:bold;">' + (selectedIds.indexOf(e.card.id)+1) + '</div>' : '')
+              + '</div>';
+          }
+          // Construire les lignes de 4 cartes max
+          var rows = [];
+          var currentRow = [];
+          var usedWeapons = {};
+          persos.forEach(function(p) {
+            var weaponId = ownerWeaponMap[p.card.id];
+            var weapon = weaponId ? armes.find(function(w){ return w.card.id === weaponId; }) : null;
+            if(weapon) {
+              // Perso + arme = 2 cases
+              if(currentRow.length > 2) { rows.push(currentRow); currentRow = []; }
+              currentRow.push(cardHTML(p));
+              currentRow.push(cardHTML(weapon));
+              usedWeapons[weaponId] = true;
+              if(currentRow.length >= 4) { rows.push(currentRow); currentRow = []; }
+            } else {
+              // Perso seul
+              currentRow.push(cardHTML(p));
+              if(currentRow.length >= 4) { rows.push(currentRow); currentRow = []; }
+            }
+          });
+          // Armes sans perso
+          armes.forEach(function(w) {
+            if(!usedWeapons[w.card.id]) {
+              currentRow.push(cardHTML(w));
+              if(currentRow.length >= 4) { rows.push(currentRow); currentRow = []; }
+            }
+          });
+          if(currentRow.length) rows.push(currentRow);
+          return rows.map(function(row){
+            return '<div style="display:flex;gap:8px;">' + row.join('') + '</div>';
+          }).join('');
+        })()
       + '</div></div>';
     var scrollEl = selectEl.querySelector('[style*=overflow-y]');
     if(scrollEl) scrollEl.scrollTop = scrollPos;
@@ -8379,7 +8492,8 @@ function launchConqueteAttack(regionId) {
   window.confirmConqueteSelection = function() {
     if(selectedIds.length < 5) return;
     selectEl.remove();
-    window._conqueteAttackRegion = window._conqueteRegionId;
+    window._conqueteAttackRegion = regionId;
+    window._conqueteDeck = selectedIds.slice(); // Sauvegarder le deck
     _aiDifficulty = region.difficulty;
     showCoinFlip(selectedIds, null);
   };
@@ -8447,15 +8561,67 @@ function checkConqueteVictory() {
   // Donner la scène de conquête
   var sceneId = 'cq_' + regionId;
   if(!user.scenes) user.scenes = [];
-  if(!user.scenes.includes(sceneId)) {
+  var isNewScene = !user.scenes.includes(sceneId);
+  if(isNewScene) {
     user.scenes.push(sceneId);
     saveUser();
   }
   var conqueteScene = getLegendaryScene(sceneId);
 
   setTimeout(function(){
-    showConqueteVictoryBanner(name, reward, region ? region.history : '', conqueteScene, isBoostDay);
+    // Popup scène légendaire si nouvelle scène débloquée
+    if(conqueteScene && isNewScene) {
+      showConqueteScenePopup(conqueteScene, function(){
+        showConqueteVictoryBanner(name, reward, region ? region.history : '', conqueteScene, isBoostDay);
+      });
+    } else {
+      showConqueteVictoryBanner(name, reward, region ? region.history : '', conqueteScene, isBoostDay);
+    }
   }, 600);
+}
+
+function showConqueteScenePopup(scene, callback) {
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  var inner = document.createElement('div');
+  inner.style.cssText = 'text-align:center;max-width:360px;width:100%;';
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Cinzel Decorative,serif;font-size:0.75rem;color:var(--gold);letter-spacing:0.2em;margin-bottom:16px;opacity:0.8;';
+  title.textContent = 'SCENE LEGENDAIRE DEBLOQUEE';
+  inner.appendChild(title);
+
+  var imgWrap = document.createElement('div');
+  imgWrap.style.cssText = 'position:relative;display:inline-block;margin-bottom:16px;';
+  var img = document.createElement('img');
+  img.src = scene.img || '';
+  img.style.cssText = 'width:220px;border-radius:12px;border:3px solid var(--gold);box-shadow:0 0 30px rgba(218,165,32,0.6);display:block;';
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;border-radius:12px;background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,0.8));';
+  var nameEl = document.createElement('div');
+  nameEl.style.cssText = 'position:absolute;bottom:10px;left:0;right:0;font-family:Cinzel Decorative,serif;font-size:0.75rem;color:var(--gold);';
+  nameEl.textContent = scene.name || '';
+  imgWrap.appendChild(img);
+  imgWrap.appendChild(overlay);
+  imgWrap.appendChild(nameEl);
+  inner.appendChild(imgWrap);
+
+  if(scene.desc) {
+    var desc = document.createElement('div');
+    desc.style.cssText = 'font-size:0.65rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:20px;padding:0 10px;';
+    desc.textContent = scene.desc;
+    inner.appendChild(desc);
+  }
+
+  var btn = document.createElement('button');
+  btn.style.cssText = 'padding:12px 32px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:10px;color:white;font-family:Cinzel,serif;font-size:0.75rem;font-weight:700;cursor:pointer;letter-spacing:0.1em;';
+  btn.textContent = 'Continuer';
+  btn.onclick = function(){ el.remove(); if(callback) callback(); };
+  inner.appendChild(btn);
+
+  el.appendChild(inner);
+  document.body.appendChild(el);
 }
 
 function showConqueteVictoryBanner(name, reward, history, conqueteCard, isBoostDay) {
