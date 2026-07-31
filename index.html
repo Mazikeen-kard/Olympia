@@ -2090,8 +2090,22 @@ function showLegalModal(title, bodyHtml) {
     + bodyHtml
     + '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="width:100%;margin-top:20px;padding:10px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:white;font-family:Cinzel,serif;font-size:0.65rem;cursor:pointer;">Fermer</button>'
     + '</div>';
-  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  function closeLegal() {
+    overlay.remove();
+    var rulesModal = document.getElementById('rules-modal');
+    if(rulesModal) rulesModal.classList.add('open');
+  }
+  overlay.onclick = function(e){ if(e.target===overlay) closeLegal(); };
+  // Remplacer le bouton fermer
+  overlay.querySelector('button[onclick*="closest"]') && (overlay.querySelector('button[onclick*="closest"]').onclick = closeLegal);
   document.body.appendChild(overlay);
+  // Rebind après insertion
+  overlay.querySelectorAll('button').forEach(function(btn){
+    if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('closest')) {
+      btn.removeAttribute('onclick');
+      btn.onclick = closeLegal;
+    }
+  });
 }
 
 function showPrivacyPolicy() {
@@ -2216,7 +2230,7 @@ function showWelcomeTutorial() {
       var rect = targetEl.getBoundingClientRect();
       var pad = 8;
       var spotlight = document.createElement('div');
-      spotlight.style.cssText = 'position:fixed;z-index:2002;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.75);pointer-events:none;'
+      spotlight.style.cssText = 'position:fixed;z-index:2002;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.75);pointer-events:none;background:transparent;'
         + 'left:' + (rect.left - pad) + 'px;top:' + (rect.top - pad) + 'px;'
         + 'width:' + (rect.width + pad*2) + 'px;height:' + (rect.height + pad*2) + 'px;'
         + 'border:2px solid var(--gold);';
@@ -7124,6 +7138,51 @@ function checkBattleEnd() {
   if(!battleState) return;
   var s = battleState;
   if(s._ending) return; // déjà en cours de fin
+
+  // Fin par épuisement des decks et mains vides
+  var allCardsGone = s.playerDeck.length === 0 && s.aiDeck.length === 0
+    && s.playerHand.length === 0 && s.aiHand.length === 0
+    && s.playerField.length === 0 && s.aiField.length === 0;
+
+  if(allCardsGone && s.playerHp > 0 && s.aiHp > 0) {
+    s._ending = true;
+    var won = s.playerHp > s.aiHp;
+    var tied = s.playerHp === s.aiHp;
+    playSound(won || tied ? 'victory' : 'defeat');
+    setTimeout(function() {
+      var content = document.getElementById('combat-screen-content');
+      if(!content) return;
+      var title, icon, desc;
+      if(tied) {
+        title = 'Egalite !'; icon = '🤝';
+        desc = 'Meme nombre de PV ! Les deux combattants sont a egalite. +8 Drachmes';
+        if(won !== false) addDrachmes(8, 'Egalite combat');
+      } else if(won) {
+        title = 'Victoire !'; icon = '👑';
+        desc = 'Tu avais plus de PV — tu remportes le combat ! +15 Drachmes';
+      } else {
+        title = 'Defaite...'; icon = '💀';
+        desc = 'L IA avait plus de PV. Retente ta chance !';
+      }
+      addBattleLog('⚔️ Decks epuises ! ' + (tied ? 'Egalite' : (won ? 'Victoire aux PV !' : 'Defaite aux PV.')), won || tied ? 'hit' : 'miss');
+      content.innerHTML = '<div style="text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;" id="victory-screen">'
+        + (won ? '<img src="https://i.imgur.com/fbk0KOi.jpeg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.4;pointer-events:none;">' : '')
+        + '<div style="position:relative;z-index:4;padding:40px 20px;">'
+        + '<div style="font-size:4rem;margin-bottom:16px;">' + icon + '</div>'
+        + '<div style="font-family:Cinzel Decorative,serif;font-size:1.4rem;color:var(--gold);margin-bottom:10px;">' + title + '</div>'
+        + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:8px;">' + desc + '</div>'
+        + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-bottom:24px;">Tes PV : ' + s.playerHp + ' | PV IA : ' + s.aiHp + '</div>'
+        + '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">'
+        + (window._conqueteRegionId
+          ? '<button class="combat-btn" onclick="closeCombatScreen(); setTimeout(function(){ showSection(\'conquete\'); initConquete(); }, 300);">🗺️ Retour a la carte</button>'
+          : '<button class="combat-btn" onclick="startBattle(user.deck||[])">🔄 Rejouer</button>'
+            + '<button class="combat-btn sec" onclick="closeCombatScreen()">📋 Deck</button>')
+        + '</div></div></div>';
+      if(won) { checkConqueteVictory(); }
+    }, 600);
+    return;
+  }
+
   if(s.playerHp <= 0 || s.aiHp <= 0) {
     s._ending = true;
     var won = s.aiHp <= 0;
