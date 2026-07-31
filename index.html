@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -749,12 +750,12 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <button class="quit-btn" id="btn-quit">✕</button>
   </div>
   <nav style="display:flex;justify-content:space-around;flex-wrap:nowrap;">
-    <button class="nav-btn active" data-sec="packs"><img src="https://i.imgur.com/6wJXCrA.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Paquets</span></button>
-    <button class="nav-btn" data-sec="collection"><img src="https://i.imgur.com/TbzQFfh.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
-    <button class="nav-btn" data-sec="minijeux"><img src="https://i.imgur.com/STQkIeu.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
-    <button class="nav-btn" data-sec="combat" id="nav-combat"><img src="https://i.imgur.com/1Dp8qEi.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
-    <button class="nav-btn" data-sec="conquete"><img src="https://i.imgur.com/Iu8tc6o.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Conquête</span></button>
-    <button class="nav-btn" data-sec="boutique"><img src="https://i.imgur.com/MNqaUqS.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
+    <button class="nav-btn active" id="nav-btn-packs" data-sec="packs"><img src="https://i.imgur.com/6wJXCrA.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Paquets</span></button>
+    <button class="nav-btn" id="nav-btn-collection" data-sec="collection"><img src="https://i.imgur.com/TbzQFfh.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Collection</span></button>
+    <button class="nav-btn" id="nav-btn-minijeux" data-sec="minijeux"><img src="https://i.imgur.com/STQkIeu.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Mini-Jeux</span></button>
+    <button class="nav-btn" data-sec="combat" id="nav-btn-combat"><img src="https://i.imgur.com/1Dp8qEi.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Combat</span></button>
+    <button class="nav-btn" id="nav-btn-conquete" data-sec="conquete"><img src="https://i.imgur.com/Iu8tc6o.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Conquête</span></button>
+    <button class="nav-btn" id="nav-btn-boutique" data-sec="boutique"><img src="https://i.imgur.com/MNqaUqS.png" style="width:28px;height:28px;object-fit:contain;"><span style="font-size:0.38rem;letter-spacing:0.05em;">Boutique</span></button>
     <button class="nav-btn" data-sec="admin" id="nav-admin" style="display:none;color:#cc2233;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7ZM12 17C10 17 8.2 15.9 7.2 14.2C7.2 12.5 10 11.5 12 11.5C14 11.5 16.8 12.5 16.8 14.2C15.8 15.9 14 17 12 17Z"/></svg><span style="font-size:0.38rem;letter-spacing:0.05em;">Admin</span></button>
   </nav>
 
@@ -945,9 +946,31 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
       2 paquets offerts à la première connexion. Ensuite : 1 <strong style="color:var(--gold)">paquet du jour</strong> chaque matin + 1 paquet toutes les <strong style="color:var(--gold)">1h30</strong>. Fais glisser ou tape le paquet pour l'ouvrir, puis swipe chaque carte pour la découvrir.
     </div>
 
-    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⭐ Raretés</div>
-    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">
-      <span style="color:#7a9eb5">⚪ Commune</span> · <span style="color:#2255cc">🔵 Rare</span> · <span style="color:#7722cc">🟣 Épique</span> · <span style="color:#cc7700">🟡 Légendaire</span> · <span style="color:#ff44aa">✦ Shiny</span> (très rare — version alternative illustrée !)
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⭐ Raretés & Chances</div>
+    <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.8;margin-bottom:6px;">
+      Chaque paquet contient <strong style="color:var(--gold)">4 cartes</strong> avec au moins 1 rare garantie.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
+      <div style="background:rgba(122,158,181,0.1);border:1px solid #7a9eb5;border-radius:8px;padding:8px;text-align:center;">
+        <div style="color:#7a9eb5;font-family:Cinzel,serif;font-size:0.65rem;">⚪ Commune</div>
+        <div style="color:white;font-family:Cinzel Decorative,serif;font-size:1rem;">70%</div>
+      </div>
+      <div style="background:rgba(34,85,204,0.1);border:1px solid #2255cc;border-radius:8px;padding:8px;text-align:center;">
+        <div style="color:#2255cc;font-family:Cinzel,serif;font-size:0.65rem;">🔵 Rare</div>
+        <div style="color:white;font-family:Cinzel Decorative,serif;font-size:1rem;">20%</div>
+      </div>
+      <div style="background:rgba(119,34,204,0.1);border:1px solid #7722cc;border-radius:8px;padding:8px;text-align:center;">
+        <div style="color:#7722cc;font-family:Cinzel,serif;font-size:0.65rem;">🟣 Épique</div>
+        <div style="color:white;font-family:Cinzel Decorative,serif;font-size:1rem;">8%</div>
+      </div>
+      <div style="background:rgba(204,119,0,0.1);border:1px solid #cc7700;border-radius:8px;padding:8px;text-align:center;">
+        <div style="color:#cc7700;font-family:Cinzel,serif;font-size:0.65rem;">🟡 Légendaire</div>
+        <div style="color:white;font-family:Cinzel Decorative,serif;font-size:1rem;">2%</div>
+      </div>
+      <div style="background:rgba(255,68,170,0.1);border:1px solid #ff44aa;border-radius:8px;padding:8px;text-align:center;grid-column:1/-1;">
+        <div style="color:#ff44aa;font-family:Cinzel,serif;font-size:0.65rem;">✦ Shiny</div>
+        <div style="color:white;font-family:Cinzel Decorative,serif;font-size:1rem;">2% <span style="font-size:0.55rem;color:rgba(255,255,255,0.5);">(version alternative illustrée)</span></div>
+      </div>
     </div>
 
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">⚔️ Combat</div>
@@ -988,6 +1011,11 @@ nav{background:var(--bg-mid);border-top:1px solid var(--border);border-bottom:no
     <div style="border-top:1px solid var(--border);padding-top:16px;text-align:center;">
       <div style="font-family:'Cinzel',serif;font-size:0.6rem;color:var(--text-dim);margin-bottom:10px;">Un bug ? Une suggestion ? Écris-nous !</div>
       <button onclick="window.location.href='mailto:mazikeen.e@icloud.com?subject=Olympia%20-%20Contact&body=Bonjour%2C%0A%0A'" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));border:none;color:white;font-family:Cinzel,serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;padding:10px 24px;border-radius:8px;cursor:pointer;">✉️ Contacter l'équipe</button>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:14px;">
+        <button onclick="showPrivacyPolicy()" style="background:none;border:none;color:var(--text-dim);font-family:Cinzel,serif;font-size:0.55rem;cursor:pointer;text-decoration:underline;">Politique de confidentialité</button>
+        <button onclick="showCGU()" style="background:none;border:none;color:var(--text-dim);font-family:Cinzel,serif;font-size:0.55rem;cursor:pointer;text-decoration:underline;">CGU</button>
+      </div>
+      <div style="font-family:Cinzel,serif;font-size:0.48rem;color:var(--text-dim);margin-top:10px;">Olympia v1.0 — © 2025 Mazikeen. Tous droits réservés.</div>
     </div>
   </div>
 </div>
@@ -1069,7 +1097,7 @@ var LEGENDARY_SCENES = [
     name: 'Bienvenue dans l\'Olympe',
     img: 'https://i.imgur.com/tXP04u8.jpeg',
     icon: '🚪',
-    lore: 'Aux confins du monde mortel, Hermès, fils de Zeus et messager ailé, guide les âmes égarées vers leur destinée. Il fut le premier à franchir les portes de l\'Olympe pour porter la parole des dieux aux hommes. Aujourd\'hui, c\'est lui qui t\'accueille, voyageur, et t\'invite à écrire ta propre légende parmi les héros et les titans.',
+    lore: 'Aux confins du monde mortel, Hermès, fils de Zeus et messager ailé, guide les âmes égarées vers leur destinée. Il fut le premier à franchir les portes de l\'Olympe pour porter la parole des dieux aux hommes. Aujourd\'hui, c est lui qui t\'accueille, voyageur, et t\'invite à écrire ta propre légende parmi les héros et les titans.',
     obtainedBy: 'gift'
   },
   {
@@ -1077,7 +1105,7 @@ var LEGENDARY_SCENES = [
     name: 'Le Sanctuaire Révélé',
     img: 'https://i.imgur.com/DlDwlsI.jpeg',
     icon: '🏛️',
-    lore: 'Dans la mythologie grecque, l\'aigle est l\'animal sacré de Zeus — son messager et le porteur de sa foudre. Selon la légende, c\'est sous cette forme que Zeus enleva le jeune prince troyen Ganymède pour en faire l\'échanson des dieux : celui chargé de leur servir le nectar lors des banquets de l\'Olympe. En son honneur, Zeus plaça Ganymède parmi les étoiles, devenu la constellation du Verseau. Aujourd\'hui, cent paquets plus tard, c\'est sous le regard de cet aigle doré que Zeus, Athéna et Poséidon t\'accueillent enfin dans la salle du trône — reconnaissant en toi la persévérance digne d\'un héros.',
+    lore: 'Dans la mythologie grecque, l\'aigle est l\'animal sacré de Zeus — son messager et le porteur de sa foudre. Selon la légende, c est sous cette forme que Zeus enleva le jeune prince troyen Ganymède pour en faire l\'échanson des dieux : celui chargé de leur servir le nectar lors des banquets de l\'Olympe. En son honneur, Zeus plaça Ganymède parmi les étoiles, devenu la constellation du Verseau. Aujourd\'hui, cent paquets plus tard, c est sous le regard de cet aigle doré que Zeus, Athéna et Poséidon t\'accueillent enfin dans la salle du trône — reconnaissant en toi la persévérance digne d\'un héros.',
     obtainedBy: 'packs100'
   },
   {
@@ -1096,9 +1124,9 @@ var LEGENDARY_SCENES = [
   {id:'cq_epire', name:'Épire', icon:'🗡', img:'https://i.imgur.com/sgnEo3N.jpeg', obtainedBy:'conquete',
    lore:'L\'Épire tirait son nom d\'Épiron, descendant d\'Achille selon la légende. C\'est ici que se trouvait Dodone, l\'oracle le plus ancien de Grèce — plus vieux que Delphes — où Zeus parlait à travers le bruissement des feuilles d\'un chêne sacré. Pyrrhus, son roi le plus célèbre, était si redoutable qu\'Hannibal le plaçait au-dessus d\'Alexandre.'},
   {id:'cq_beoitie', name:'Béotie', icon:'🛡', img:'https://i.imgur.com/asRGPRb.jpeg', obtainedBy:'conquete',
-   lore:'La Béotie était la terre d\'Héraclès, né à Thèbes de Zeus et d\'une mortelle. C\'est aussi là que fut fondé le Bataillon Sacré — cent cinquante paires d\'amants soldats inspirés par le mythe d\'Achille et Patrocle. Invincibles pendant vingt ans, ils furent brisés par Alexandre à Chéronée en 338 av. J.-C. Pas un seul ne survécut.'},
+   lore:'La Béotie était la terre d\'Héraclès, né à Thèbes de Zeus et d une mortelle. C\'est aussi là que fut fondé le Bataillon Sacré — cent cinquante paires d\'amants soldats inspirés par le mythe d\'Achille et Patrocle. Invincibles pendant vingt ans, ils furent brisés par Alexandre à Chéronée en 338 av. J.-C. Pas un seul ne survécut.'},
   {id:'cq_athenes', name:'Athènes', icon:'🦉', img:'https://i.imgur.com/ayWCeCb.jpeg', obtainedBy:'conquete',
-   lore:'Athènes doit son nom à la déesse Athéna, qui l\'emporta sur Poséidon en offrant l\'olivier aux Athéniens. Historiquement, c\'est ici que naquit la démocratie, la philosophie et le théâtre. À Marathon en 490 av. J.-C., dix mille Athéniens chargèrent en courant et repoussèrent à la mer une armée perse trois fois plus nombreuse.'},
+   lore:'Athènes doit son nom à la déesse Athéna, qui l\'emporta sur Poséidon en offrant l\'olivier aux Athéniens. Historiquement, c est ici que naquit la démocratie, la philosophie et le théâtre. À Marathon en 490 av. J.-C., dix mille Athéniens chargèrent en courant et repoussèrent à la mer une armée perse trois fois plus nombreuse.'},
   {id:'cq_corinthe', name:'Corinthe', icon:'⚓', img:'https://i.imgur.com/cQElnXG.jpeg', obtainedBy:'conquete',
    lore:'Corinthe était selon la légende fondée par Sisyphe — le mortel qui trompa la mort deux fois et fut condamné à rouler éternellement son rocher. Historiquement, maîtresse de deux mers, c\'était la cité la plus riche de Grèce. Alexandre en fit le siège de sa Ligue panhellénique en 337 av. J.-C. — l\'alliance qui unit pour la première fois toutes les cités grecques.'},
   {id:'cq_sparte', name:'Sparte', icon:'⚔', img:'https://i.imgur.com/Q4apJk7.jpeg', obtainedBy:'conquete',
@@ -1106,13 +1134,13 @@ var LEGENDARY_SCENES = [
   {id:'cq_ithaque', name:'Ithaque', icon:'⛵', img:'https://i.imgur.com/NpHAbi6.jpeg', obtainedBy:'conquete',
    lore:'Ithaque était le royaume d\'Ulysse, le plus rusé des héros grecs — fils de Laërte mais certains disaient fils secret d\'Hermès, dieu des voleurs et des ruses. Après dix ans de guerre à Troie, il erra dix ans supplémentaires, affrontant Cyclopes, Sirènes et la nymphe Calypso. Il rentra seul, déguisé en mendiant, pour retrouver Pénélope qui l\'attendait encore.'},
   {id:'cq_lesbos', name:'Lesbos', icon:'📜', img:'https://i.imgur.com/XPOj62I.jpeg', obtainedBy:'conquete',
-   lore:'Lesbos était selon la légende l\'île d\'Orphée — dont la tête, tranchée par les Ménades, aurait dérivé jusqu\'à ses rivages en continuant à chanter. Historiquement, au VIe siècle av. J.-C., la poétesse Sappho y écrivit des vers d\'une intensité que Platon appelait la dixième Muse. Sur neuf livres de poèmes, il ne reste que des fragments — mais ils suffisent à l\'immortalité.'},
+   lore:'Lesbos était selon la légende l\'île d\'Orphée — dont la tête, tranchée par les Ménades, aurait dérivé jusqu\'à ses rivages en continuant à chanter. Historiquement, au VIe siècle av. J.-C., la poétesse Sappho y écrivit des vers d une intensité que Platon appelait la dixième Muse. Sur neuf livres de poèmes, il ne reste que des fragments — mais ils suffisent à l\'immortalité.'},
   {id:'cq_delos', name:'Délos', icon:'☀', img:'https://i.imgur.com/9NV3otO.jpeg', obtainedBy:'conquete',
-   lore:'Délos était selon la mythologie l\'île errante sur laquelle Léto, poursuivie par la jalousie d\'Héra, put enfin accoucher d\'Apollon et Artémis. Si sainte qu\'il était interdit d\'y naître ou d\'y mourir, elle devint le centre religieux de toute la mer Égée — et paradoxalement, la plus grande place de commerce d\'esclaves du monde grec.'},
+   lore:'Délos était selon la mythologie l\'île errante sur laquelle Léto, poursuivie par la jalousie d\'Héra, put enfin accoucher d\'Apollon et Artémis. Si sainte qu il était interdit d\'y naître ou d\'y mourir, elle devint le centre religieux de toute la mer Égée — et paradoxalement, la plus grande place de commerce d\'esclaves du monde grec.'},
   {id:'cq_rhodes', name:'Rhodes', icon:'🗿', img:'https://i.imgur.com/o3UoZVz.jpeg', obtainedBy:'conquete',
    lore:'Rhodes tirait son nom de la nymphe Rhodé, fille de Poséidon et amante d\'Hélios le dieu-soleil. En son honneur, les Rhodiens érigèrent en 280 av. J.-C. le Colosse — une statue d\'Hélios de trente mètres, l\'une des sept merveilles du monde. Un tremblement de terre la renversa cinquante-six ans plus tard. Les débris restèrent sur place neuf cents ans, trop imposants pour être déplacés.'},
   {id:'cq_crete', name:'Crète', icon:'🐂', img:'https://i.imgur.com/CblfFKb.jpeg', obtainedBy:'conquete',
-   lore:'La Crète était le royaume de Minos, fils de Zeus et d\'Europe — une mortelle que Zeus avait enlevée sous la forme d\'un taureau blanc. De cette union divine naquit la civilisation minoenne, la plus ancienne d\'Europe. Au cœur du palais de Knossos vivait le Minotaure, né d\'une malédiction de Poséidon. Thésée le tua. Mais les ruines du Labyrinthe existent encore aujourd\'hui.'}
+   lore:'La Crète était le royaume de Minos, fils de Zeus et d\'Europe — une mortelle que Zeus avait enlevée sous la forme d\'un taureau blanc. De cette union divine naquit la civilisation minoenne, la plus ancienne d\'Europe. Au cœur du palais de Knossos vivait le Minotaure, né d une malédiction de Poséidon. Thésée le tua. Mais les ruines du Labyrinthe existent encore aujourd\'hui.'}
 ];
 
 function checkSceneUnlocks() {
@@ -1161,7 +1189,7 @@ var CARDS = {
     {id:'o20',name:'Éros',icon:'💘',type:'Dieu de l\'Amour',rarity:'commune',atk:583,def:1552,atkName:'Flèche Dorée',lore:'Fils d\'Aphrodite, sa flèche dorée rend amoureux instantanément quiconque elle touche.',at:'#f8e8e8',ab:'#f0c8c8',img:'https://i.imgur.com/oi9QSCx.jpeg',imgShiny:'https://i.imgur.com/uAihnED.jpeg'},
   ],
   titans:[
-    {id:'t1',name:'Cronos',icon:'⏳',type:'Roi des Titans',rarity:'légendaire',atk:2618,def:1770,atkName:'Faucille du Temps',lore:'Père de Zeus, il dévora ses propres enfants par crainte d\'une prophétie.',at:'#e8e0f0',ab:'#c8b8e8',img:'https://i.imgur.com/RCsBYRt.jpeg'},
+    {id:'t1',name:'Cronos',icon:'⏳',type:'Roi des Titans',rarity:'légendaire',atk:2618,def:1770,atkName:'Faucille du Temps',lore:'Père de Zeus, il dévora ses propres enfants par crainte d une prophétie.',at:'#e8e0f0',ab:'#c8b8e8',img:'https://i.imgur.com/RCsBYRt.jpeg'},
     {id:'t2',name:'Atlas',icon:'🌍',type:'Titan Porteur',rarity:'légendaire',atk:2044,def:1970,atkName:'Poids du Monde',lore:'Condamné à porter la voûte céleste sur ses épaules pour l\'éternité.',at:'#e0e8f0',ab:'#b8c8e0',img:'https://i.imgur.com/htM2hEr.jpeg',imgShiny:'https://i.imgur.com/7P768Ld.jpeg'},
     {id:'t3',name:'Prométhée',icon:'🔥',type:'Titan Bienfaiteur',rarity:'légendaire',atk:2549,def:1627,atkName:'Feu Volé',lore:'Il vola le feu aux dieux pour le donner aux hommes. Condamné à être torturé éternellement.',at:'#f8ece0',ab:'#f0c8a0',img:'https://i.imgur.com/oqaeW00.jpeg'},
     {id:'t4',name:'Océanos',icon:'🌊',type:'Titan des Eaux',rarity:'épique',atk:1998,def:1393,atkName:'Déluge Primordial',lore:'Titan personnifiant l\'océan qui entoure le monde. Père de tous les fleuves.',at:'#e0f0f8',ab:'#b0d8f0',img:'https://i.imgur.com/dSf9XfY.jpeg',imgShiny:'https://i.imgur.com/xUjeGMh.jpeg'},
@@ -1227,7 +1255,7 @@ var CARDS = {
     {id:'h18',name:'Œdipe',icon:'🦯',type:'Roi Maudit',rarity:'épique',atk:1893,def:1528,atkName:'Réponse du Sphinx',lore:'Roi de Thèbes qui répondit à l\'énigme du Sphinx et accomplit la prophétie tragique.',at:'#e8e0e8',ab:'#d0c8d0',img:'https://i.imgur.com/CM29fW6.jpeg'},
     {id:'h19',name:'Chiron',icon:'🏹',type:'Centaure Sage',rarity:'épique',atk:1674,def:1257,atkName:'Sagesse du Maître',lore:'Le plus sage des centaures, précepteur d\'Achille, Jason et Asclépios.',at:'#e8f0e8',ab:'#c8e0c8',img:'https://i.imgur.com/YK4cL9i.jpeg'},
     {id:'h21',name:'Icare',icon:'🪽',type:'Fils de Dédale',rarity:'commune',atk:550,def:1645,atkName:'Vol du Soleil',lore:'Fils de Dédale, il s\'envola avec des ailes de cire mais s\'approcha trop du soleil. Sa chute est le symbole de l\'orgueil.',at:'#f8f0d8',ab:'#f0e0a0',img:'https://i.imgur.com/v8me49w.jpeg'},
-    {id:'h22',name:'Midas',icon:'👑',type:'Roi Maudit',rarity:'commune',atk:480,def:1664,atkName:'Toucher d\'Or',lore:'Roi auquel Dionysos accorda le don de transformer tout ce qu\'il touchait en or. Une bénédiction qui devint malédiction.',at:'#f8f0e0',ab:'#f0e0c0',img:'https://i.imgur.com/fmOKbuM.jpeg'},
+    {id:'h22',name:'Midas',icon:'👑',type:'Roi Maudit',rarity:'commune',atk:480,def:1664,atkName:'Toucher d\'Or',lore:'Roi auquel Dionysos accorda le don de transformer tout ce qu il touchait en or. Une bénédiction qui devint malédiction.',at:'#f8f0e0',ab:'#f0e0c0',img:'https://i.imgur.com/fmOKbuM.jpeg'},
     {id:'h23',name:'Pénélope',icon:'🧶',type:'Reine Fidèle',rarity:'commune',atk:401,def:1469,atkName:'Toile Infinie',lore:'Épouse d\'Ulysse, elle attendit son retour vingt ans en défaisant chaque nuit la toile qu\'elle tissait le jour.',at:'#f0e8f0',ab:'#e0c8e0',img:'https://i.imgur.com/Fjqrbqz.jpeg',imgShiny:'https://i.imgur.com/qNXVnEM.jpeg'},
     {id:'h24',name:'Pandore',icon:'📦',type:'Première Femme',rarity:'commune',atk:656,def:1382,atkName:'Boîte Maudite',lore:'Première femme créée par les dieux, elle ouvrit la jarre qui libéra tous les maux du monde, ne gardant que l\'espoir.',at:'#f0e8e0',ab:'#e0d0c0',img:'https://i.imgur.com/AbZ9qWv.jpeg'},
     {id:'h25',name:'Léonidas',icon:'🛡️',type:'Roi de Sparte',rarity:'épique',atk:1759,def:1254,atkName:'Aux Armes Spartiates',lore:'Roi de Sparte qui mena 300 guerriers aux Thermopyles contre l\'armée perse. Son sacrifice est légendaire.',at:'#e8e0e0',ab:'#d8c8c8',img:'https://i.imgur.com/66zXmF5.jpeg'},
@@ -1273,7 +1301,7 @@ var CARDS = {
     {id:'ar13',name:'Flèche d\'Artémis',icon:'🌙',type:'Flèche Lunaire',rarity:'rare',atk:934,def:816,atkName:'Tir de Lune',lore:'Les flèches d\'Artémis apportent une mort douce comme un paisible sommeil.',at:'#e0e0f0',ab:'#c8c8e8',img:'https://i.imgur.com/bS4zaTO.jpeg'},
     {id:'ar14',name:'Harpé',icon:'🗡️',type:'Épée Recourbée',rarity:'rare',atk:1340,def:969,atkName:'Lame Adamantine',lore:'Épée recourbée en adamant offerte par Hermès à Persée. Son tranchant coupe tout.',at:'#e8e8e0',ab:'#d8d8c8',img:'https://i.imgur.com/b5Ew8ME.jpeg'},
     {id:'ar16',name:'Casque de Dédale',icon:'⛑️',type:'Invention Mortelle',rarity:'commune',atk:436,def:1726,atkName:'Ailes de Cire',lore:'Casque créé par le génie Dédale pour son fils Icare. Symbole de l\'ingéniosité humaine et de ses limites.',at:'#e8e8e0',ab:'#d8d8c8',img:'https://i.imgur.com/47yZ38P.jpeg'},
-    {id:'ar17',name:'Fil d\'Ariane',icon:'🧵',type:'Objet Magique',rarity:'commune',atk:521,def:1485,atkName:'Guide Invisible',lore:'Fil donné par Ariane à Thésée pour qu\'il retrouve son chemin dans le labyrinthe après avoir tué le Minotaure.',at:'#f0e8f8',ab:'#e0c8f0',img:'https://i.imgur.com/lq90gSp.jpeg'},
+    {id:'ar17',name:'Fil d\'Ariane',icon:'🧵',type:'Objet Magique',rarity:'commune',atk:521,def:1485,atkName:'Guide Invisible',lore:'Fil donné par Ariane à Thésée pour qu il retrouve son chemin dans le labyrinthe après avoir tué le Minotaure.',at:'#f0e8f8',ab:'#e0c8f0',img:'https://i.imgur.com/lq90gSp.jpeg'},
     {id:'ar15',name:'Épée de Damoclès',icon:'⚔️',type:'Épée du Destin',rarity:'commune',atk:648,def:1419,atkName:'Menace Suspendue',lore:'Suspendue par un fil, symbole du danger permanent qui pèse sur les puissants.',at:'#e8e0e0',ab:'#d8c8c8',img:'https://i.imgur.com/ijnHspq.jpeg'},
     {id:'ar18',name:'Serpents de Méduse',icon:'🐍',type:'Arme Maudite',rarity:'épique',atk:1776,def:1267,atkName:'Regard Pétrifiant',lore:'Les serpents de Méduse peuvent pétrifier quiconque croise leur regard.',at:'#d8e0d0',ab:'#b8c8b0',img:'https://i.imgur.com/OIGIjSn.jpeg'},
     {id:'ar19',name:'Chaînes de Cerbère',icon:'⛓️',type:'Lien Infernal',rarity:'épique',atk:1870,def:1492,atkName:'Emprisonnement',lore:'Les chaînes divines qui peuvent entraver même les créatures des Enfers.',at:'#d8d0c8',ab:'#c0b8b0',img:'https://i.imgur.com/7S27bUT.jpeg'},
@@ -2045,6 +2073,209 @@ function updateStats() {
   updateDrachmesDisplay();
 }
 
+
+// ══════════════════════════════════════
+//  TUTORIEL PREMIÈRE CONNEXION
+// ══════════════════════════════════════
+
+// ══════════════════════════════════════
+//  MENTIONS LÉGALES
+// ══════════════════════════════════════
+function showLegalModal(title, bodyHtml) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
+  overlay.innerHTML = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:28px 24px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;position:relative;margin:auto;">'
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;">×</button>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.95rem;color:var(--gold);margin-bottom:18px;text-align:center;">' + title + '</div>'
+    + bodyHtml
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="width:100%;margin-top:20px;padding:10px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:white;font-family:Cinzel,serif;font-size:0.65rem;cursor:pointer;">Fermer</button>'
+    + '</div>';
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+
+function showPrivacyPolicy() {
+  document.getElementById('rules-modal').classList.remove('open');
+  var html = "<div style='font-size:0.68rem;color:var(--text-dim);line-height:1.8;'>"
+    + "<p style='margin-bottom:10px;'><strong style='color:var(--gold);'>Derniere mise a jour :</strong> Juillet 2025</p>"
+    + "<p style='margin-bottom:10px;'><strong style='color:var(--gold);'>Editeur :</strong> Mazikeen — mazikeen.e@icloud.com</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>Donnees collectees</div>"
+    + "<p style='margin-bottom:10px;'>Lors de ton inscription, nous collectons ton adresse e-mail et un pseudonyme. Ces donnees sont necessaires au fonctionnement du jeu.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>Utilisation des donnees</div>"
+    + "<p style='margin-bottom:10px;'>Tes donnees sont utilisees uniquement pour gerer ton compte et sauvegarder ta progression. Nous ne vendons ni ne partageons tes donnees.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>Hebergement</div>"
+    + "<p style='margin-bottom:10px;'>Les donnees sont stockees sur Firebase (Google LLC), conforme au RGPD.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>Tes droits (RGPD)</div>"
+    + "<p style='margin-bottom:10px;'>Tu peux acceder a tes donnees, les modifier ou les supprimer en contactant mazikeen.e@icloud.com.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>Age minimum</div>"
+    + "<p style='margin-bottom:10px;'>Olympia est destine aux joueurs de 13 ans et plus.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>Contact</div>"
+    + "<p>mazikeen.e@icloud.com</p>"
+    + "</div>";
+  showLegalModal('Politique de Confidentialite', html);
+}
+function showCGU() {
+  document.getElementById('rules-modal').classList.remove('open');
+  var html = "<div style='font-size:0.68rem;color:var(--text-dim);line-height:1.8;'>"
+    + "<p style='margin-bottom:10px;'><strong style='color:var(--gold);'>Derniere mise a jour :</strong> Juillet 2025</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>1. Presentation</div>"
+    + "<p style='margin-bottom:10px;'>Olympia est un jeu de cartes en ligne gratuit de mythologie grecque, developpe par Mazikeen. L acces au jeu est gratuit et ne necessite aucun achat.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>2. Compte utilisateur</div>"
+    + "<p style='margin-bottom:10px;'>En creant un compte, tu t engages a fournir des informations exactes et a ne pas usurper l identite d une autre personne. Un compte par personne.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>3. Regles de conduite</div>"
+    + "<p style='margin-bottom:10px;'>Il est interdit d utiliser des pseudonymes offensants, de tenter de pirater le jeu ou d exploiter des bugs. Tout comportement abusif entrainera la suppression du compte.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>4. Propriete intellectuelle</div>"
+    + "<p style='margin-bottom:10px;'>Le jeu, ses illustrations et son contenu sont la propriete de Mazikeen. Toute reproduction sans autorisation est interdite.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>5. Limitation de responsabilite</div>"
+    + "<p style='margin-bottom:10px;'>Olympia est fourni tel quel. Nous ne pouvons garantir une disponibilite permanente du service.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>6. Modification des CGU</div>"
+    + "<p style='margin-bottom:10px;'>Nous nous reservons le droit de modifier ces CGU a tout moment.</p>"
+    + "<div style='font-family:Cinzel,serif;font-size:0.62rem;color:var(--gold);margin:14px 0 6px;'>7. Contact</div>"
+    + "<p>Pour toute question : mazikeen.e@icloud.com</p>"
+    + "</div>";
+  showLegalModal('Conditions Generales d Utilisation', html);
+}
+
+function showWelcomeTutorial() {
+  var steps = [
+    {
+      target: 'header',
+      title: 'Bienvenue dans Olympia !',
+      desc: 'Un jeu de cartes de mythologie grecque. Collecte des cartes, bats-toi et conquiers la Grece !',
+      position: 'bottom'
+    },
+    {
+      target: 'user-avatar',
+      title: 'Ton Profil',
+      desc: 'Clique sur ton avatar pour acceder a ton profil, tes badges, ton rang et personnaliser ton personnage !',
+      position: 'bottom'
+    },
+    {
+      target: 's-drachmes',
+      title: 'Tes Drachmes',
+      desc: 'Les Drachmes sont la monnaie du jeu. Gagnes-en en ouvrant des paquets, en combattant et en faisant des mini-jeux !',
+      position: 'bottom'
+    },
+    {
+      target: 'nav-btn-packs',
+      title: 'Les Paquets',
+      desc: 'Ouvre des paquets chaque jour pour obtenir de nouvelles cartes ! Un paquet du jour gratuit + un paquet toutes les 1h30.',
+      position: 'top'
+    },
+    {
+      target: 'nav-btn-collection',
+      title: 'Ta Collection',
+      desc: 'Retrouve toutes tes cartes dans la Collection. Clique sur une carte pour voir ses stats et son histoire !',
+      position: 'top'
+    },
+    {
+      target: 'nav-btn-minijeux',
+      title: 'Mini-Jeux',
+      desc: 'Chaque jour 4 mini-jeux disponibles : Memory, Quiz, Tir a l arc, Vol de Pegase. Complete-les tous pour des bonus !',
+      position: 'top'
+    },
+    {
+      target: 'nav-btn-combat',
+      title: 'Combat',
+      desc: 'Construis un deck de 20 cartes et affronte l IA ! Pose des cartes, attaque, defends-toi et gagne des recompenses.',
+      position: 'top'
+    },
+    {
+      target: 'nav-btn-conquete',
+      title: 'Conquete de la Grece',
+      desc: 'Conquiers les 12 regions de la Grece antique ! Chaque victoire debloque une scene legendaire et des recompenses.',
+      position: 'top'
+    },
+    {
+      target: 'nav-btn-boutique',
+      title: 'Boutique',
+      desc: 'Depense tes Drachmes pour acheter des paquets cibles ou des cartes speciales de combat !',
+      position: 'top'
+    }
+  ];
+
+  var current = 0;
+  var overlay = document.createElement('div');
+  overlay.id = 'welcome-tutorial';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;pointer-events:none;';
+  document.body.appendChild(overlay);
+
+  var backdrop = document.createElement('div');
+  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2001;pointer-events:all;';
+  overlay.appendChild(backdrop);
+
+  function render(idx) {
+    Array.from(overlay.children).forEach(function(el){ if(el !== backdrop) el.remove(); });
+
+    var step = steps[idx];
+    var isLast = idx === steps.length - 1;
+
+    var targetEl = step.target ? (document.getElementById(step.target) || document.querySelector('[data-sec="' + step.target + '"]')) : null;
+
+    if(targetEl) {
+      var rect = targetEl.getBoundingClientRect();
+      var pad = 8;
+      var spotlight = document.createElement('div');
+      spotlight.style.cssText = 'position:fixed;z-index:2002;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.75);pointer-events:none;'
+        + 'left:' + (rect.left - pad) + 'px;top:' + (rect.top - pad) + 'px;'
+        + 'width:' + (rect.width + pad*2) + 'px;height:' + (rect.height + pad*2) + 'px;'
+        + 'border:2px solid var(--gold);';
+      overlay.appendChild(spotlight);
+    }
+
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;z-index:2003;background:linear-gradient(135deg,#1a1510,#2a2018);border:2px solid var(--gold);border-radius:16px;padding:20px;max-width:300px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.8);pointer-events:all;animation:badgePop 0.3s ease;';
+
+    var boxTop, boxLeft;
+    if(targetEl && step.position !== 'center') {
+      var rect2 = targetEl.getBoundingClientRect();
+      if(step.position === 'bottom') {
+        boxTop = rect2.bottom + 16;
+      } else {
+        boxTop = rect2.top - 220;
+      }
+      boxLeft = Math.min(Math.max(rect2.left, 8), window.innerWidth - 316);
+      boxTop = Math.max(8, Math.min(boxTop, window.innerHeight - 220));
+    } else {
+      boxTop = window.innerHeight / 2 - 110;
+      boxLeft = window.innerWidth / 2 - 150;
+    }
+    box.style.top = boxTop + 'px';
+    box.style.left = boxLeft + 'px';
+
+    var dotsHtml = '<div style="display:flex;gap:4px;margin-bottom:12px;">';
+    steps.forEach(function(_, i) {
+      dotsHtml += '<div style="width:' + (i===idx?'16':'6') + 'px;height:6px;border-radius:3px;background:' + (i===idx?'var(--gold)':'rgba(255,255,255,0.2)') + ';transition:all 0.3s;"></div>';
+    });
+    dotsHtml += '</div>';
+
+    var nextLabel = isLast ? "Partez !" : "Suivant";
+    box.innerHTML = dotsHtml
+      + '<div style="font-family:Cinzel Decorative,serif;font-size:0.85rem;color:var(--gold);margin-bottom:8px;">' + step.title + '</div>'
+      + '<div style="font-size:0.72rem;color:rgba(255,255,255,0.8);line-height:1.6;margin-bottom:16px;">' + step.desc + '</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<button id="tuto-skip-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);font-family:Cinzel,serif;font-size:0.52rem;padding:6px 12px;border-radius:8px;cursor:pointer;">Passer</button>'
+      + '<button id="tuto-next-btn" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;color:white;font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;padding:8px 20px;border-radius:8px;cursor:pointer;">' + nextLabel + '</button>'
+      + '</div>';
+
+    overlay.appendChild(box);
+
+    document.getElementById('tuto-next-btn').onclick = function() {
+      if(isLast) closeTutorial();
+      else { current++; render(current); }
+    };
+    document.getElementById('tuto-skip-btn').onclick = closeTutorial;
+  }
+
+  function closeTutorial() {
+    overlay.remove();
+    user.welcomeTutoDone = true;
+    saveUser();
+  }
+
+  render(0);
+}
+
 function launch(p, data, uid) {
   pseudo = p;
   user = data;
@@ -2097,6 +2328,11 @@ function launch(p, data, uid) {
   checkCombos(); checkProgressBadges();
   addAudioToggle();
   updateRankDisplay();
+
+  // Tutoriel première connexion
+  if(!user.welcomeTutoDone) {
+    setTimeout(function(){ showWelcomeTutorial(); }, 1500);
+  }
 
   // Cadeau rétroactif — carte de bienvenue pour tous les joueurs (anciens et nouveaux)
   if(!user.scenes) user.scenes = [];
@@ -3798,6 +4034,16 @@ function renderMinigamesList() {
 }
 
 function startGame(id) {
+  // Coût de participation : 5 drachmes
+  if((user.drachmes || 0) < 5) {
+    showNotif('Il te faut 5 🪙 Drachmes pour jouer !', '🪙');
+    return;
+  }
+  user.drachmes = (user.drachmes || 0) - 5;
+  saveUser();
+  updateDrachmesDisplay();
+  showNotif('-5 🪙 Participation au mini-jeu', '🎮');
+
   var section = document.getElementById('section-minijeux');
   section.setAttribute('data-original', section.innerHTML);
   section.innerHTML = '<div id="minigame-area" style="padding:16px;min-height:400px;"></div>';
@@ -3997,7 +4243,7 @@ function memGameOver(won) {
   }
   if(won) {
     user.minigames.memory = true;
-    addDrachmes(15, 'Memory réussi');
+    addDrachmes(10, 'Memory réussi');
     checkMinigameBonus();
     saveUser();
     renderMinigamesList();
@@ -4395,7 +4641,7 @@ function startArcheryGame() {
           + '</div>';
         if(won) {
           user.minigames.archery = true;
-          addDrachmes(15, 'Tir à l\'arc réussi');
+          addDrachmes(10, 'Tir à l\'arc réussi');
           checkMinigameBonus();
           saveUser();
           renderMinigamesList();
@@ -4449,7 +4695,7 @@ var SPECIAL_CARDS = [
    desc:'Pioche 3 cartes supplémentaires dans ton deck.',
    effect:function(s){ var drawn=0; while(drawn<3 && s.playerDeck.length>0){ s.playerHand.push(s.playerDeck.pop()); drawn++; } addBattleLog('🐴 Cheval de Troie ! +'+drawn+' cartes piochées.','hit'); }},
   {id:'icare',   name:'Ailes d\'Icare',   icon:'🪽', img:'https://i.imgur.com/zvY7JTB.jpeg', price:140, rarity:'épique',
-   desc:'Double l\'ATK d\'une de tes cartes ce tour.',
+   desc:'Double l\'ATK d une de tes cartes ce tour.',
    effect:function(s){ if(s.selectedFieldCard!==null && s.playerField[s.selectedFieldCard]){ var c=s.playerField[s.selectedFieldCard]; c.combatAtk*=2; addBattleLog('🪽 Ailes d\'Icare ! '+c.card.name+' : ATK doublée à '+c.combatAtk+' !','hit'); } else if(s.playerField.length>0){ var c=s.playerField[0]; c.combatAtk*=2; addBattleLog('🪽 Ailes d\'Icare ! '+c.card.name+' : ATK doublée à '+c.combatAtk+' !','hit'); } else { addBattleLog('🪽 Aucune carte sur le terrain.',''); } }},
   {id:'styx',    name:'Fleuve du Styx',   icon:'💀', img:'https://i.imgur.com/Qfgyviq.jpeg', price:200, rarity:'légendaire',
    desc:'Immunité totale aux dégâts pendant 1 tour.',
@@ -5009,12 +5255,11 @@ var CARD_EFFECTS = {
       return false;
     }
   },
-  'h9': { // Hector — boost DEF quand il défend
-    label:'🗡️ Lance Troyenne', desc:'+500 DEF quand en mode défense.',
+  'h9': { // Hector — boost DEF mais le joueur choisit son mode
+    label:'🗡️ Lance Troyenne', desc:'+500 DEF à la pose.',
     onPlace: function(bc, s) {
-      bc.mode = 'defense';
       bc.combatDef += 500;
-      addBattleLog('🗡️ Hector prend position défensive ! +500 DEF.', 'hit');
+      addBattleLog('🗡️ Hector renforce sa défense ! +500 DEF.', 'hit');
     }
   }
 };
@@ -5085,6 +5330,94 @@ function getFamilyBonus(deckCards) {
 // État du combat
 var battleState = null;
 
+
+// ══════════════════════════════════════
+//  DECKS D'EMPRUNT DÉBUTANTS
+// ══════════════════════════════════════
+var STARTER_DECKS = [
+  {
+    id: 'starter_olympe',
+    name: 'Deck Olympien',
+    icon: '🏛️',
+    desc: 'Les dieux de l Olympe te guident dans ta premiere bataille !',
+    cards: ['o13','o14','o15','o16','o17','o18','o19','o20','o21','o22',
+            'o23','t8','t9','t10','t11','t13','t14','t15','h11','h12']
+  },
+  {
+    id: 'starter_heros',
+    name: 'Deck Heroique',
+    icon: '⚔️',
+    desc: 'Des heros courageux prets a en decoudre pour toi !',
+    cards: ['h11','h12','h13','h14','h15','h20','h21','h22','h23','h24',
+            'o13','o14','o15','o16','o17','o18','o19','o20','t13','t14']
+  },
+  {
+    id: 'starter_monstres',
+    name: 'Deck Bestial',
+    icon: '👹',
+    desc: 'Des creatures redoutables a tes ordres !',
+    cards: ['m11','m12','m13','m14','m15','m16','m17','m18','m19','m20',
+            'm24','m25','o17','o18','o19','o20','o21','o22','o23','t13']
+  }
+];
+
+function renderStarterDecks(container) {
+  var uniqueCount = getUniqueOwned().length;
+  if(uniqueCount >= 20) return; // Assez de cartes — pas besoin des decks emprunt
+
+  var section = document.createElement('div');
+  section.style.cssText = 'margin-top:20px;';
+  section.innerHTML = '<div class="sec-title" style="margin-bottom:8px;">🎁 Decks Emprunt Debutant</div>'
+    + '<div style="font-size:0.65rem;color:var(--text-dim);text-align:center;margin-bottom:14px;line-height:1.6;">'
+    + 'Tu n as pas encore assez de cartes pour construire ton deck.<br>Emprunte un deck pour decouvrir le combat !'
+    + '</div>'
+    + '<div style="display:flex;flex-direction:column;gap:10px;" id="starter-decks-list"></div>';
+
+  container.appendChild(section);
+
+  var list = document.getElementById('starter-decks-list');
+  STARTER_DECKS.forEach(function(deck) {
+    var btn = document.createElement('div');
+    btn.style.cssText = 'background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.2s;';
+    btn.innerHTML = '<div style="font-size:2rem;flex-shrink:0;">' + deck.icon + '</div>'
+      + '<div style="flex:1;">'
+      + '<div style="font-family:Cinzel,serif;font-size:0.78rem;color:var(--gold);margin-bottom:3px;">' + deck.name + '</div>'
+      + '<div style="font-size:0.6rem;color:var(--text-dim);">' + deck.desc + '</div>'
+      + '<div style="font-size:0.55rem;color:rgba(218,165,32,0.6);margin-top:4px;">20 cartes · Mode Facile uniquement</div>'
+      + '</div>'
+      + '<div style="font-size:1.2rem;">▶️</div>';
+
+    btn.onmouseover = function(){ this.style.borderColor = 'var(--gold)'; };
+    btn.onmouseout = function(){ this.style.borderColor = 'var(--border)'; };
+
+    btn.onclick = function() {
+      // Forcer mode facile
+      _aiDifficulty = 'easy';
+      // Afficher confirmation
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = '<div style="background:var(--bg-card);border:2px solid var(--gold);border-radius:16px;padding:24px;max-width:320px;width:100%;text-align:center;">'
+        + '<div style="font-size:2.5rem;margin-bottom:10px;">' + deck.icon + '</div>'
+        + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);margin-bottom:8px;">' + deck.name + '</div>'
+        + '<div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:6px;line-height:1.6;">' + deck.desc + '</div>'
+        + '<div style="font-size:0.6rem;color:rgba(255,165,0,0.8);background:rgba(255,165,0,0.1);border:1px solid rgba(255,165,0,0.3);border-radius:8px;padding:8px;margin-bottom:16px;">⚠️ Mode Facile uniquement — accumule des cartes pour debloquer les autres niveaux !</div>'
+        + '<div style="display:flex;gap:10px;">'
+        + '<button id="starter-cancel" style="flex:1;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-family:Cinzel,serif;font-size:0.65rem;cursor:pointer;">Annuler</button>'
+        + '<button id="starter-play" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:white;font-family:Cinzel,serif;font-size:0.65rem;font-weight:700;cursor:pointer;">Jouer !</button>'
+        + '</div></div>';
+      document.body.appendChild(overlay);
+      overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+      document.getElementById('starter-cancel').onclick = function(){ overlay.remove(); };
+      document.getElementById('starter-play').onclick = function(){
+        overlay.remove();
+        _aiDifficulty = 'easy';
+        showCoinFlip(deck.cards, null);
+      };
+    };
+    list.appendChild(btn);
+  });
+}
+
 function renderCombat() {
   var container = document.getElementById('combat-container');
   if(!container) return;
@@ -5100,7 +5433,13 @@ function renderCombat() {
       + '<div class="combat-locked-bar"><div class="combat-locked-bar-fill" style="width:'+Math.min(100,uniqueCount/needed*100)+'%"></div></div>'
       + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);">'+uniqueCount+' / '+needed+' cartes</div>'
       + '</div>';
+    renderStarterDecks(container);
     return;
+  }
+
+  // Bouton deck emprunt aussi accessible quand moins de 20 cartes
+  if(uniqueCount < 20) {
+    renderStarterDecks(container);
   }
 
   // Deck sauvegardé ou vide
@@ -5336,11 +5675,8 @@ function startBattle(deckIds, playerFirst, secretId) {
     for(var i=legendsM.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=legendsM[i];legendsM[i]=legendsM[j];legendsM[j]=t;}
     aiPool = rares.concat(epicsM).concat(legendsM.slice(0,3));
   } else {
-    // Facile — communes + rares + 2 épiques max
-    var easyPool = allC.filter(function(c){ return c.rarity === 'commune' || c.rarity === 'rare'; });
-    var epics = allC.filter(function(c){ return c.rarity === 'épique'; });
-    for(var i=epics.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=epics[i];epics[i]=epics[j];epics[j]=t;}
-    aiPool = easyPool.concat(epics.slice(0,2));
+    // Facile — communes et rares uniquement, pas d'épiques ni légendaires
+    aiPool = allC.filter(function(c){ return c.rarity === 'commune' || c.rarity === 'rare'; });
   }
   var shuffled = aiPool.slice(); for(var i=shuffled.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=shuffled[i];shuffled[i]=shuffled[j];shuffled[j]=t;}
   var aiCards = shuffled.slice(0,12).map(function(card){
@@ -7409,7 +7745,7 @@ function startPegasusGame() {
 
       if(isWin && !user.minigames.pegasus) {
         user.minigames.pegasus = true;
-        addDrachmes(15, 'Vol de Pégase réussi');
+        addDrachmes(10, 'Vol de Pégase réussi');
         checkMinigameBonus();
         renderMinigamesList();
       }
@@ -7588,7 +7924,7 @@ var CONQUETE_REGIONS = [
   },
   {
     id:'lesbos', name:'Lesbos', date:'~600 av. J.-C.',
-    history:'Île de la poétesse Sappho, dont les vers ont traversé vingt-cinq siècles. Centre culturel de la Grèce archaïque, berceau d\'une civilisation raffinée.',
+    history:'Île de la poétesse Sappho, dont les vers ont traversé vingt-cinq siècles. Centre culturel de la Grèce archaïque, berceau d une civilisation raffinée.',
     difficulty:'medium', unlocks:['delos'],
     x:60, y:16,
     requires:['thessalie'],
@@ -7596,7 +7932,7 @@ var CONQUETE_REGIONS = [
   },
   {
     id:'delos', name:'Délos', date:'~700 av. J.-C.',
-    history:'Île sacrée d\'Apollon, si sainte qu\'il était interdit d\'y naître ou d\'y mourir. Centre religieux et commercial de toute la mer Égée pendant des siècles.',
+    history:'Île sacrée d\'Apollon, si sainte qu il était interdit d\'y naître ou d\'y mourir. Centre religieux et commercial de toute la mer Égée pendant des siècles.',
     difficulty:'medium', unlocks:['rhodes'],
     x:58, y:38,
     requires:['athenes','ithaque','lesbos'],
@@ -8168,7 +8504,7 @@ function startQuiz() {
               + '</div>';
             if(won) {
               user.minigames.quiz = true;
-              addDrachmes(15, 'Quiz réussi');
+              addDrachmes(10, 'Quiz réussi');
               checkMinigameBonus();
               saveUser();
               renderMinigamesList();
@@ -8186,7 +8522,7 @@ function checkMinigameBonus() {
   if(!user || !user.minigames) return;
   if(user.minigames.memory && user.minigames.quiz && user.minigames.archery && user.minigames.pegasus && !user.minigames.rewardGiven) {
     user.minigames.rewardGiven = true;
-    addDrachmes(15, 'Bonus 4 mini-jeux complétés');
+    addDrachmes(20, 'Bonus 4 mini-jeux complétés');
   }
 }
 
