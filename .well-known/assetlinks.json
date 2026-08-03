@@ -1,1 +1,8 @@
-
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.mazikeen_kard.twa",
+        "sha256_cert_fingerprints": ["02:43:37:9A:6D:89:BE:43:FA:BE:1B:9D:3F:EA:77:95:CE:AE:4F:99:A9:6A:D0:07:04:20:E4:44:B8:FA:36:56"]
+      }
+    }]
