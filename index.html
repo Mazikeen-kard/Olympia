@@ -6781,7 +6781,8 @@ function startAmbientMusic() {
 }
 
 function addAudioToggle() {
-  var ubar = document.querySelector('.ubar-right');
+  var ubar = document.querySelector('.ubar');
+  startAmbientMusic(); // indépendant du placement du bouton, pour ne jamais bloquer silencieusement la musique
   if(!ubar || document.getElementById('audio-toggle')) return;
   var btn = document.createElement('button');
   btn.id = 'audio-toggle';
@@ -6798,7 +6799,6 @@ function addAudioToggle() {
     if(_sfxEnabled) playSound('buttonClick');
   };
   ubar.insertBefore(btn, ubar.firstChild);
-  startAmbientMusic();
 }
 
 
