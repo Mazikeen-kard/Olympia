@@ -9963,11 +9963,11 @@ var OSSELETS_FACES = [
 var OSSELETS_STAKES = [5, 10, 25, 50];
 var OSSELETS_MULTIPLIERS = { chien:0, paire:1, deuxpaires:2, brelan:4, venus:10 };
 var OSSELETS_COMBO_LEGEND = [
-  {imgs:[OSSELETS_IMG.amphore,OSSELETS_IMG.bouclier,OSSELETS_IMG.eclair,OSSELETS_IMG.couronne], name:'Coup du Chien', desc:'4 différentes', mult:'×0'},
+  {imgs:null, name:'Coup du Chien', desc:'4 différentes', mult:'×0'},
   {imgs:null, name:'Paire', desc:'2 identiques', mult:'×1'},
   {imgs:null, name:'Deux Paires', desc:'2 paires', mult:'×2'},
   {imgs:null, name:'Brelan', desc:'3 identiques', mult:'×4'},
-  {imgs:[OSSELETS_IMG.couronne,OSSELETS_IMG.couronne,OSSELETS_IMG.couronne,OSSELETS_IMG.couronne], name:'Coup de Vénus', desc:'4 identiques', mult:'×10'}
+  {imgs:null, name:'Coup de Vénus', desc:'4 identiques', mult:'×10'}
 ];
 
 function renderOsseletsLegend() {
@@ -9989,7 +9989,7 @@ function renderOsseletsLegend() {
 function startOsselets() {
   var area = document.getElementById('minigame-area');
   area.innerHTML = '<div class="archery-game">'
-    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;"><img src="'+OSSELETS_IMG.cache+'" style="width:22px;height:22px;object-fit:contain;"> Osselets</div>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);margin-bottom:6px;">Osselets</div>'
     + '<div style="font-family:Cinzel,serif;font-size:0.62rem;color:var(--text-dim);margin-bottom:12px;line-height:1.6;">4 osselets sont lancés. Le but : obtenir 4 faces identiques pour le jackpot (Coup de Vénus) — 4 faces toutes différentes ne rapporte rien (Coup du Chien).</div>'
     + renderOsseletsLegend()
     + '<div style="font-family:Cinzel,serif;font-size:0.68rem;color:var(--text-dim);margin-bottom:10px;">Choisis ta mise :</div>'
@@ -10018,12 +10018,12 @@ function playOsseletsRound(stake) {
 
   var area = document.getElementById('minigame-area');
   area.innerHTML = '<div class="archery-game">'
-    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;"><img src="'+OSSELETS_IMG.cache+'" style="width:22px;height:22px;object-fit:contain;"> Osselets</div>'
+    + '<div style="font-family:Cinzel Decorative,serif;font-size:0.9rem;color:var(--gold);margin-bottom:6px;">Osselets</div>'
     + '<div style="font-family:Cinzel,serif;font-size:0.65rem;color:var(--text-dim);margin-bottom:14px;">Mise : '+stake+' 🪙</div>'
     + '<div id="osselets-tiles" style="display:flex;justify-content:center;gap:12px;margin-bottom:18px;"></div>'
     + renderOsseletsLegend()
     + '<div id="osselets-result" style="min-height:70px;font-family:Cinzel,serif;font-size:0.78rem;color:var(--gold);margin-bottom:14px;"></div>'
-    + '<button id="osselets-throw-btn" class="reveal-done-btn" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;position:static;width:auto;"><img src="'+OSSELETS_IMG.cache+'" style="width:20px;height:20px;object-fit:contain;"> Lancer les osselets</button>'
+    + '<button id="osselets-throw-btn" class="reveal-done-btn" style="display:inline-block;position:static;width:auto;">Lancer les osselets</button>'
     + '<button class="mg-back-btn" onclick="backToMinigames()" style="margin-top:14px;">← Retour</button>'
     + '</div>';
 
