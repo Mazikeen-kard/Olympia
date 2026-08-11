@@ -10002,7 +10002,7 @@ function startOsselets() {
   OSSELETS_STAKES.forEach(function(stake) {
     var btn = document.createElement('button');
     btn.className = 'reveal-done-btn';
-    btn.style.cssText = 'display:inline-block;position:static;width:auto;padding:10px 18px;';
+    btn.style.cssText = 'display:inline-block;position:static;width:auto;max-width:none;left:auto;transform:none;padding:10px 18px;';
     btn.textContent = stake + ' 🪙';
     var afford = (user.drachmes || 0) >= stake;
     if(!afford) { btn.disabled = true; btn.style.opacity = '0.4'; }
@@ -10024,7 +10024,7 @@ function playOsseletsRound(stake) {
     + '<div id="osselets-tiles" style="display:flex;justify-content:center;gap:12px;margin-bottom:18px;"></div>'
     + renderOsseletsLegend()
     + '<div id="osselets-result" style="min-height:70px;font-family:Cinzel,serif;font-size:0.78rem;color:var(--gold);margin-bottom:14px;"></div>'
-    + '<button id="osselets-throw-btn" class="reveal-done-btn" style="display:block;position:static;width:auto;margin:0 auto;">Lancer les osselets</button>'
+    + '<button id="osselets-throw-btn" class="reveal-done-btn" style="display:block;position:static;width:auto;max-width:none;left:auto;transform:none;margin:0 auto;">Lancer les osselets</button>'
     + '<button class="mg-back-btn" onclick="backToMinigames()" style="display:block;margin:14px auto 0;">← Retour</button>'
     + '</div>';
 
