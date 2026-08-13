@@ -3229,6 +3229,8 @@ function startSwipeReveal(drawn) {
   wrapper.style.transform = '';
   wrapper.style.opacity = '';
   wrapper.style.scale = '';
+  var packImg = document.getElementById('pack-img');
+  if(packImg) packImg.style.opacity = '';
 
   // Réinitialiser les handlers
   wrapper.onclick = null;
